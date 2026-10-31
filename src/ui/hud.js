@@ -157,7 +157,7 @@ export function createHud(app, player, enemySystem, leveling) {
   Object.assign(weaponStars.style, {
     font: "bold 10px sans-serif",
   });
-  weaponStars.textContent = "★1";
+  weaponStars.textContent = "★";
   weaponSlot.appendChild(weaponIcon);
   weaponSlot.appendChild(weaponStars);
   weaponRow.appendChild(weaponSlot);
