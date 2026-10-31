@@ -1,7 +1,6 @@
 import { Graphics } from "pixi.js";
 import { STARTER_WEAPON } from "../data/weapons.js";
 
-const ATTACK_ORIGIN_Y_OFFSET = 0;
 const HALFW = 17;
 const HALFH = 25;
 
@@ -34,11 +33,6 @@ export function createWeaponSystem(app, player, enemySystem) {
   }
 
   const slashes = [];
-
-  const originMarker = new Graphics();
-  originMarker.circle(0, 0, 4);
-  originMarker.fill(0x00ffff);
-  app.stage.addChild(originMarker);
 
   function enemies() {
     return enemySystem?.enemies ?? [];
@@ -122,28 +116,13 @@ export function createWeaponSystem(app, player, enemySystem) {
       if (weapon.timer <= 0) {
         const pos = playerPosition(player);
         const originX = pos.x;
-        const originY = pos.y + ATTACK_ORIGIN_Y_OFFSET;
-        originMarker.clear();
-        originMarker.circle(0, 0, 4);
-        originMarker.fill(0x00ffff);
-        originMarker.x = originX;
-        originMarker.y = originY;
+        const originY = pos.y;
         const radius = weapon.base.radius * areaMult;
         const best = findNearest(originX, originY, radius);
         if (best) {
           const dx = best.point.x - originX;
           const dy = best.point.y - originY;
           const dist = Math.hypot(dx, dy) || 1;
-          console.log("attack fire", {
-            originX,
-            originY,
-            nearestX: best.point.x,
-            nearestY: best.point.y,
-            deltaY: best.point.y - originY,
-            enemyR: best.enemy.r,
-            dist,
-          });
-
           const dirX = dx / dist;
           const dirY = dy / dist;
           const angle = Math.atan2(dirY, dirX);
