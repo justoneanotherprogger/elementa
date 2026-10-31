@@ -6,7 +6,7 @@ export function createEnemySystem(app, player, spatialHash, texture) {
   let spawnTimer = 0;
 
   const maxEnemies = 300;
-  const spawnInterval = 0.2;
+  const spawnInterval = 1.5;
   const enemySpeed = 60;
   const enemyHp = 8;
   const separationRadius = 28;
