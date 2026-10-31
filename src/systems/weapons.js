@@ -122,6 +122,8 @@ export function createWeaponSystem(app, player, enemySystem) {
             originY,
             nearestX: nearest.x,
             nearestY: nearest.y,
+            deltaY: nearest.y - originY,
+            enemyR: nearest.r,
             dist,
           });
 
