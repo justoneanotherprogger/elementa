@@ -97,20 +97,22 @@ export function createWeaponSystem(app, player, enemySystem) {
       weapon.timer -= dt;
       if (weapon.timer <= 0) {
         const pos = playerPosition(player);
+        const originX = pos.x;
+        const originY = pos.y - 18;
         const radius = weapon.base.radius * areaMult;
-        const nearest = findNearest(pos.x, pos.y, radius);
+        const nearest = findNearest(originX, originY, radius);
         if (nearest) {
-          const dx = nearest.x - pos.x;
-          const dy = nearest.y - pos.y;
+          const dx = nearest.x - originX;
+          const dy = nearest.y - originY;
           const dist = Math.hypot(dx, dy) || 1;
           const dirX = dx / dist;
           const dirY = dy / dist;
           const angle = Math.atan2(dirY, dirX);
           const halfAngle = (weapon.base.angleDeg * Math.PI) / 180 / 2;
-          spawnSlash(pos.x, pos.y, angle, radius, halfAngle);
+          spawnSlash(originX, originY, angle, radius, halfAngle);
           damageSector(
-            pos.x,
-            pos.y,
+            originX,
+            originY,
             dirX,
             dirY,
             radius,
