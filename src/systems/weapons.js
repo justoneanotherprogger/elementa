@@ -58,18 +58,16 @@ export function createWeaponSystem(app, player, enemySystem) {
   }
 
   function spawnSlash(px, py, angle, radius, halfAngle) {
+    const start = angle - halfAngle;
+    const end = angle + halfAngle;
     const graphic = new Graphics();
     graphic.moveTo(0, 0);
-    graphic.lineTo(
-      radius * Math.cos(-halfAngle),
-      radius * Math.sin(-halfAngle),
-    );
-    graphic.arc(0, 0, radius, -halfAngle, halfAngle);
+    graphic.lineTo(radius * Math.cos(start), radius * Math.sin(start));
+    graphic.arc(0, 0, radius, start, end);
     graphic.closePath();
     graphic.fill({ color: 0xff7043, alpha: 0.3 });
     graphic.x = px;
     graphic.y = py;
-    graphic.rotation = angle;
     app.stage.addChild(graphic);
     slashes.push({ graphic, age: 0, life: 0.15 });
   }
