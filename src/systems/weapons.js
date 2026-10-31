@@ -98,7 +98,7 @@ export function createWeaponSystem(app, player, enemySystem) {
       if (weapon.timer <= 0) {
         const pos = playerPosition(player);
         const originX = pos.x;
-        const originY = pos.y - 45;
+        const originY = pos.y - 12;
         const radius = weapon.base.radius * areaMult;
         const nearest = findNearest(originX, originY, radius);
         if (nearest) {
