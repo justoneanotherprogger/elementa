@@ -17,7 +17,7 @@ export function createEnemySystem(app, player, spatialHash, texture) {
     if (enemies.length >= maxEnemies) return;
 
     const sprite = new Sprite(texture);
-    sprite.anchor.set(0.5);
+    sprite.anchor.set(0.5, 131 / 160);
     app.stage.addChild(sprite);
 
     const w = app.screen.width;
