@@ -147,8 +147,19 @@ export function createHud(app, player, enemySystem, leveling) {
     color: "#fff",
     font: "12px sans-serif",
     pointerEvents: "none",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
   });
-  weaponSlot.textContent = "🌙 ★1";
+  const weaponIcon = document.createElement("div");
+  weaponIcon.textContent = "🌙";
+  const weaponStars = document.createElement("div");
+  Object.assign(weaponStars.style, {
+    font: "bold 10px sans-serif",
+  });
+  weaponStars.textContent = "★1";
+  weaponSlot.appendChild(weaponIcon);
+  weaponSlot.appendChild(weaponStars);
   weaponRow.appendChild(weaponSlot);
   center.appendChild(weaponRow);
 
