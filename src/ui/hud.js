@@ -172,7 +172,7 @@ export function createHud(app, player, enemySystem, leveling) {
     width: "auto",
     whiteSpace: "nowrap",
   });
-  killsLine.textContent = `💀 0`;
+  killsLine.textContent = `0 💀`;
   statsCol.appendChild(killsLine);
 
   const goldLine = document.createElement("div");
@@ -185,7 +185,7 @@ export function createHud(app, player, enemySystem, leveling) {
     width: "auto",
     whiteSpace: "nowrap",
   });
-  goldLine.textContent = `🪙 0`;
+  goldLine.textContent = `0 🪙`;
   statsCol.appendChild(goldLine);
 
   let elapsed = 0;
@@ -222,8 +222,8 @@ export function createHud(app, player, enemySystem, leveling) {
     hpFill.style.width = `${hpRatio * 100}%`;
 
     const kills = enemySystem?.kills ?? 0;
-    killsLine.textContent = `💀 ${kills}`;
-    goldLine.textContent = `🪙 0`;
+    killsLine.textContent = `${kills} 💀`;
+    goldLine.textContent = `0 🪙`;
   };
 
   return { update };
