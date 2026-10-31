@@ -5,19 +5,20 @@ export function createEnemySystem(app, player, spatialHash, texture) {
   let kills = 0;
   let spawnTimer = 0;
 
-  const maxEnemies = 300;
-  const spawnInterval = 1.5;
+  const maxEnemies = 500;
+  const spawnInterval = 999;
   const enemySpeed = 60;
   const enemyHp = 8;
   const separationRadius = 28;
   const contactDamage = 8;
   const playerIFrames = 0.5;
 
-  function spawnEnemy() {
+  function spawnEnemy(speedMul = 1, hpMul = 1, scale = 1) {
     if (enemies.length >= maxEnemies) return;
 
     const sprite = new Sprite(texture);
     sprite.anchor.set(0.5, 131 / 160);
+    sprite.scale.set(scale);
     app.stage.addChild(sprite);
 
     const w = app.screen.width;
@@ -47,9 +48,9 @@ export function createEnemySystem(app, player, spatialHash, texture) {
       y,
       vx: 0,
       vy: 0,
-      hp: enemyHp,
+      hp: Math.round(enemyHp * hpMul),
       r: 14,
-      speed: enemySpeed,
+      speed: enemySpeed * speedMul,
       alive: true,
       xpReward: 1,
     });
@@ -58,6 +59,8 @@ export function createEnemySystem(app, player, spatialHash, texture) {
   const system = {
     enemies,
     kills: 0,
+    spawnEnemy,
+    maxEnemies,
     update(dt) {
       spawnTimer += dt;
       while (spawnTimer >= spawnInterval && enemies.length < maxEnemies) {

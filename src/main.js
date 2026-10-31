@@ -10,6 +10,8 @@ import { createStage } from "./render/stage.js";
 import { createDebugPanel } from "./debug/panel.js";
 import { createHud } from "./ui/hud.js";
 import { createDeathScreen } from "./ui/deathScreen.js";
+import { createVictoryScreen } from "./ui/victoryScreen.js";
+import { createWaves } from "./systems/waves.js";
 
 const app = new Application();
 
@@ -39,9 +41,11 @@ async function start() {
   const debug = createDebugPanel();
 
   let gamePaused = false;
+  let runTime = 0;
 
   function restartRun() {
     gamePaused = false;
+    runTime = 0;
     if (weaponSystem && Array.isArray(weaponSystem.weapons)) {
       weaponSystem.weapons.forEach((weapon) => {
         if (weapon) weapon.timer = 0;
@@ -62,7 +66,9 @@ async function start() {
     leveling.seenKills = 0;
     leveling.paused = false;
     hud.reset();
+    if (waves?.reset) waves.reset();
     deathScreen.hide();
+    victoryScreen.hide();
   }
 
   function quitRun() {
@@ -79,6 +85,29 @@ async function start() {
     quitRun,
   );
 
+  const victoryScreen = createVictoryScreen(
+    app,
+    player,
+    enemySystem,
+    leveling,
+    hud,
+    restartRun,
+    quitRun,
+  );
+
+  const onVictory = () => {
+    gamePaused = true;
+    leveling.paused = true;
+    victoryScreen.show();
+  };
+
+  const waves = createWaves({
+    enemySystem,
+    runTimeFn: () => runTime,
+    onVictoryFn: onVictory,
+    getPausedFn: () => gamePaused || leveling.paused,
+  });
+
   const loop = createLoop({
     update(dt) {
       if (player.hp <= 0 && !gamePaused) {
@@ -87,7 +116,13 @@ async function start() {
         player.hp = 0;
         deathScreen.show();
       }
-      if (!gamePaused && !leveling.paused) {
+      const paused = gamePaused || leveling.paused;
+      if (!paused) {
+        runTime += dt;
+        waves.update(dt, runTime);
+      }
+      const playing = !gamePaused && !leveling.paused;
+      if (playing) {
         input.update();
         player.update(dt);
         enemySystem.update(dt);
@@ -101,6 +136,7 @@ async function start() {
       }
       if (!gamePaused) leveling.update(dt);
       deathScreen.update(dt);
+      victoryScreen.update(dt);
       hud.update(dt);
       const fps = Math.min(999, Math.max(0, dt > 0 ? 1 / dt : 0));
       debug.update({
