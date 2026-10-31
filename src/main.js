@@ -60,6 +60,14 @@ async function start() {
     player.maxHp = 60;
     player.hp = 60;
     player.invuln = 0.5;
+    const cx = app.screen.width / 2;
+    const cy = app.screen.height / 2;
+    if (player.body) {
+      player.body.x = cx;
+      player.body.y = cy;
+    }
+    player.x = cx;
+    player.y = cy;
     leveling.level = 1;
     leveling.xp = 0;
     leveling.xpToNext = 10;
