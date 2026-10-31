@@ -169,6 +169,7 @@ export function createHud(app, player, enemySystem, leveling) {
     pointerEvents: "none",
     textAlign: "right",
     maxWidth: "30%",
+    whiteSpace: "nowrap",
   });
   killsLine.textContent = `💀 0`;
   statsCol.appendChild(killsLine);
@@ -180,6 +181,7 @@ export function createHud(app, player, enemySystem, leveling) {
     pointerEvents: "none",
     textAlign: "right",
     maxWidth: "30%",
+    whiteSpace: "nowrap",
   });
   goldLine.textContent = `🪙 0`;
   statsCol.appendChild(goldLine);
