@@ -25,7 +25,7 @@ export function createHud(app, player, enemySystem, leveling) {
     left: "0",
     right: "0",
     width: "100%",
-    height: "8px",
+    height: "16px",
     background: "#333",
     pointerEvents: "none",
   });
@@ -70,7 +70,7 @@ export function createHud(app, player, enemySystem, leveling) {
     width: "36px",
     height: "4px",
     background: "#333",
-    transform: "translate(-50%, -100%)",
+    transform: "translate(-50%, 0)",
     pointerEvents: "none",
   });
   const overheadFill = document.createElement("div");
@@ -140,7 +140,7 @@ export function createHud(app, player, enemySystem, leveling) {
   const hpTrack = document.createElement("div");
   Object.assign(hpTrack.style, {
     width: "100%",
-    height: "12px",
+    height: "24px",
     background: "#333",
     pointerEvents: "none",
   });
@@ -188,7 +188,7 @@ export function createHud(app, player, enemySystem, leveling) {
     const px = body.x ?? player.x ?? 0;
     const py = body.y ?? player.y ?? 0;
     overhead.style.left = `${px}px`;
-    overhead.style.top = `${py}px`;
+    overhead.style.top = `${py + 18}px`;
     const hpRatio = Math.max(
       0,
       Math.min(1, (player.hp || 0) / (player.maxHp || 1)),
