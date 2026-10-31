@@ -10,12 +10,28 @@ export function createPlayer(app, input) {
   app.stage.addChild(body);
 
   const speed = 180;
+  const maxHp = 60;
 
-  return {
+  const player = {
+    body,
+    hp: maxHp,
+    maxHp,
+    invuln: 0,
     update(dt) {
       const direction = input.direction();
       body.x += direction.x * speed * dt;
       body.y += direction.y * speed * dt;
+      if (player.invuln > 0) {
+        player.invuln = Math.max(0, player.invuln - dt);
+      }
+    },
+    takeDamage(amount) {
+      if (player.invuln <= 0) {
+        player.hp -= amount;
+        player.invuln = 0.2;
+      }
     },
   };
+
+  return player;
 }

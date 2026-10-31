@@ -1,8 +1,11 @@
-import { Application } from "pixi.js";
+import { Application, Assets } from "pixi.js";
 import { createLoop } from "./core/loop.js";
 import { createInput } from "./systems/input.js";
 import { createPlayer } from "./systems/player.js";
+import { createEnemySystem } from "./systems/enemy.js";
+import { createSpatialHash } from "./core/spatialHash.js";
 import { createStage } from "./render/stage.js";
+import { createDebugPanel } from "./debug/panel.js";
 
 const app = new Application();
 
@@ -20,18 +23,26 @@ async function start() {
 
   const input = createInput();
   const player = createPlayer(app, input);
+  const spatialHash = createSpatialHash();
+
+  const enemyTexture = await Assets.load("/assets/enemies/pix_goblin.png");
+  const enemySystem = createEnemySystem(app, player, spatialHash, enemyTexture);
+
+  const debug = createDebugPanel();
 
   const loop = createLoop({
     update(dt) {
       input.update();
       player.update(dt);
+      enemySystem.update(dt);
+      const fps = Math.min(999, Math.max(0, dt > 0 ? 1 / dt : 0));
+      debug.update({ fps, enemies: enemySystem.enemies.length });
     },
     render() {
       app.render();
     },
     step: 1 / 60,
   });
-
   loop.start();
 }
 
