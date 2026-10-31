@@ -1,12 +1,18 @@
 import { Sprite } from "pixi.js";
 
-export function createEnemySystem(app, player, spatialHash, texture) {
+export function createEnemySystem(
+  app,
+  player,
+  spatialHash,
+  texture,
+  spawnInterval = 1.5,
+) {
   const enemies = [];
   let kills = 0;
   let spawnTimer = 0;
 
   const maxEnemies = 300;
-  const spawnInterval = 1.5;
+  const spawnIntervalValue = spawnInterval;
   const enemySpeed = 60;
   const enemyHp = 8;
   const separationRadius = 28;
@@ -60,8 +66,8 @@ export function createEnemySystem(app, player, spatialHash, texture) {
     kills: 0,
     update(dt) {
       spawnTimer += dt;
-      while (spawnTimer >= spawnInterval && enemies.length < maxEnemies) {
-        spawnTimer -= spawnInterval;
+      while (spawnTimer >= spawnIntervalValue && enemies.length < maxEnemies) {
+        spawnTimer -= spawnIntervalValue;
         spawnEnemy();
       }
 
