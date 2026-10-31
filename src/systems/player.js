@@ -3,7 +3,7 @@ import { Sprite } from "pixi.js";
 export function createPlayer(app, input, texture) {
   const body = new Sprite(texture);
   body.anchor.set(0.5);
-  body.scale.set(0.5);
+  body.scale.set(0.7);
 
   body.x = app.screen.width / 2;
   body.y = app.screen.height / 2;
