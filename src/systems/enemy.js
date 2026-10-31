@@ -10,7 +10,6 @@ export function createEnemySystem(app, player, spatialHash, texture) {
   const enemySpeed = 60;
   const enemyHp = 8;
   const separationRadius = 28;
-  const contactRadius = 12;
   const contactDamage = 8;
   const playerIFrames = 0.2;
 
@@ -114,10 +113,15 @@ export function createEnemySystem(app, player, spatialHash, texture) {
 
       // contact damage
       if (player.invuln <= 0) {
+        const halfW = Math.max(1, (player.body?.width ?? 160) / 2 - 6);
+        const halfH = Math.max(1, (player.body?.height ?? 160) / 2 - 6);
         for (const enemy of enemies) {
-          const dx = enemy.x - px;
-          const dy = enemy.y - py;
-          if (Math.hypot(dx, dy) <= contactRadius) {
+          if (
+            enemy.x >= px - halfW &&
+            enemy.x <= px + halfW &&
+            enemy.y >= py - halfH &&
+            enemy.y <= py + halfH
+          ) {
             if (typeof player.takeDamage === "function") {
               player.takeDamage(contactDamage);
             } else {
