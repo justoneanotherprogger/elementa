@@ -33,7 +33,7 @@ export function createPlayer(app, input, texture) {
     takeDamage(amount) {
       if (player.invuln <= 0) {
         player.hp -= amount;
-        player.invuln = 0.2;
+        player.invuln = 0.5;
       }
     },
   };

@@ -57,7 +57,7 @@ async function start() {
       hud.update(dt);
       if (player.hp <= 0) {
         player.hp = 60;
-        player.invuln = 0.2;
+        player.invuln = 0.5;
       }
     },
     render() {

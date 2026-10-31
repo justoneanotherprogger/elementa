@@ -11,7 +11,7 @@ export function createEnemySystem(app, player, spatialHash, texture) {
   const enemyHp = 8;
   const separationRadius = 28;
   const contactDamage = 8;
-  const playerIFrames = 0.2;
+  const playerIFrames = 0.5;
 
   function spawnEnemy() {
     if (enemies.length >= maxEnemies) return;
