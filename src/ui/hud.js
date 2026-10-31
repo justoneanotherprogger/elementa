@@ -153,16 +153,27 @@ export function createHud(app, player, enemySystem, leveling) {
   hpTrack.appendChild(hpFill);
   center.appendChild(hpTrack);
 
-  const stats = document.createElement("div");
-  Object.assign(stats.style, {
+  const killsLine = document.createElement("div");
+  Object.assign(killsLine.style, {
     color: "#fff",
     font: "12px sans-serif",
     pointerEvents: "none",
     textAlign: "right",
     maxWidth: "30%",
   });
-  stats.textContent = "Убийства: 0 | Золото: 0";
-  bottom.appendChild(stats);
+  killsLine.textContent = `💀 0`;
+  bottom.appendChild(killsLine);
+
+  const goldLine = document.createElement("div");
+  Object.assign(goldLine.style, {
+    color: "#fff",
+    font: "12px sans-serif",
+    pointerEvents: "none",
+    textAlign: "right",
+    maxWidth: "30%",
+  });
+  goldLine.textContent = `🪙 0`;
+  bottom.appendChild(goldLine);
 
   let elapsed = 0;
 
@@ -197,7 +208,9 @@ export function createHud(app, player, enemySystem, leveling) {
     overheadFill.style.width = `${hpRatio * 100}%`;
     hpFill.style.width = `${hpRatio * 100}%`;
 
-    stats.textContent = `Убийства: ${enemySystem?.kills ?? 0} | Золото: 0`;
+    const kills = enemySystem?.kills ?? 0;
+    killsLine.textContent = `💀 ${kills}`;
+    goldLine.textContent = `🪙 0`;
   };
 
   return { update };
