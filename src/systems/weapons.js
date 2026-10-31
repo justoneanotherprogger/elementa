@@ -2,6 +2,8 @@ import { Graphics } from "pixi.js";
 import { STARTER_WEAPON } from "../data/weapons.js";
 
 const ATTACK_ORIGIN_Y_OFFSET = 0;
+const HALFW = 17;
+const HALFH = 25;
 
 function playerPosition(player) {
   if (player?.body) return { x: player.body.x, y: player.body.y };
@@ -13,6 +15,15 @@ function angleDelta(a, b) {
   while (d > Math.PI) d -= 2 * Math.PI;
   while (d < -Math.PI) d += 2 * Math.PI;
   return d;
+}
+
+function enemyCorners(enemy) {
+  return [
+    { x: enemy.x - HALFW, y: enemy.y - HALFH },
+    { x: enemy.x + HALFW, y: enemy.y - HALFH },
+    { x: enemy.x - HALFW, y: enemy.y + HALFH },
+    { x: enemy.x + HALFW, y: enemy.y + HALFH },
+  ];
 }
 
 export function createWeaponSystem(app, player, enemySystem) {
@@ -34,33 +45,39 @@ export function createWeaponSystem(app, player, enemySystem) {
   }
 
   function findNearest(px, py, radius) {
-    let best = null;
-    let bestDist = radius;
+    let nearest = { enemy: null, point: null, dist: radius };
     for (const enemy of enemies()) {
       if (!enemy || enemy.alive === false || enemy.hp <= 0) continue;
-      const dx = enemy.x - px;
-      const dy = enemy.y - py;
-      const dist = Math.hypot(dx, dy);
-      if (dist <= radius && dist < bestDist) {
-        best = enemy;
-        bestDist = dist;
+      for (const point of enemyCorners(enemy)) {
+        const dx = point.x - px;
+        const dy = point.y - py;
+        const dist = Math.hypot(dx, dy);
+        if (dist <= radius && dist < nearest.dist) {
+          nearest = { enemy, point, dist };
+        }
       }
     }
-    return best;
+    if (!nearest.enemy) return null;
+    return nearest;
   }
 
   function damageSector(px, py, dirX, dirY, radius, halfAngle, amount) {
     const baseAngle = Math.atan2(dirY, dirX);
     for (const enemy of enemies()) {
       if (!enemy || enemy.alive === false || enemy.hp <= 0) continue;
-      const dx = enemy.x - px;
-      const dy = enemy.y - py;
-      const dist = Math.hypot(dx, dy);
-      if (dist > radius || dist === 0) continue;
-      const dev = Math.abs(angleDelta(Math.atan2(dy, dx), baseAngle));
-      if (dev <= halfAngle) {
-        enemy.hp -= amount;
+      let hit = false;
+      for (const corner of enemyCorners(enemy)) {
+        const dx = corner.x - px;
+        const dy = corner.y - py;
+        const dist = Math.hypot(dx, dy);
+        if (dist > radius) continue;
+        const dev = Math.abs(angleDelta(Math.atan2(dy, dx), baseAngle));
+        if (dev <= halfAngle) {
+          hit = true;
+          break;
+        }
       }
+      if (hit) enemy.hp -= amount;
     }
   }
 
@@ -112,18 +129,18 @@ export function createWeaponSystem(app, player, enemySystem) {
         originMarker.x = originX;
         originMarker.y = originY;
         const radius = weapon.base.radius * areaMult;
-        const nearest = findNearest(originX, originY, radius);
-        if (nearest) {
-          const dx = nearest.x - originX;
-          const dy = nearest.y - originY;
+        const best = findNearest(originX, originY, radius);
+        if (best) {
+          const dx = best.point.x - originX;
+          const dy = best.point.y - originY;
           const dist = Math.hypot(dx, dy) || 1;
           console.log("attack fire", {
             originX,
             originY,
-            nearestX: nearest.x,
-            nearestY: nearest.y,
-            deltaY: nearest.y - originY,
-            enemyR: nearest.r,
+            nearestX: best.point.x,
+            nearestY: best.point.y,
+            deltaY: best.point.y - originY,
+            enemyR: best.enemy.r,
             dist,
           });
 
