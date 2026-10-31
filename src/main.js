@@ -36,7 +36,16 @@ async function start() {
       player.update(dt);
       enemySystem.update(dt);
       const fps = Math.min(999, Math.max(0, dt > 0 ? 1 / dt : 0));
-      debug.update({ fps, enemies: enemySystem.enemies.length });
+      debug.update({
+        fps,
+        hp: player.hp,
+        enemies: enemySystem.enemies.length,
+        kills: enemySystem.kills,
+      });
+      if (player.hp <= 0) {
+        player.hp = 60;
+        player.invuln = 0.2;
+      }
     },
     render() {
       app.render();
