@@ -25,15 +25,8 @@ async function start() {
   const player = createPlayer(app, input);
   const spatialHash = createSpatialHash();
 
-  const stress = new URLSearchParams(window.location.search).has("stress");
   const enemyTexture = await Assets.load("/assets/enemies/pix_goblin.png");
-  const enemySystem = createEnemySystem(
-    app,
-    player,
-    spatialHash,
-    enemyTexture,
-    stress ? 0.2 : 1.5,
-  );
+  const enemySystem = createEnemySystem(app, player, spatialHash, enemyTexture);
 
   const debug = createDebugPanel();
 
