@@ -41,7 +41,7 @@ export function createHud(app, player, enemySystem, leveling) {
   const levelText = document.createElement("div");
   Object.assign(levelText.style, {
     position: "absolute",
-    top: "10px",
+    top: "30px",
     left: "8px",
     color: "#fff",
     font: "bold 12px sans-serif",
@@ -53,7 +53,7 @@ export function createHud(app, player, enemySystem, leveling) {
   const timer = document.createElement("div");
   Object.assign(timer.style, {
     position: "absolute",
-    top: "10px",
+    top: "30px",
     left: "50%",
     transform: "translateX(-50%)",
     color: "#fff",
@@ -188,7 +188,8 @@ export function createHud(app, player, enemySystem, leveling) {
     const px = body.x ?? player.x ?? 0;
     const py = body.y ?? player.y ?? 0;
     overhead.style.left = `${px}px`;
-    overhead.style.top = `${py + 18}px`;
+    const offset = Math.round((player.body?.height || 160) / 2) + 4;
+    overhead.style.top = `${py + offset}px`;
     const hpRatio = Math.max(
       0,
       Math.min(1, (player.hp || 0) / (player.maxHp || 1)),
