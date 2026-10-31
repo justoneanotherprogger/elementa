@@ -47,7 +47,7 @@ export function createHud(app, player, enemySystem, leveling) {
     font: "bold 12px sans-serif",
     pointerEvents: "none",
   });
-  levelText.textContent = "Ур. 1";
+  levelText.textContent = "Уровень 1";
   hud.appendChild(levelText);
 
   const timer = document.createElement("div");
@@ -216,7 +216,7 @@ export function createHud(app, player, enemySystem, leveling) {
     const xpToNext = leveling.xpToNext || 1;
     const xpRatio = Math.max(0, Math.min(1, (leveling.xp || 0) / xpToNext));
     xpFill.style.width = `${xpRatio * 100}%`;
-    levelText.textContent = `Ур. ${leveling.level ?? 1}`;
+    levelText.textContent = `Уровень ${leveling.level ?? 1}`;
     xpText.textContent = `Опыт ${leveling.xp ?? 0} / ${leveling.xpToNext ?? 1}`;
     timer.textContent = formatTime(elapsed);
 
