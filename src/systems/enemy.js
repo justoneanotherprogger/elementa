@@ -52,6 +52,7 @@ export function createEnemySystem(app, player, spatialHash, texture) {
       r: 14,
       speed: enemySpeed,
       alive: true,
+      xpReward: 1,
     });
   }
 

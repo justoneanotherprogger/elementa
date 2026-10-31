@@ -88,13 +88,19 @@ export function createWeaponSystem(app, player, enemySystem) {
       }
     }
 
+    const dmgMult = player.dmgMult ?? 1;
+    const aspdMult = player.aspdMult ?? 1;
+    const areaMult = player.areaMult ?? 1;
+
     for (const weapon of weapons) {
       if (weapon.timer === undefined) weapon.timer = 0;
       if (weapon.cd === undefined) weapon.cd = weapon.base.cd;
+      weapon.cd = weapon.base.cd / Math.max(0.1, aspdMult);
       weapon.timer -= dt;
       if (weapon.timer <= 0) {
         const pos = playerPosition(player);
-        const nearest = findNearest(pos.x, pos.y, weapon.base.radius);
+        const radius = weapon.base.radius * areaMult;
+        const nearest = findNearest(pos.x, pos.y, radius);
         if (nearest) {
           const dx = nearest.x - pos.x;
           const dy = nearest.y - pos.y;
@@ -103,15 +109,15 @@ export function createWeaponSystem(app, player, enemySystem) {
           const dirY = dy / dist;
           const angle = Math.atan2(dirY, dirX);
           const halfAngle = (weapon.base.angleDeg * Math.PI) / 180 / 2;
-          spawnSlash(pos.x, pos.y, angle, weapon.base.radius, halfAngle);
+          spawnSlash(pos.x, pos.y, angle, radius, halfAngle);
           damageSector(
             pos.x,
             pos.y,
             dirX,
             dirY,
-            weapon.base.radius,
+            radius,
             halfAngle,
-            weapon.base.dmg,
+            weapon.base.dmg * dmgMult,
           );
           weapon.timer = weapon.cd;
         } else {

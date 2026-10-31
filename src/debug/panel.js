@@ -16,18 +16,21 @@ export function createDebugPanel() {
   const hpLine = document.createElement("div");
   const enemiesLine = document.createElement("div");
   const killsLine = document.createElement("div");
+  const levelLine = document.createElement("div");
 
   let fps = 0;
   let hp = 60;
   let enemies = 0;
   let kills = 0;
+  let level = 1;
 
   fpsLine.textContent = "FPS: 0";
   hpLine.textContent = "HP: 60";
   enemiesLine.textContent = "Враги: 0";
   killsLine.textContent = "Убийства: 0";
+  levelLine.textContent = "Уровень: 1";
 
-  panel.append(fpsLine, hpLine, enemiesLine, killsLine);
+  panel.append(fpsLine, hpLine, enemiesLine, killsLine, levelLine);
   document.body.appendChild(panel);
 
   let visible = false;
@@ -49,10 +52,12 @@ export function createDebugPanel() {
     if (stats.hp !== undefined) hp = stats.hp;
     if (stats.enemies !== undefined) enemies = stats.enemies;
     if (stats.kills !== undefined) kills = stats.kills;
+    if (stats.level !== undefined) level = stats.level ?? 1;
     fpsLine.textContent = `FPS: ${Math.round(fps)}`;
     hpLine.textContent = `HP: ${hp}`;
     enemiesLine.textContent = `Враги: ${enemies}`;
     killsLine.textContent = `Убийства: ${kills}`;
+    levelLine.textContent = `Уровень: ${level ?? 1}`;
   };
 
   const onKeyDown = (event) => {
