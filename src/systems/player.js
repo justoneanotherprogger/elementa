@@ -1,7 +1,7 @@
 import { Sprite } from "pixi.js";
 
-export function createPlayer(app, input) {
-  const body = Sprite.from("/assets/player/pix_human_m.png");
+export function createPlayer(app, input, texture) {
+  const body = new Sprite(texture);
   body.anchor.set(0.5);
   body.scale.set(1);
 

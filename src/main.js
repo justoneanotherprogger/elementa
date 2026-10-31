@@ -23,10 +23,11 @@ async function start() {
   createStage(app);
 
   const input = createInput();
-  const player = createPlayer(app, input);
   const spatialHash = createSpatialHash();
 
   const enemyTexture = await Assets.load("/assets/enemies/pix_goblin.png");
+  const playerTexture = await Assets.load("/assets/player/pix_human_m.png");
+  const player = createPlayer(app, input, playerTexture);
   const enemySystem = createEnemySystem(app, player, spatialHash, enemyTexture);
   const weaponSystem = createWeaponSystem(app, player, enemySystem);
 
