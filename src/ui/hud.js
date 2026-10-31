@@ -168,7 +168,8 @@ export function createHud(app, player, enemySystem, leveling) {
     font: "12px sans-serif",
     pointerEvents: "none",
     textAlign: "right",
-    maxWidth: "30%",
+    maxWidth: "none",
+    width: "auto",
     whiteSpace: "nowrap",
   });
   killsLine.textContent = `💀 0`;
@@ -180,7 +181,8 @@ export function createHud(app, player, enemySystem, leveling) {
     font: "12px sans-serif",
     pointerEvents: "none",
     textAlign: "right",
-    maxWidth: "30%",
+    maxWidth: "none",
+    width: "auto",
     whiteSpace: "nowrap",
   });
   goldLine.textContent = `🪙 0`;
