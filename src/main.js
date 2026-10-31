@@ -48,6 +48,12 @@ async function start() {
       });
     }
     enemySystem.reset();
+    player.dmgMult = 1;
+    player.aspdMult = 1;
+    player.speedMult = 1;
+    player.areaMult = 1;
+    player.durMult = 1;
+    player.maxHp = 60;
     player.hp = 60;
     player.invuln = 0.5;
     leveling.level = 1;
