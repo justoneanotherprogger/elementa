@@ -63,6 +63,17 @@ export function createHud(app, player, enemySystem, leveling) {
   timer.textContent = "00:00";
   hud.appendChild(timer);
 
+  const xpText = document.createElement("div");
+  Object.assign(xpText.style, {
+    position: "absolute",
+    top: "30px",
+    right: "8px",
+    color: "#fff",
+    font: "12px sans-serif",
+    pointerEvents: "none",
+  });
+  hud.appendChild(xpText);
+
   // HP над головой героя
   const overhead = document.createElement("div");
   Object.assign(overhead.style, {
@@ -206,6 +217,7 @@ export function createHud(app, player, enemySystem, leveling) {
     const xpRatio = Math.max(0, Math.min(1, (leveling.xp || 0) / xpToNext));
     xpFill.style.width = `${xpRatio * 100}%`;
     levelText.textContent = `Ур. ${leveling.level ?? 1}`;
+    xpText.textContent = `${leveling.xp ?? 0} / ${leveling.xpToNext ?? 1}`;
     timer.textContent = formatTime(elapsed);
 
     const body = player.body || {};
