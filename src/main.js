@@ -87,7 +87,13 @@ async function start() {
         enemySystem.update(dt);
         weaponSystem.update(dt);
       }
-      leveling.update(dt);
+      if (player.hp <= 0 && !gamePaused) {
+        gamePaused = true;
+        leveling.paused = true;
+        player.hp = 0;
+        deathScreen.show();
+      }
+      if (!gamePaused) leveling.update(dt);
       deathScreen.update(dt);
       hud.update(dt);
       const fps = Math.min(999, Math.max(0, dt > 0 ? 1 / dt : 0));
