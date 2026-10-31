@@ -1,6 +1,8 @@
 import { Graphics } from "pixi.js";
 import { STARTER_WEAPON } from "../data/weapons.js";
 
+const ATTACK_ORIGIN_Y_OFFSET = -12;
+
 function playerPosition(player) {
   if (player?.body) return { x: player.body.x, y: player.body.y };
   return { x: player?.x ?? 0, y: player?.y ?? 0 };
@@ -21,6 +23,11 @@ export function createWeaponSystem(app, player, enemySystem) {
   }
 
   const slashes = [];
+
+  const originMarker = new Graphics();
+  originMarker.circle(0, 0, 4);
+  originMarker.fill(0x00ffff);
+  app.stage.addChild(originMarker);
 
   function enemies() {
     return enemySystem?.enemies ?? [];
@@ -98,7 +105,12 @@ export function createWeaponSystem(app, player, enemySystem) {
       if (weapon.timer <= 0) {
         const pos = playerPosition(player);
         const originX = pos.x;
-        const originY = pos.y - 12;
+        const originY = pos.y + ATTACK_ORIGIN_Y_OFFSET;
+        originMarker.clear();
+        originMarker.circle(0, 0, 4);
+        originMarker.fill(0x00ffff);
+        originMarker.x = originX;
+        originMarker.y = originY;
         const radius = weapon.base.radius * areaMult;
         const nearest = findNearest(originX, originY, radius);
         if (nearest) {
