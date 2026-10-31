@@ -8,6 +8,7 @@ import { createLeveling } from "./systems/leveling.js";
 import { createSpatialHash } from "./core/spatialHash.js";
 import { createStage } from "./render/stage.js";
 import { createDebugPanel } from "./debug/panel.js";
+import { createHud } from "./ui/hud.js";
 
 const app = new Application();
 
@@ -32,6 +33,7 @@ async function start() {
   const enemySystem = createEnemySystem(app, player, spatialHash, enemyTexture);
   const weaponSystem = createWeaponSystem(app, player, enemySystem);
   const leveling = createLeveling(player, enemySystem);
+  const hud = createHud(app, player, enemySystem, leveling);
 
   const debug = createDebugPanel();
 
@@ -52,6 +54,7 @@ async function start() {
         kills: enemySystem.kills,
         level: leveling.level,
       });
+      hud.update(dt);
       if (player.hp <= 0) {
         player.hp = 60;
         player.invuln = 0.2;
