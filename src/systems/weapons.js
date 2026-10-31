@@ -117,6 +117,14 @@ export function createWeaponSystem(app, player, enemySystem) {
           const dx = nearest.x - originX;
           const dy = nearest.y - originY;
           const dist = Math.hypot(dx, dy) || 1;
+          console.log("attack fire", {
+            originX,
+            originY,
+            nearestX: nearest.x,
+            nearestY: nearest.y,
+            dist,
+          });
+
           const dirX = dx / dist;
           const dirY = dy / dist;
           const angle = Math.atan2(dirY, dirX);
