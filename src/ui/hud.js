@@ -100,10 +100,7 @@ export function createHud(app, player, enemySystem, leveling) {
     left: "0",
     right: "0",
     bottom: "0",
-    display: "flex",
-    alignItems: "flex-end",
-    justifyContent: "space-between",
-    padding: "0 8px 8px",
+    display: "block",
     pointerEvents: "none",
     maxWidth: "100%",
   });
@@ -111,20 +108,27 @@ export function createHud(app, player, enemySystem, leveling) {
 
   const boosts = document.createElement("div");
   Object.assign(boosts.style, {
+    position: "absolute",
+    left: "8px",
+    bottom: "8px",
+    maxWidth: "30%",
     color: "#fff",
     font: "12px sans-serif",
     pointerEvents: "none",
-    maxWidth: "30%",
   });
   boosts.textContent = "Усиления: —";
   bottom.appendChild(boosts);
 
   const center = document.createElement("div");
   Object.assign(center.style, {
+    position: "absolute",
+    left: "50%",
+    bottom: "8px",
+    transform: "translateX(-50%)",
+    width: "40%",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    width: "40%",
     pointerEvents: "none",
   });
   bottom.appendChild(center);
@@ -164,12 +168,30 @@ export function createHud(app, player, enemySystem, leveling) {
   hpTrack.appendChild(hpFill);
   center.appendChild(hpTrack);
 
+  const hpText = document.createElement("div");
+  Object.assign(hpText.style, {
+    position: "absolute",
+    left: "50%",
+    bottom: "12px",
+    transform: "translate(-50%, 50%)",
+    color: "#fff",
+    font: "12px sans-serif",
+    textShadow: "rgba(0,0,0,.6) 1px 1px",
+    pointerEvents: "none",
+    whiteSpace: "nowrap",
+  });
+  center.appendChild(hpText);
+
   const statsCol = document.createElement("div");
   Object.assign(statsCol.style, {
+    position: "absolute",
+    right: "8px",
+    bottom: "8px",
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-end",
     gap: "2px",
+    pointerEvents: "none",
   });
   bottom.appendChild(statsCol);
 
@@ -232,6 +254,7 @@ export function createHud(app, player, enemySystem, leveling) {
     );
     overheadFill.style.width = `${hpRatio * 100}%`;
     hpFill.style.width = `${hpRatio * 100}%`;
+    hpText.textContent = `${player.hp ?? 0} / ${player.maxHp ?? 0}`;
 
     const kills = enemySystem?.kills ?? 0;
     killsLine.textContent = `${kills} 💀`;
