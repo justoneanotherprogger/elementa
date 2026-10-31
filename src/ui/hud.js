@@ -217,7 +217,7 @@ export function createHud(app, player, enemySystem, leveling) {
     const xpRatio = Math.max(0, Math.min(1, (leveling.xp || 0) / xpToNext));
     xpFill.style.width = `${xpRatio * 100}%`;
     levelText.textContent = `Ур. ${leveling.level ?? 1}`;
-    xpText.textContent = `${leveling.xp ?? 0} / ${leveling.xpToNext ?? 1}`;
+    xpText.textContent = `Опыт ${leveling.xp ?? 0} / ${leveling.xpToNext ?? 1}`;
     timer.textContent = formatTime(elapsed);
 
     const body = player.body || {};
