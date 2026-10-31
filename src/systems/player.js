@@ -1,9 +1,9 @@
-import { Graphics } from "pixi.js";
+import { Sprite } from "pixi.js";
 
 export function createPlayer(app, input) {
-  const body = new Graphics();
-  body.rect(-12, -12, 24, 24);
-  body.fill(0x4caf50);
+  const body = Sprite.from("/assets/player/pix_human_m.png");
+  body.anchor.set(0.5);
+  body.scale.set(1);
 
   body.x = app.screen.width / 2;
   body.y = app.screen.height / 2;
