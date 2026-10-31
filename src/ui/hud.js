@@ -153,6 +153,15 @@ export function createHud(app, player, enemySystem, leveling) {
   hpTrack.appendChild(hpFill);
   center.appendChild(hpTrack);
 
+  const statsCol = document.createElement("div");
+  Object.assign(statsCol.style, {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-end",
+    gap: "2px",
+  });
+  bottom.appendChild(statsCol);
+
   const killsLine = document.createElement("div");
   Object.assign(killsLine.style, {
     color: "#fff",
@@ -162,7 +171,7 @@ export function createHud(app, player, enemySystem, leveling) {
     maxWidth: "30%",
   });
   killsLine.textContent = `💀 0`;
-  bottom.appendChild(killsLine);
+  statsCol.appendChild(killsLine);
 
   const goldLine = document.createElement("div");
   Object.assign(goldLine.style, {
@@ -173,7 +182,7 @@ export function createHud(app, player, enemySystem, leveling) {
     maxWidth: "30%",
   });
   goldLine.textContent = `🪙 0`;
-  bottom.appendChild(goldLine);
+  statsCol.appendChild(goldLine);
 
   let elapsed = 0;
 
