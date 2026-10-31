@@ -146,6 +146,18 @@ export function createEnemySystem(app, player, spatialHash, texture) {
 
       system.kills = kills;
     },
+    reset() {
+      for (const enemy of enemies) {
+        if (enemy?.sprite) {
+          app.stage.removeChild(enemy.sprite);
+          enemy.sprite.destroy();
+        }
+      }
+      enemies.length = 0;
+      spawnTimer = 0;
+      kills = 0;
+      this.kills = 0;
+    },
   };
 
   return system;

@@ -4,9 +4,9 @@ export function createLeveling(player, enemySystem) {
     xp: 0,
     xpToNext: 1 * 10,
     paused: false,
+    seenKills: 0,
   };
 
-  let seenKills = 0;
   let choices = null;
   let overlay = null;
 
@@ -149,10 +149,10 @@ export function createLeveling(player, enemySystem) {
       }
       return;
     }
-    if (enemySystem && enemySystem.kills > seenKills) {
-      const delta = enemySystem.kills - seenKills;
+    if (enemySystem && enemySystem.kills > (state.seenKills || 0)) {
+      const delta = enemySystem.kills - (state.seenKills || 0);
       grantXp(delta);
-      seenKills = enemySystem.kills;
+      state.seenKills = enemySystem.kills;
     }
   }
 

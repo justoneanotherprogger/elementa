@@ -9,6 +9,7 @@ import { createSpatialHash } from "./core/spatialHash.js";
 import { createStage } from "./render/stage.js";
 import { createDebugPanel } from "./debug/panel.js";
 import { createHud } from "./ui/hud.js";
+import { createDeathScreen } from "./ui/deathScreen.js";
 
 const app = new Application();
 
@@ -37,15 +38,58 @@ async function start() {
 
   const debug = createDebugPanel();
 
+  let gamePaused = false;
+
+  function restartRun() {
+    gamePaused = false;
+    if (weaponSystem && Array.isArray(weaponSystem.weapons)) {
+      weaponSystem.weapons.forEach((weapon) => {
+        if (weapon) weapon.timer = 0;
+      });
+    }
+    enemySystem.reset();
+    player.hp = 60;
+    player.invuln = 0.5;
+    leveling.level = 1;
+    leveling.xp = 0;
+    leveling.xpToNext = 10;
+    leveling.seenKills = 0;
+    leveling.paused = false;
+    hud.reset();
+    deathScreen.hide();
+  }
+
+  function quitRun() {
+    window.location.reload();
+  }
+
+  const deathScreen = createDeathScreen(
+    app,
+    player,
+    enemySystem,
+    leveling,
+    hud,
+    restartRun,
+    quitRun,
+  );
+
   const loop = createLoop({
     update(dt) {
-      if (!leveling.paused) {
+      if (player.hp <= 0 && !gamePaused) {
+        gamePaused = true;
+        leveling.paused = true;
+        player.hp = 0;
+        deathScreen.show();
+      }
+      if (!gamePaused && !leveling.paused) {
         input.update();
         player.update(dt);
         enemySystem.update(dt);
         weaponSystem.update(dt);
       }
       leveling.update(dt);
+      deathScreen.update(dt);
+      hud.update(dt);
       const fps = Math.min(999, Math.max(0, dt > 0 ? 1 / dt : 0));
       debug.update({
         fps,
@@ -54,11 +98,6 @@ async function start() {
         kills: enemySystem.kills,
         level: leveling.level,
       });
-      hud.update(dt);
-      if (player.hp <= 0) {
-        player.hp = 60;
-        player.invuln = 0.5;
-      }
     },
     render() {
       app.render();

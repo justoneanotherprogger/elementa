@@ -238,5 +238,13 @@ export function createHud(app, player, enemySystem, leveling) {
     goldLine.textContent = `0 🪙`;
   };
 
-  return { update };
+  return {
+    update,
+    reset() {
+      elapsed = 0;
+    },
+    get elapsed() {
+      return elapsed;
+    },
+  };
 }
