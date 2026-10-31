@@ -1,7 +1,7 @@
 import { Graphics } from "pixi.js";
 import { STARTER_WEAPON } from "../data/weapons.js";
 
-const ATTACK_ORIGIN_Y_OFFSET = -12;
+const ATTACK_ORIGIN_Y_OFFSET = 0;
 
 function playerPosition(player) {
   if (player?.body) return { x: player.body.x, y: player.body.y };
