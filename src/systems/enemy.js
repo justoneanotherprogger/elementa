@@ -122,8 +122,8 @@ export function createEnemySystem(app, player, spatialHash, texture, camera) {
 
       // contact damage
       if (player.invuln <= 0) {
-        const halfW = Math.max(1, (player.body?.width ?? 160) / 2 - 6);
-        const halfH = Math.max(1, (player.body?.height ?? 160) / 2 - 6);
+        const halfW = Math.max(1, (player.body?.width ?? 160) / 2 - 18);
+        const halfH = Math.max(1, (player.body?.height ?? 160) / 2 - 18);
         for (const enemy of enemies) {
           if (
             enemy.x >= px - halfW &&
