@@ -6,6 +6,7 @@ export function createEnemySystem(app, player, spatialHash, texture, camera) {
   let spawnTimer = 0;
 
   const maxEnemies = 500;
+  const GOBLIN_BOTTOM_OFFSET = 25;
   const spawnInterval = 999;
   const enemySpeed = 60;
   const enemyHp = 8;
@@ -93,7 +94,7 @@ export function createEnemySystem(app, player, spatialHash, texture, camera) {
         enemy.sprite.y = enemy.y;
         enemy.hpBar.scale.set(scale);
         enemy.hpBar.x = enemy.x - 18 * scale;
-        enemy.hpBar.y = enemy.y + 28 * scale;
+        enemy.hpBar.y = enemy.y + (GOBLIN_BOTTOM_OFFSET + 4) * scale;
         enemy.hpBar.visible = enemy.hp < enemy.maxHp;
         enemy.hpBar.clear();
         const ratio = enemy.maxHp
