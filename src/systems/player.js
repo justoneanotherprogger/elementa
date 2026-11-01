@@ -26,6 +26,9 @@ export function createPlayer(app, input, texture) {
       const direction = input.direction();
       body.x += direction.x * speed * dt;
       body.y += direction.y * speed * dt;
+      const d = input.direction();
+      if (d.x < 0) body.scale.x = -Math.abs(body.scale.x);
+      else if (d.x > 0) body.scale.x = Math.abs(body.scale.x);
       if (player.invuln > 0) {
         player.invuln = Math.max(0, player.invuln - dt);
       }

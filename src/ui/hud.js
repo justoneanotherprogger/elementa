@@ -1,4 +1,5 @@
-export function createHud(app, player, enemySystem, leveling) {
+export function createHud(app, player, enemySystem, leveling, camera) {
+  const cam = camera || { x: 0, y: 0 };
   void app;
   const uiRoot = document.getElementById("ui");
 
@@ -256,9 +257,11 @@ export function createHud(app, player, enemySystem, leveling) {
     const body = player.body || {};
     const px = body.x ?? player.x ?? 0;
     const py = body.y ?? player.y ?? 0;
-    overhead.style.left = `${px}px`;
+    const sx = px - cam.x + app.screen.width / 2;
+    const sy = py - cam.y + app.screen.height / 2;
+    overhead.style.left = `${sx}px`;
     const offset = Math.round((player.body?.height || 160) / 2) + 4;
-    overhead.style.top = `${py + offset}px`;
+    overhead.style.top = `${sy + offset}px`;
     const hpRatio = Math.max(
       0,
       Math.min(1, (player.hp || 0) / (player.maxHp || 1)),

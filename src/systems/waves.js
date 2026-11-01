@@ -3,7 +3,9 @@ export function createWaves({
   runTimeFn,
   onVictoryFn,
   getPausedFn,
+  camera,
 } = {}) {
+  void camera;
   const spawnInterval = 0.5;
   let spawnTimer = 0;
   let lastBossLevel = 0;

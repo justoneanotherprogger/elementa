@@ -27,16 +27,23 @@ async function start() {
 
   createStage(app);
 
+  const camera = { x: app.screen.width / 2, y: app.screen.height / 2 };
   const input = createInput();
   const spatialHash = createSpatialHash();
 
   const enemyTexture = await Assets.load("/assets/enemies/pix_goblin.png");
   const playerTexture = await Assets.load("/assets/player/pix_human_m.png");
   const player = createPlayer(app, input, playerTexture);
-  const enemySystem = createEnemySystem(app, player, spatialHash, enemyTexture);
+  const enemySystem = createEnemySystem(
+    app,
+    player,
+    spatialHash,
+    enemyTexture,
+    camera,
+  );
   const weaponSystem = createWeaponSystem(app, player, enemySystem);
   const leveling = createLeveling(player, enemySystem);
-  const hud = createHud(app, player, enemySystem, leveling);
+  const hud = createHud(app, player, enemySystem, leveling, camera);
 
   const debug = createDebugPanel();
 
@@ -114,6 +121,7 @@ async function start() {
     runTimeFn: () => runTime,
     onVictoryFn: onVictory,
     getPausedFn: () => gamePaused || leveling.paused,
+    camera,
   });
 
   const loop = createLoop({
@@ -133,6 +141,10 @@ async function start() {
       if (playing) {
         input.update();
         player.update(dt);
+        camera.x += (player.body.x - camera.x) * 0.2;
+        camera.y += (player.body.y - camera.y) * 0.2;
+        app.stage.pivot.set(camera.x, camera.y);
+        app.stage.position.set(app.screen.width / 2, app.screen.height / 2);
         enemySystem.update(dt);
         weaponSystem.update(dt);
       }

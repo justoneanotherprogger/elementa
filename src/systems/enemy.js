@@ -1,6 +1,6 @@
 import { Sprite } from "pixi.js";
 
-export function createEnemySystem(app, player, spatialHash, texture) {
+export function createEnemySystem(app, player, spatialHash, texture, camera) {
   const enemies = [];
   let kills = 0;
   let spawnTimer = 0;
@@ -21,23 +21,24 @@ export function createEnemySystem(app, player, spatialHash, texture) {
     sprite.scale.set(scale);
     app.stage.addChild(sprite);
 
+    const cam = camera || { x: 0, y: 0 };
     const w = app.screen.width;
     const h = app.screen.height;
     const side = Math.floor(Math.random() * 4);
     let x;
     let y;
     if (side === 0) {
-      x = Math.random() * w;
-      y = -20;
+      x = cam.x - w / 2 + Math.random() * w;
+      y = cam.y - h / 2 - 20;
     } else if (side === 1) {
-      x = w + 20;
-      y = Math.random() * h;
+      x = cam.x + w / 2 + 20;
+      y = cam.y - h / 2 + Math.random() * h;
     } else if (side === 2) {
-      x = Math.random() * w;
-      y = h + 20;
+      x = cam.x - w / 2 + Math.random() * w;
+      y = cam.y + h / 2 + 20;
     } else {
-      x = -20;
-      y = Math.random() * h;
+      x = cam.x - w / 2 - 20;
+      y = cam.y - h / 2 + Math.random() * h;
     }
     sprite.x = x;
     sprite.y = y;
@@ -58,6 +59,7 @@ export function createEnemySystem(app, player, spatialHash, texture) {
 
   const system = {
     enemies,
+    camera,
     kills: 0,
     spawnEnemy,
     maxEnemies,
@@ -82,6 +84,10 @@ export function createEnemySystem(app, player, spatialHash, texture) {
         enemy.y += enemy.vy * dt;
         enemy.sprite.x = enemy.x;
         enemy.sprite.y = enemy.y;
+        if (enemy.vx < 0)
+          enemy.sprite.scale.x = -Math.abs(enemy.sprite.scale.x || 1);
+        else if (enemy.vx > 0)
+          enemy.sprite.scale.x = Math.abs(enemy.sprite.scale.x || 1);
       }
 
       // simple separation
