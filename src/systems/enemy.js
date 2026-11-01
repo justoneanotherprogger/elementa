@@ -85,9 +85,9 @@ export function createEnemySystem(app, player, spatialHash, texture, camera) {
         enemy.sprite.x = enemy.x;
         enemy.sprite.y = enemy.y;
         if (enemy.vx < 0)
-          enemy.sprite.scale.x = -Math.abs(enemy.sprite.scale.x || 1);
+          enemy.sprite.scale.x = +Math.abs(enemy.sprite.scale.x || 1);
         else if (enemy.vx > 0)
-          enemy.sprite.scale.x = Math.abs(enemy.sprite.scale.x || 1);
+          enemy.sprite.scale.x = -Math.abs(enemy.sprite.scale.x || 1);
       }
 
       // simple separation
