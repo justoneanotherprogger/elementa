@@ -110,7 +110,7 @@ export function createLeveling(player, enemySystem) {
     overlay.style.display = "flex";
 
     const title = document.createElement("h2");
-    title.textContent = `Уровень ${state.level} (XP ${state.xp}/${state.xpToNext})`;
+    title.textContent = `Уровень ${state.level}`;
     title.style.margin = "0";
     overlay.appendChild(title);
 

@@ -1,4 +1,4 @@
-import { Sprite } from "pixi.js";
+import { Sprite, Graphics } from "pixi.js";
 
 export function createEnemySystem(app, player, spatialHash, texture, camera) {
   const enemies = [];
@@ -43,7 +43,7 @@ export function createEnemySystem(app, player, spatialHash, texture, camera) {
     sprite.x = x;
     sprite.y = y;
 
-    enemies.push({
+    const enemy = {
       sprite,
       x,
       y,
@@ -54,7 +54,13 @@ export function createEnemySystem(app, player, spatialHash, texture, camera) {
       speed: enemySpeed * speedMul,
       alive: true,
       xpReward: 1,
-    });
+      scale,
+    };
+    enemy.maxHp = enemyHp;
+    enemy.hpBar = new Graphics();
+    enemy.hpBar.visible = enemy.hp < enemy.maxHp;
+    app.stage.addChild(enemy.hpBar);
+    enemies.push(enemy);
   }
 
   const system = {
@@ -75,6 +81,7 @@ export function createEnemySystem(app, player, spatialHash, texture, camera) {
 
       // movement toward player
       for (const enemy of enemies) {
+        const scale = enemy.scale;
         const dx = px - enemy.x;
         const dy = py - enemy.y;
         const distance = Math.hypot(dx, dy) || 1;
@@ -84,6 +91,16 @@ export function createEnemySystem(app, player, spatialHash, texture, camera) {
         enemy.y += enemy.vy * dt;
         enemy.sprite.x = enemy.x;
         enemy.sprite.y = enemy.y;
+        enemy.hpBar.x = enemy.x;
+        enemy.hpBar.y = enemy.y + 28 * scale;
+        enemy.hpBar.scale.set(scale);
+        enemy.hpBar.visible = enemy.hp < enemy.maxHp;
+        enemy.hpBar.clear();
+        const ratio = enemy.maxHp
+          ? Math.max(0, Math.min(1, enemy.hp / enemy.maxHp))
+          : 0;
+        enemy.hpBar.rect(0, 0, 36, 4).fill(0x333333);
+        enemy.hpBar.rect(0, 0, 36 * ratio, 4).fill(0xff0000);
         if (enemy.vx < 0)
           enemy.sprite.scale.x = +Math.abs(enemy.sprite.scale.x || 1);
         else if (enemy.vx > 0)
@@ -148,6 +165,10 @@ export function createEnemySystem(app, player, spatialHash, texture, camera) {
         if (!enemy.alive || enemy.hp <= 0) {
           app.stage.removeChild(enemy.sprite);
           enemy.sprite.destroy();
+          if (enemy.hpBar) {
+            app.stage.removeChild(enemy.hpBar);
+            enemy.hpBar.destroy();
+          }
           enemies.splice(i, 1);
           kills += 1;
         }
@@ -160,6 +181,10 @@ export function createEnemySystem(app, player, spatialHash, texture, camera) {
         if (enemy?.sprite) {
           app.stage.removeChild(enemy.sprite);
           enemy.sprite.destroy();
+        }
+        if (enemy?.hpBar) {
+          app.stage.removeChild(enemy.hpBar);
+          enemy.hpBar.destroy();
         }
       }
       enemies.length = 0;

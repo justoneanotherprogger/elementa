@@ -267,6 +267,7 @@ export function createHud(app, player, enemySystem, leveling, camera) {
       Math.min(1, (player.hp || 0) / (player.maxHp || 1)),
     );
     overheadFill.style.width = `${hpRatio * 100}%`;
+    overhead.style.display = player.hp < player.maxHp ? "block" : "none";
     hpFill.style.width = `${hpRatio * 100}%`;
     hpText.textContent = `${player.hp ?? 0} / ${player.maxHp ?? 0}`;
 
