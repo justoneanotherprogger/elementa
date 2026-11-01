@@ -94,7 +94,7 @@ export function createEnemySystem(app, player, spatialHash, texture, camera) {
         enemy.sprite.y = enemy.y;
         enemy.hpBar.scale.set(scale);
         enemy.hpBar.x = enemy.x - 18 * scale;
-        enemy.hpBar.y = enemy.y + (GOBLIN_BOTTOM_OFFSET + 2) * scale;
+        enemy.hpBar.y = enemy.y + GOBLIN_BOTTOM_OFFSET * scale;
         enemy.hpBar.visible = enemy.hp < enemy.maxHp;
         enemy.hpBar.clear();
         const ratio = enemy.maxHp
