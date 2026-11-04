@@ -50,14 +50,17 @@ async function start() {
   Object.assign(pauseOverlay.style, {
     position: "fixed",
     inset: "0",
-    display: "none",
     zIndex: "2000",
     background: "rgba(0,0,0,0.55)",
     color: "#fff",
+    display: "flex",
+    flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
+    gap: "12px",
     font: "bold 24px sans-serif",
   });
+  pauseOverlay.style.display = "none";
   const pauseText = document.createElement("div");
   pauseText.textContent = "Пауза — Esc";
   const pauseQuitBtn = document.createElement("button");
