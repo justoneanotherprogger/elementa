@@ -18,6 +18,7 @@ import { createVictoryScreen } from "./ui/victoryScreen.js";
 import { createWaves } from "./systems/waves.js";
 import { createChestSystem } from "./systems/chests.js";
 import { createRewardScreen } from "./ui/rewardScreen.js";
+import { createLobby } from "./ui/lobby.js";
 import { STARTER_WEAPON, SPEAR_WEAPON } from "./data/weapons.js";
 const app = new Application();
 
@@ -61,7 +62,7 @@ async function start() {
   document.body.appendChild(pauseOverlay);
   window.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
-    if (rewardOpen || leveling.paused || player.hp <= 0 || gamePaused) return;
+    if (lobbyOpen || rewardOpen || leveling.paused || player.hp <= 0 || gamePaused) return;
     pauseOpen = !pauseOpen;
     pauseOverlay.style.display = pauseOpen ? "flex" : "none";
     event.preventDefault();
@@ -123,6 +124,7 @@ async function start() {
   }
 
   let gamePaused = false;
+  let lobbyOpen = true;
   let runTime = 0;
 
   function restartRun() {
@@ -172,7 +174,18 @@ async function start() {
   }
 
   function quitRun() {
-    window.location.reload();
+    restartRun();
+    deathScreen.hide();
+    victoryScreen.hide();
+    lobby?.refresh();
+    lobbyOpen = true;
+    lobby?.show();
+  }
+
+  function restartNow() {
+    lobbyOpen = false;
+    lobby?.hide();
+    restartRun();
   }
 
   const deathScreen = createDeathScreen(
@@ -181,7 +194,7 @@ async function start() {
     enemySystem,
     leveling,
     hud,
-    restartRun,
+    restartNow,
     quitRun,
   );
 
@@ -191,9 +204,18 @@ async function start() {
     enemySystem,
     leveling,
     hud,
-    restartRun,
+    restartNow,
     quitRun,
   );
+
+  const lobby = createLobby({
+    onStart: () => {
+      lobbyOpen = false;
+      lobby.hide();
+      restartRun();
+    },
+  });
+  lobby.show();
 
   const onVictory = () => {
     gamePaused = true;
@@ -233,13 +255,13 @@ async function start() {
         saveRunGold();
         deathScreen.show();
       }
-      const paused = gamePaused || leveling.paused || rewardOpen;
+      const paused = gamePaused || leveling.paused || rewardOpen || pauseOpen || lobbyOpen;
       if (!paused) {
         runTime += dt;
         player.runTime = runTime;
         waves.update(dt, runTime);
       }
-      const playing = !gamePaused && !leveling.paused && !rewardOpen && !pauseOpen;
+      const playing = !gamePaused && !leveling.paused && !rewardOpen && !pauseOpen && !lobbyOpen;
       if (playing) {
         input.update();
         player.update(dt);
@@ -258,7 +280,7 @@ async function start() {
         player.hp = 0;
         deathScreen.show();
       }
-      if (!gamePaused) leveling.update(dt);
+      if (!gamePaused && !lobbyOpen) leveling.update(dt);
       deathScreen.update(dt);
       victoryScreen.update(dt);
       hud.update(dt);
