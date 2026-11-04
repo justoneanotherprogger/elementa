@@ -4,7 +4,7 @@ export function createLeveling(player, enemySystem) {
     xp: 0,
     xpToNext: 1 * 10,
     paused: false,
-    seenKills: 0,
+    seenXp: 0,
   };
 
   let choices = null;
@@ -13,10 +13,11 @@ export function createLeveling(player, enemySystem) {
   const choicePool = [
     {
       key: "hp",
-      label: "HP +6 / maxHP ×1.1",
+      label: "Max HP ×1.1",
       apply: (p) => {
-        p.maxHp *= 1.1;
-        p.hp = Math.min(p.hp + 6, p.maxHp);
+        const ratio = p.maxHp ? p.hp / p.maxHp : 1;
+        p.maxHp = Math.floor(p.maxHp * 1.1);
+        p.hp = Math.round(ratio * p.maxHp);
       },
     },
     {
@@ -70,18 +71,17 @@ export function createLeveling(player, enemySystem) {
       document.body.appendChild(overlay);
     }
     overlay.style.position = "fixed";
-    overlay.style.top = "50%";
-    overlay.style.left = "50%";
-    overlay.style.transform = "translate(-50%, -50%)";
-    overlay.style.zIndex = "1000";
-    overlay.style.background = "#222";
-    overlay.style.border = "1px solid #555";
-    overlay.style.padding = "1rem";
+    overlay.style.inset = "0";
     overlay.style.display = "none";
-    overlay.style.flexDirection = "column";
-    overlay.style.gap = "0.5rem";
+    overlay.style.zIndex = "2000";
+    overlay.style.background = "rgba(0, 0, 0, 0.7)";
+    overlay.style.justifyContent = "center";
     overlay.style.alignItems = "center";
+    overlay.style.flexDirection = "column";
+    overlay.style.gap = "12px";
     overlay.style.color = "#fff";
+    overlay.style.padding = "1rem";
+    overlay.style.border = "1px solid #555";
   }
 
   function pickChoices() {
@@ -115,12 +115,16 @@ export function createLeveling(player, enemySystem) {
     overlay.appendChild(title);
 
     if (choices) {
+      const cardRow = document.createElement("div");
+      Object.assign(cardRow.style, { display: "flex", gap: "12px" });
+      overlay.appendChild(cardRow);
       choices.forEach((choice, index) => {
         const button = document.createElement("button");
         button.type = "button";
         button.textContent = `${index + 1}. ${choice.label}`;
         button.addEventListener("click", () => applyChoice(choice));
-        overlay.appendChild(button);
+        Object.assign(button.style, { width: "140px", padding: "12px", background: "#222", color: "#fff", border: "1px solid #555", font: "14px sans-serif", cursor: "pointer" });
+        cardRow.appendChild(button);
       });
     }
   }
@@ -149,10 +153,11 @@ export function createLeveling(player, enemySystem) {
       }
       return;
     }
-    if (enemySystem && enemySystem.kills > (state.seenKills || 0)) {
-      const delta = enemySystem.kills - (state.seenKills || 0);
-      grantXp(delta);
-      state.seenKills = enemySystem.kills;
+    const earnedXp = enemySystem?.xpEarned ?? 0;
+    if (earnedXp > (state.seenXp ?? 0)) {
+      const deltaXp = earnedXp - (state.seenXp ?? 0);
+      grantXp(deltaXp);
+      state.seenXp = earnedXp;
     }
   }
 

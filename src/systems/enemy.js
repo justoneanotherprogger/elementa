@@ -1,6 +1,11 @@
-import { Sprite, Graphics } from "pixi.js";
+import { Sprite, Graphics, Text } from "pixi.js";
+import { updateStatuses } from "./statuses.js";
+import { STATUSES } from "../data/elements.js";
+import { spriteHalfWidth, spriteHalfHeight, spriteTopY } from "../core/spriteBounds.js";
+import { spriteBounds, spriteHitBounds } from "../core/spriteBounds.js";
+import { rollDamage } from "../core/damage.js";
 
-export function createEnemySystem(app, player, spatialHash, texture, camera) {
+export function createEnemySystem(app, player, spatialHash, texture, camera, hooks = {}) {
   const enemies = [];
   let kills = 0;
   let spawnTimer = 0;
@@ -10,16 +15,17 @@ export function createEnemySystem(app, player, spatialHash, texture, camera) {
   const spawnInterval = 999;
   const enemySpeed = 60;
   const enemyHp = 8;
-  const separationRadius = 28;
+  app.stage.sortableChildren = true;
   const contactDamage = 8;
   const playerIFrames = 0.5;
 
-  function spawnEnemy(speedMul = 1, hpMul = 1, scale = 1) {
+  function spawnEnemy(speedMul = 1, hpMul = 1, scale = 1, isBoss = false) {
     if (enemies.length >= maxEnemies) return;
 
     const sprite = new Sprite(texture);
     sprite.anchor.set(0.5, 131 / 160);
     sprite.scale.set(scale);
+    sprite.zIndex = isBoss ? 2 : 0;
     app.stage.addChild(sprite);
 
     const cam = camera || { x: 0, y: 0 };
@@ -56,8 +62,17 @@ export function createEnemySystem(app, player, spatialHash, texture, camera) {
       alive: true,
       xpReward: 1,
       scale,
+      statuses: new Map(),
+      reactCd: 0,
+      baseSpeed: enemySpeed * speedMul,
+      damageMult: 1,
+      damageTakenMult: 1,
+      statusIcons: new Map(),
+      isBoss,
     };
-    enemy.maxHp = enemyHp;
+    enemy.maxHp = Math.round(enemyHp * hpMul);
+    const dangerWeight = (enemy.hp / 8) * (contactDamage / 5) * (enemy.speed / 60);
+    enemy.xpReward = Math.max(1, Math.round(dangerWeight));
     enemy.hpBar = new Graphics();
     enemy.hpBar.visible = enemy.hp < enemy.maxHp;
     app.stage.addChild(enemy.hpBar);
@@ -68,6 +83,7 @@ export function createEnemySystem(app, player, spatialHash, texture, camera) {
     enemies,
     camera,
     kills: 0,
+    xpEarned: 0,
     spawnEnemy,
     maxEnemies,
     update(dt) {
@@ -77,10 +93,11 @@ export function createEnemySystem(app, player, spatialHash, texture, camera) {
         spawnEnemy();
       }
 
+      updateStatuses(system, dt);
+
       const px = player.body ? player.body.x : (player.x ?? 0);
       const py = player.body ? player.body.y : (player.y ?? 0);
 
-      // movement toward player
       for (const enemy of enemies) {
         const scale = enemy.scale;
         const dx = px - enemy.x;
@@ -106,24 +123,58 @@ export function createEnemySystem(app, player, spatialHash, texture, camera) {
           enemy.sprite.scale.x = +Math.abs(enemy.sprite.scale.x || 1);
         else if (enemy.vx > 0)
           enemy.sprite.scale.x = -Math.abs(enemy.sprite.scale.x || 1);
+
+        const statusIds = [...enemy.statuses.keys()];
+        for (const [id, icon] of [...enemy.statusIcons.entries()]) {
+          if (!enemy.statuses.has(id)) {
+            icon.destroy();
+            enemy.statusIcons.delete(id);
+          }
+        }
+        for (const id of statusIds) {
+          if (!enemy.statusIcons.has(id)) {
+            const cfg = STATUSES[id];
+            if (cfg?.icon) {
+              const icon = new Text({ text: cfg.icon, style: { fontSize: 12 } });
+              app.stage.addChild(icon);
+              icon.anchor.set(0.5, 1);
+              enemy.statusIcons.set(id, icon);
+            }
+          }
+        }
+        let iconOffset = -(statusIds.length - 1) * 8;
+        for (const id of statusIds) {
+          const icon = enemy.statusIcons.get(id);
+          if (icon) {
+            icon.x = enemy.x + iconOffset;
+            icon.y = spriteTopY(enemy.sprite, enemy.y) - 4;
+            iconOffset += 16;
+          }
+        }
       }
 
-      // simple separation
       for (let i = 0; i < enemies.length; i += 1) {
         for (let j = i + 1; j < enemies.length; j += 1) {
           const a = enemies[i];
           const b = enemies[j];
           const dx = b.x - a.x;
           const dy = b.y - a.y;
-          const distance = Math.hypot(dx, dy);
-          if (distance > 0 && distance < separationRadius) {
-            const push = (separationRadius - distance) / 2;
-            const nx = dx / distance;
-            const ny = dy / distance;
-            a.x -= nx * push;
-            a.y -= ny * push;
-            b.x += nx * push;
-            b.y += ny * push;
+          const halfX = spriteHalfWidth(a.sprite) + spriteHalfWidth(b.sprite);
+          const halfY = spriteHalfHeight(a.sprite) + spriteHalfHeight(b.sprite);
+          const overlapX = halfX - Math.abs(dx);
+          const overlapY = halfY - Math.abs(dy);
+          if (overlapX > 0 && overlapY > 0) {
+            if (overlapX < overlapY) {
+              const push = overlapX / 2;
+              const sign = dx >= 0 ? 1 : -1;
+              a.x -= sign * push;
+              b.x += sign * push;
+            } else {
+              const push = overlapY / 2;
+              const sign = dy >= 0 ? 1 : -1;
+              a.y -= sign * push;
+              b.y += sign * push;
+            }
             a.sprite.x = a.x;
             a.sprite.y = a.y;
             b.sprite.x = b.x;
@@ -132,27 +183,22 @@ export function createEnemySystem(app, player, spatialHash, texture, camera) {
         }
       }
 
-      // spatial hash refresh
       if (spatialHash) {
         spatialHash.clear();
         for (const enemy of enemies) spatialHash.add(enemy);
       }
 
-      // contact damage
       if (player.invuln <= 0) {
-        const halfW = Math.max(1, (player.body?.width ?? 160) / 2 - 18);
-        const halfH = Math.max(1, (player.body?.height ?? 160) / 2 - 18);
+        const pB = spriteHitBounds(player.body, 0.1);
         for (const enemy of enemies) {
-          if (
-            enemy.x >= px - halfW &&
-            enemy.x <= px + halfW &&
-            enemy.y >= py - halfH &&
-            enemy.y <= py + halfH
-          ) {
+          const eB = spriteBounds(enemy.sprite);
+          const overlapX = Math.min(pB.right, eB.right) - Math.max(pB.left, eB.left);
+          const overlapY = Math.min(pB.bottom, eB.bottom) - Math.max(pB.top, eB.top);
+          if (overlapX > 0 && overlapY > 0) {
             if (typeof player.takeDamage === "function") {
-              player.takeDamage(contactDamage);
+              player.takeDamage(rollDamage(contactDamage * enemy.damageMult));
             } else {
-              player.hp -= contactDamage;
+              player.hp -= rollDamage(contactDamage * enemy.damageMult);
               player.invuln = playerIFrames;
             }
             break;
@@ -160,16 +206,42 @@ export function createEnemySystem(app, player, spatialHash, texture, camera) {
         }
       }
 
-      // death and removal
+      const pBounds = spriteHitBounds(player.body, 0.1);
+      for (const enemy of enemies) {
+        const eBounds = spriteBounds(enemy.sprite);
+        const overlapX = Math.min(pBounds.right, eBounds.right) - Math.max(pBounds.left, eBounds.left);
+        const overlapY = Math.min(pBounds.bottom, eBounds.bottom) - Math.max(pBounds.top, eBounds.top);
+        if (overlapX > 0 && overlapY > 0) {
+          const push = overlapX < overlapY ? overlapX / 2 : overlapY / 2;
+          if (overlapX < overlapY) {
+            const sign = (enemy.sprite.x - (player.body?.x ?? px)) >= 0 ? 1 : -1;
+            enemy.x += sign * push;
+          } else {
+            const sign = (enemy.sprite.y - (player.body?.y ?? py)) >= 0 ? 1 : -1;
+            enemy.y += sign * push;
+          }
+          enemy.sprite.x = enemy.x;
+          enemy.sprite.y = enemy.y;
+        }
+      }
+
       for (let i = enemies.length - 1; i >= 0; i -= 1) {
         const enemy = enemies[i];
         if (!enemy.alive || enemy.hp <= 0) {
+          if (enemy.isBoss === true && typeof hooks.onBossDeath === "function") {
+            hooks.onBossDeath(enemy.x, enemy.y);
+          }
+          if (enemy.statusIcons) {
+            for (const icon of enemy.statusIcons.values()) icon.destroy();
+            enemy.statusIcons.clear();
+          }
           app.stage.removeChild(enemy.sprite);
           enemy.sprite.destroy();
           if (enemy.hpBar) {
             app.stage.removeChild(enemy.hpBar);
             enemy.hpBar.destroy();
           }
+          system.xpEarned += enemy?.xpReward ?? 1;
           enemies.splice(i, 1);
           kills += 1;
         }
@@ -180,6 +252,10 @@ export function createEnemySystem(app, player, spatialHash, texture, camera) {
     reset() {
       for (const enemy of enemies) {
         if (enemy?.sprite) {
+          if (enemy.statusIcons) {
+            for (const icon of enemy.statusIcons.values()) icon.destroy();
+            enemy.statusIcons.clear();
+          }
           app.stage.removeChild(enemy.sprite);
           enemy.sprite.destroy();
         }
@@ -192,6 +268,7 @@ export function createEnemySystem(app, player, spatialHash, texture, camera) {
       spawnTimer = 0;
       kills = 0;
       this.kills = 0;
+      this.xpEarned = 0;
     },
   };
 

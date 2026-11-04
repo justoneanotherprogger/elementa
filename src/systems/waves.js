@@ -45,7 +45,7 @@ export function createWaves({
     if (bossLevel > lastBossLevel) {
       lastBossLevel = bossLevel;
       if (typeof enemySystem?.spawnEnemy === "function") {
-        enemySystem.spawnEnemy(statGains * 0.6, statGains * 5, 1.6);
+        enemySystem.spawnEnemy(statGains * 1.1, statGains * 5, 1.6, true);
       }
     }
 

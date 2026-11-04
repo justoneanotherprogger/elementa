@@ -13,10 +13,7 @@ export function createDebugPanel() {
   panel.style.pointerEvents = "none";
 
   const fpsLine = document.createElement("div");
-  const hpLine = document.createElement("div");
   const enemiesLine = document.createElement("div");
-  const killsLine = document.createElement("div");
-  const levelLine = document.createElement("div");
 
   let fps = 0;
   let hp = 60;
@@ -25,12 +22,12 @@ export function createDebugPanel() {
   let level = 1;
 
   fpsLine.textContent = "FPS: 0";
-  hpLine.textContent = "HP: 60";
   enemiesLine.textContent = "Враги: 0";
-  killsLine.textContent = "Убийства: 0";
-  levelLine.textContent = "Уровень: 1";
 
-  panel.append(fpsLine, hpLine, enemiesLine, killsLine, levelLine);
+  panel.append(
+    fpsLine,
+    enemiesLine,
+  );
   document.body.appendChild(panel);
 
   let visible = false;
@@ -48,16 +45,15 @@ export function createDebugPanel() {
   };
 
   const update = (stats = {}) => {
-    if (stats.fps !== undefined) fps = stats.fps;
-    if (stats.hp !== undefined) hp = stats.hp;
-    if (stats.enemies !== undefined) enemies = stats.enemies;
-    if (stats.kills !== undefined) kills = stats.kills;
-    if (stats.level !== undefined) level = stats.level ?? 1;
+    if (stats) {
+      if (stats.fps !== undefined) fps = stats.fps;
+      if (stats.hp !== undefined) hp = stats.hp || hp;
+      if (stats.enemies !== undefined) enemies = stats.enemies;
+      if (stats.kills !== undefined) kills = stats.kills || kills;
+      if (stats.level !== undefined) level = stats.level || level;
+    }
     fpsLine.textContent = `FPS: ${Math.round(fps)}`;
-    hpLine.textContent = `HP: ${hp}`;
     enemiesLine.textContent = `Враги: ${enemies}`;
-    killsLine.textContent = `Убийства: ${kills}`;
-    levelLine.textContent = `Уровень: ${level ?? 1}`;
   };
 
   const onKeyDown = (event) => {

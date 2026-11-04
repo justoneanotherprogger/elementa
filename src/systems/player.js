@@ -9,7 +9,7 @@ export function createPlayer(app, input, texture) {
   body.y = app.screen.height / 2;
   app.stage.addChild(body);
 
-  const maxHp = 60;
+  const maxHp = 100;
 
   const player = {
     body,
@@ -21,12 +21,17 @@ export function createPlayer(app, input, texture) {
     speedMult: 1,
     areaMult: 1,
     durMult: 1,
+    lastMoveDir: { x: 0, y: -1 },
     update(dt) {
       const speed = 180 * (player.speedMult ?? 1);
       const direction = input.direction();
       body.x += direction.x * speed * dt;
       body.y += direction.y * speed * dt;
       const d = input.direction();
+      const mag = Math.hypot(d.x, d.y);
+      if (mag > 0.01) {
+        player.lastMoveDir = { x: d.x / mag, y: d.y / mag };
+      }
       if (d.x < 0) body.scale.x = +Math.abs(body.scale.x);
       else if (d.x > 0) body.scale.x = -Math.abs(body.scale.x);
       if (player.invuln > 0) {
@@ -40,6 +45,5 @@ export function createPlayer(app, input, texture) {
       }
     },
   };
-
   return player;
 }

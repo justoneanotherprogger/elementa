@@ -1,4 +1,4 @@
-export function createHud(app, player, enemySystem, leveling, camera) {
+export function createHud(app, player, enemySystem, leveling, camera, weaponSystem) {
   const cam = camera || { x: 0, y: 0 };
   const heroYBottom = 73;
   void app;
@@ -142,27 +142,6 @@ export function createHud(app, player, enemySystem, leveling, camera) {
     marginBottom: "4px",
     pointerEvents: "none",
   });
-  const weaponSlot = document.createElement("div");
-  Object.assign(weaponSlot.style, {
-    padding: "2px 6px",
-    background: "#222",
-    color: "#fff",
-    font: "12px sans-serif",
-    pointerEvents: "none",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-  });
-  const weaponIcon = document.createElement("div");
-  weaponIcon.textContent = "🌙";
-  const weaponStars = document.createElement("div");
-  Object.assign(weaponStars.style, {
-    font: "bold 10px sans-serif",
-  });
-  weaponStars.textContent = "★";
-  weaponSlot.appendChild(weaponIcon);
-  weaponSlot.appendChild(weaponStars);
-  weaponRow.appendChild(weaponSlot);
   center.appendChild(weaponRow);
 
   const hpTrack = document.createElement("div");
@@ -231,8 +210,38 @@ export function createHud(app, player, enemySystem, leveling, camera) {
     width: "auto",
     whiteSpace: "nowrap",
   });
-  goldLine.textContent = `0 🪙`;
+  goldLine.textContent = `${player?.gold ?? 0} 🪙`;
   statsCol.appendChild(goldLine);
+
+  function weaponEmoji(weapon) {
+    return weapon?.id === "spear" ? "🔱" : "🌙";
+  }
+  function syncWeaponSlots() {
+    const weapons = Array.isArray(weaponSystem?.weapons) ? weaponSystem.weapons : [];
+    if (weaponRow.childElementCount === weapons.length) return;
+    weaponRow.replaceChildren();
+    for (const weapon of weapons) {
+      const slot = document.createElement("div");
+      Object.assign(slot.style, {
+        padding: "2px 6px",
+        background: "#222",
+        color: "#fff",
+        font: "12px sans-serif",
+        pointerEvents: "none",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      });
+      const weaponIcon = document.createElement("div");
+      weaponIcon.textContent = weaponEmoji(weapon);
+      const weaponStars = document.createElement("div");
+      Object.assign(weaponStars.style, { font: "bold 10px sans-serif" });
+      weaponStars.textContent = "★";
+      slot.appendChild(weaponIcon);
+      slot.appendChild(weaponStars);
+      weaponRow.appendChild(slot);
+    }
+  }
 
   let elapsed = 0;
 
@@ -244,7 +253,9 @@ export function createHud(app, player, enemySystem, leveling, camera) {
   }
 
   const update = (dt) => {
-    if (!leveling.paused) {
+    const displayedElapsed = player && player.runTime !== null ? player.runTime : elapsed;
+    syncWeaponSlots();
+    if (!leveling.paused && !player?.rewardOpen && !player?.pauseOpen) {
       elapsed += dt;
     }
 
@@ -253,7 +264,7 @@ export function createHud(app, player, enemySystem, leveling, camera) {
     xpFill.style.width = `${xpRatio * 100}%`;
     levelText.textContent = `Уровень ${leveling.level ?? 1}`;
     xpText.textContent = `Опыт ${leveling.xp ?? 0} / ${leveling.xpToNext ?? 1}`;
-    timer.textContent = formatTime(elapsed);
+    timer.textContent = formatTime(displayedElapsed);
 
     const body = player.body || {};
     const px = body.x ?? player.x ?? 0;
@@ -274,7 +285,7 @@ export function createHud(app, player, enemySystem, leveling, camera) {
 
     const kills = enemySystem?.kills ?? 0;
     killsLine.textContent = `${kills} 💀`;
-    goldLine.textContent = `0 🪙`;
+    goldLine.textContent = `${player?.gold ?? 0} 🪙`;
   };
 
   return {
@@ -283,6 +294,7 @@ export function createHud(app, player, enemySystem, leveling, camera) {
       elapsed = 0;
     },
     get elapsed() {
+      if (player && player.runTime !== null) return player.runTime;
       return elapsed;
     },
   };
