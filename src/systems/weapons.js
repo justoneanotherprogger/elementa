@@ -28,6 +28,15 @@ function enemyCorners(enemy) {
   ];
 }
 
+function enemyCenter(enemy) {
+  const sprite = enemy?.sprite;
+  const x = sprite?.x ?? enemy?.x ?? 0;
+  const y = sprite?.y ?? enemy?.y ?? 0;
+  const height = sprite?.height ?? 0;
+  const anchorY = sprite?.anchor?.y ?? 0.5;
+  return { x, y: y - height * (anchorY - 0.5) };
+}
+
 function cloneWeapon(config) {
   const copy = { ...config, base: { ...(config?.base ?? {}) } };
   copy.cd = copy.base.cd ?? 1;
@@ -48,13 +57,12 @@ export function createWeaponSystem(app, player, enemySystem, initialWeapons = [S
     let nearest = { enemy: null, point: null, dist: radius };
     for (const enemy of enemies()) {
       if (!enemy || enemy.alive === false || enemy.hp <= 0) continue;
-      for (const point of enemyCorners(enemy)) {
-        const dx = point.x - px;
-        const dy = point.y - py;
-        const dist = Math.hypot(dx, dy);
-        if (dist <= radius && dist < nearest.dist) {
-          nearest = { enemy, point, dist };
-        }
+      const point = enemyCenter(enemy);
+      const dx = point.x - px;
+      const dy = point.y - py;
+      const dist = Math.hypot(dx, dy);
+      if (dist <= radius && dist < nearest.dist) {
+        nearest = { enemy, point, dist };
       }
     }
     if (!nearest.enemy) return null;
