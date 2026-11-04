@@ -67,6 +67,7 @@ export function createLobby({ onStart } = {}) {
     paddingTop: "24px",
     display: "flex",
     flexDirection: "column",
+    alignItems: "center",
     gap: "16px",
   });
 
@@ -79,7 +80,13 @@ export function createLobby({ onStart } = {}) {
   function makePanel(id) {
     const p = document.createElement("section");
     p.dataset.tab = id;
-    p.style.display = "none";
+    Object.assign(p.style, {
+      display: "none",
+      width: "100%",
+      alignItems: "center",
+      textAlign: "center",
+      justifyContent: "center",
+    });
     return p;
   }
 
