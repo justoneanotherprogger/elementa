@@ -58,7 +58,23 @@ async function start() {
     alignItems: "center",
     font: "bold 24px sans-serif",
   });
-  pauseOverlay.textContent = "Пауза — Esc";
+  const pauseText = document.createElement("div");
+  pauseText.textContent = "Пауза — Esc";
+  const pauseQuitBtn = document.createElement("button");
+  pauseQuitBtn.type = "button";
+  pauseQuitBtn.textContent = "Покинуть поле боя";
+  Object.assign(pauseQuitBtn.style, {
+    padding: "8px 16px",
+    font: "14px sans-serif",
+    cursor: "pointer",
+    pointerEvents: "auto",
+  });
+  pauseQuitBtn.addEventListener("click", () => {
+    pauseOpen = false;
+    pauseOverlay.style.display = "none";
+    quitRun();
+  });
+  pauseOverlay.append(pauseText, pauseQuitBtn);
   document.body.appendChild(pauseOverlay);
   window.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;

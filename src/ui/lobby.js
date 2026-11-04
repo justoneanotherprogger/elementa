@@ -17,11 +17,13 @@ export function createLobby({ onStart } = {}) {
 
   const header = document.createElement("header");
   Object.assign(header.style, {
+    position: "relative",
     display: "flex",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "center",
     paddingBottom: "16px",
     borderBottom: "1px solid #222",
+    minHeight: "40px",
   });
 
   const title = document.createElement("h1");
@@ -29,10 +31,14 @@ export function createLobby({ onStart } = {}) {
   Object.assign(title.style, {
     margin: "0",
     font: "bold 32px sans-serif",
+    textAlign: "center",
   });
 
   const wallet = document.createElement("div");
   Object.assign(wallet.style, {
+    position: "absolute",
+    right: "0",
+    top: "0",
     display: "flex",
     alignItems: "center",
     gap: "8px",
@@ -50,6 +56,8 @@ export function createLobby({ onStart } = {}) {
   Object.assign(tabs.style, {
     display: "flex",
     gap: "8px",
+    flexWrap: "wrap",
+    justifyContent: "center",
     paddingTop: "16px",
   });
 
