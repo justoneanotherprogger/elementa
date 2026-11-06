@@ -1,18 +1,21 @@
-const GOLD_KEY = "elementa_gold_v1";
+import { icon } from "./icons.js";
 
 export function createLobby({ onStart } = {}) {
   const overlay = document.createElement("div");
   overlay.id = "elementa-lobby";
+  overlay.tabIndex = -1;
+  overlay.className = "fantasy-grain";
   Object.assign(overlay.style, {
     position: "fixed",
     inset: "0",
     display: "none",
     flexDirection: "column",
-    background: "#0a0a0a",
-    color: "#fff",
-    font: "16px sans-serif",
+    background: "radial-gradient(circle at 30% 20%, rgba(74, 50, 28, 0.45), transparent 55%), radial-gradient(circle at 80% 85%, rgba(212, 169, 66, 0.12), transparent 45%), var(--color-bg)",
+    color: "var(--color-text)",
     zIndex: "1200",
-    padding: "24px",
+    padding: "var(--sp-5)",
+    gap: "var(--sp-4)",
+    overflow: "auto",
   });
 
   const header = document.createElement("header");
@@ -21,60 +24,67 @@ export function createLobby({ onStart } = {}) {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    paddingBottom: "16px",
-    borderBottom: "1px solid #222",
-    minHeight: "40px",
+    paddingBottom: "var(--sp-3)",
+    borderBottom: "1px solid var(--color-border-subtle)",
+    minHeight: "56px",
   });
 
   const title = document.createElement("h1");
   title.textContent = "ELEMENTA";
+  title.className = "fantasy-title fantasy-title--hero";
   Object.assign(title.style, {
     margin: "0",
-    font: "bold 32px sans-serif",
-    textAlign: "center",
+    fontSize: "clamp(36px, 6vw, 64px)",
   });
 
   const wallet = document.createElement("div");
   Object.assign(wallet.style, {
     position: "absolute",
     right: "0",
-    top: "0",
+    top: "50%",
+    transform: "translateY(-50%)",
     display: "flex",
     alignItems: "center",
-    gap: "8px",
-    font: "bold 18px sans-serif",
+    gap: "var(--sp-2)",
+    font: "600 18px var(--font-display)",
+    color: "var(--color-accent)",
+    padding: "8px 14px",
+    background: "rgba(42, 32, 26, 0.72)",
+    border: "1px solid var(--color-accent-border)",
+    borderRadius: "var(--radius-pill)",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.35)",
   });
+  const walletIcon = icon("coin", 18);
+  walletIcon.style.color = "var(--color-gold)";
   const walletLabel = document.createElement("span");
-  walletLabel.style.color = "#9e9e9e";
-  walletLabel.textContent = "Золото:";
+  walletLabel.style.color = "var(--color-text-dim)";
+  walletLabel.style.font = "500 13px var(--font-body)";
+  walletLabel.style.textTransform = "uppercase";
+  walletLabel.style.letterSpacing = "0.1em";
+  walletLabel.textContent = "Золото";
   const walletValue = document.createElement("span");
+  walletValue.className = "fantasy-mono";
   walletValue.textContent = "0";
-  wallet.append(walletLabel, walletValue);
+  wallet.append(walletIcon, walletLabel, walletValue);
   header.append(title, wallet);
 
   const tabs = document.createElement("nav");
-  Object.assign(tabs.style, {
-    display: "flex",
-    gap: "8px",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    paddingTop: "16px",
-  });
+  tabs.className = "fantasy-tabs";
+  Object.assign(tabs.style, { paddingTop: "var(--sp-3)" });
 
   const panels = document.createElement("main");
   Object.assign(panels.style, {
     flex: "1",
-    paddingTop: "24px",
+    paddingTop: "var(--sp-4)",
     display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: "16px",
+    justifyContent: "center",
+    alignItems: "flex-start",
   });
 
   const tabDefs = [
     { id: "run", label: "В бой" },
     { id: "character", label: "Персонаж" },
-    { id: "skills", label: "Дерево навыков" },
+    { id: "skills", label: "Навыки" },
   ];
 
   function makePanel(id) {
@@ -83,55 +93,81 @@ export function createLobby({ onStart } = {}) {
     Object.assign(p.style, {
       display: "none",
       width: "100%",
-      alignItems: "center",
-      textAlign: "center",
+      maxWidth: "780px",
+      alignItems: "stretch",
       justifyContent: "center",
+      animation: "fantasy-rise var(--dur-slow) var(--ease-out) both",
     });
     return p;
   }
 
   const runPanel = makePanel("run");
-  // Card layout
   const card = document.createElement("div");
+  card.className = "fantasy-panel fantasy-panel--ornate";
   Object.assign(card.style, {
-    background: "#141414",
-    border: "1px solid #2a2a2a",
-    borderRadius: "4px",
-    padding: "20px",
-    maxWidth: "360px",
+    margin: "0 auto",
+    maxWidth: "420px",
     display: "flex",
     flexDirection: "column",
-    gap: "12px",
+    gap: "var(--sp-3)",
+    textAlign: "center",
   });
   const arenaTitle = document.createElement("div");
+  arenaTitle.className = "fantasy-title fantasy-title--section";
   arenaTitle.textContent = "Гоблинский лес";
-  arenaTitle.style.font = "bold 20px sans-serif";
   const arenaDuration = document.createElement("div");
-  arenaDuration.textContent = "Длительность 30:00";
-  arenaDuration.style.color = "#9e9e9e";
+  arenaDuration.className = "fantasy-subtitle";
+  arenaDuration.textContent = "Забег · 30:00 · стартовый набор";
+  const arenaMeta = document.createElement("div");
+  Object.assign(arenaMeta.style, {
+    display: "flex",
+    justifyContent: "center",
+    gap: "var(--sp-4)",
+    color: "var(--color-text-dim)",
+    fontSize: "14px",
+    flexWrap: "wrap",
+  });
+  const metaItem = (label, value) => {
+    const el = document.createElement("div");
+    el.innerHTML = `<span style="color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.08em;font-size:11px">${label}</span><br><span style="color:var(--color-text);font:600 14px var(--font-mono)">${value}</span>`;
+    return el;
+  };
+  arenaMeta.append(metaItem("Сложность", "Нормальная"), metaItem("Враги", "Гоблины"), metaItem("Босс", "1"));
   const startBtn = document.createElement("button");
   startBtn.type = "button";
+  startBtn.className = "fantasy-button fantasy-button--primary";
   startBtn.textContent = "Начать забег";
-  Object.assign(startBtn.style, {
-    padding: "8px 16px",
-    font: "14px sans-serif",
-    cursor: "pointer",
-    pointerEvents: "auto",
-  });
-  card.append(arenaTitle, arenaDuration, startBtn);
+  Object.assign(startBtn.style, { width: "100%", marginTop: "var(--sp-2)" });
+  card.append(arenaTitle, arenaDuration, arenaMeta, startBtn);
   runPanel.append(card);
 
-  const characterPanel = makePanel("character");
-  const characterContainer = document.createElement("div");
-  characterContainer.id = "lobby-character-panel";
-  characterContainer.textContent = "Выбор героя появится позже";
-  characterPanel.append(characterContainer);
+  function emptyPanel(id, title, body) {
+    const panel = makePanel(id);
+    const empty = document.createElement("div");
+    empty.className = "fantasy-empty fantasy-panel";
+    Object.assign(empty.style, { maxWidth: "520px", margin: "0 auto" });
+    const badge = document.createElement("div");
+    badge.style.color = "var(--color-accent)";
+    badge.style.opacity = "0.5";
+    badge.appendChild(icon("target", 48));
+    const heading = document.createElement("div");
+    heading.className = "fantasy-empty__title";
+    heading.textContent = title;
+    const text = document.createElement("div");
+    text.className = "fantasy-empty__body";
+    text.textContent = body;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "fantasy-button";
+    btn.textContent = "Скоро";
+    btn.disabled = true;
+    empty.append(badge, heading, text, btn);
+    panel.append(empty);
+    return panel;
+  }
 
-  const skillsPanel = makePanel("skills");
-  const skillsContainer = document.createElement("div");
-  skillsContainer.id = "lobby-skilltree-panel";
-  skillsContainer.textContent = "Дерево навыков появится позже";
-  skillsPanel.append(skillsContainer);
+  const characterPanel = emptyPanel("character", "Выбор героя", "Классы и снаряжение откроются после завершения базового билда. Пока доступен стартовый герой.");
+  const skillsPanel = emptyPanel("skills", "Дерево навыков", "Усиления и ветки навыков будут доступны после первого обновления прогрессии.");
 
   const panelMap = { run: runPanel, character: characterPanel, skills: skillsPanel };
 
@@ -139,7 +175,7 @@ export function createLobby({ onStart } = {}) {
   function activateTab(tabId) {
     for (const def of tabDefs) {
       const btn = tabButtons[def.id];
-      if (btn) btn.style.background = def.id === tabId ? "#2a2a2a" : "transparent";
+      if (btn) btn.classList.toggle("fantasy-tab--active", def.id === tabId);
       panelMap[def.id].style.display = def.id === tabId ? "flex" : "none";
     }
   }
@@ -147,17 +183,8 @@ export function createLobby({ onStart } = {}) {
   for (const def of tabDefs) {
     const btn = document.createElement("button");
     btn.type = "button";
+    btn.className = "fantasy-tab";
     btn.textContent = def.label;
-    Object.assign(btn.style, {
-      padding: "8px 16px",
-      font: "14px sans-serif",
-      cursor: "pointer",
-      pointerEvents: "auto",
-      border: "1px solid #2a2a2a",
-      borderRadius: "4px",
-      background: "transparent",
-      color: "#fff",
-    });
     btn.addEventListener("click", () => activateTab(def.id));
     tabButtons[def.id] = btn;
     tabs.append(btn);
@@ -172,7 +199,7 @@ export function createLobby({ onStart } = {}) {
   document.body.append(overlay);
 
   function readGold() {
-    return Number(localStorage.getItem(GOLD_KEY) || 0);
+    return Number(localStorage.getItem("elementa_gold_v1") || 0);
   }
 
   function refresh() {
@@ -183,13 +210,13 @@ export function createLobby({ onStart } = {}) {
     refresh();
     overlay.style.display = "flex";
     activateTab("run");
+    requestAnimationFrame(() => overlay.focus());
   }
 
   function hide() {
     overlay.style.display = "none";
   }
 
-  // initial
   activateTab("run");
   refresh();
 

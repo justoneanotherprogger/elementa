@@ -117,8 +117,9 @@ export function createEnemySystem(app, player, spatialHash, texture, camera, hoo
         const ratio = enemy.maxHp
           ? Math.max(0, Math.min(1, enemy.hp / enemy.maxHp))
           : 0;
-        enemy.hpBar.rect(0, 0, 36, 4).fill(0x333333);
-        enemy.hpBar.rect(0, 0, 36 * ratio, 4).fill(0xff0000);
+        enemy.hpBar.roundRect(0, 0, 36, 4, 2).fill(0x1b1410);
+        enemy.hpBar.roundRect(0, 0, 36 * ratio, 4, 2).fill(0xe25555);
+        enemy.hpBar.roundRect(0, 0, 36, 4, 2).stroke({ width: 1, color: 0x8a6d3b, alpha: 0.3 });
         if (enemy.vx < 0)
           enemy.sprite.scale.x = +Math.abs(enemy.sprite.scale.x || 1);
         else if (enemy.vx > 0)

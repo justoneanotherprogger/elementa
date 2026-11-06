@@ -19,13 +19,14 @@ import { createWaves } from "./systems/waves.js";
 import { createChestSystem } from "./systems/chests.js";
 import { createRewardScreen } from "./ui/rewardScreen.js";
 import { createLobby } from "./ui/lobby.js";
+import "./ui/theme.css";
 import { STARTER_WEAPON, SPEAR_WEAPON } from "./data/weapons.js";
 const app = new Application();
 
 async function start() {
   await app.init({
     resizeTo: window,
-    background: 0x0a0a0a,
+    background: 0x1b1410,
     antialias: true,
   });
 
@@ -47,37 +48,46 @@ async function start() {
   let rewardScreen = null;
   let pauseOpen = false;
   const pauseOverlay = document.createElement("div");
+  pauseOverlay.className = "fantasy-grain";
   Object.assign(pauseOverlay.style, {
     position: "fixed",
     inset: "0",
     zIndex: "2000",
-    background: "rgba(0,0,0,0.55)",
-    color: "#fff",
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-    gap: "12px",
-    font: "bold 24px sans-serif",
-  });
-  pauseOverlay.style.display = "none";
-  const pauseText = document.createElement("div");
-  pauseText.textContent = "Пауза — Esc";
-  const pauseQuitBtn = document.createElement("button");
-  pauseQuitBtn.type = "button";
-  pauseQuitBtn.textContent = "Покинуть поле боя";
-  Object.assign(pauseQuitBtn.style, {
-    padding: "8px 16px",
-    font: "14px sans-serif",
-    cursor: "pointer",
+    gap: "var(--sp-4)",
+    padding: "var(--sp-5)",
+    background: "radial-gradient(circle at center, rgba(27, 20, 16, 0.82), rgba(6, 4, 3, 0.95))",
+    backdropFilter: "blur(3px)",
+    color: "var(--color-text)",
     pointerEvents: "auto",
   });
+  pauseOverlay.style.display = "none";
+  const pauseSigil = document.createElement("div");
+  pauseSigil.style.color = "var(--color-accent)";
+  pauseSigil.style.opacity = "0.8";
+  pauseSigil.style.filter = "drop-shadow(0 0 14px rgba(212,169,66,0.5))";
+  pauseSigil.textContent = "II";
+  Object.assign(pauseSigil.style, { font: "700 40px var(--font-display)", letterSpacing: "0.25em" });
+  const pauseText = document.createElement("div");
+  pauseText.className = "fantasy-title";
+  pauseText.textContent = "Пауза";
+  Object.assign(pauseText.style, { fontSize: "34px" });
+  const pauseHint = document.createElement("div");
+  pauseHint.className = "fantasy-subtitle";
+  pauseHint.textContent = "Esc — продолжить";
+  const pauseQuitBtn = document.createElement("button");
+  pauseQuitBtn.type = "button";
+  pauseQuitBtn.className = "fantasy-button fantasy-button--ghost";
+  pauseQuitBtn.textContent = "Покинуть поле боя";
   pauseQuitBtn.addEventListener("click", () => {
     pauseOpen = false;
     pauseOverlay.style.display = "none";
     quitRun();
   });
-  pauseOverlay.append(pauseText, pauseQuitBtn);
+  pauseOverlay.append(pauseSigil, pauseText, pauseHint, pauseQuitBtn);
   document.body.appendChild(pauseOverlay);
   window.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
@@ -240,8 +250,6 @@ async function start() {
     gamePaused = true;
     leveling.paused = true;
     saveRunGold();
-    // debug:
-    console.log("Victory time runTime=", runTime, "hud=", hud?.elapsed);
     victoryScreen.show();
   };
 

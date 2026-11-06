@@ -70,18 +70,22 @@ export function createLeveling(player, enemySystem) {
       overlay.id = "levelup";
       document.body.appendChild(overlay);
     }
-    overlay.style.position = "fixed";
-    overlay.style.inset = "0";
-    overlay.style.display = "none";
-    overlay.style.zIndex = "2000";
-    overlay.style.background = "rgba(0, 0, 0, 0.7)";
-    overlay.style.justifyContent = "center";
-    overlay.style.alignItems = "center";
-    overlay.style.flexDirection = "column";
-    overlay.style.gap = "12px";
-    overlay.style.color = "#fff";
-    overlay.style.padding = "1rem";
-    overlay.style.border = "1px solid #555";
+    overlay.className = "fantasy-grain";
+    Object.assign(overlay.style, {
+      position: "fixed",
+      inset: "0",
+      display: "none",
+      zIndex: "2000",
+      background: "radial-gradient(circle at center, rgba(50, 38, 18, 0.78), rgba(6, 4, 3, 0.92))",
+      backdropFilter: "blur(3px)",
+      justifyContent: "center",
+      alignItems: "center",
+      flexDirection: "column",
+      gap: "var(--sp-4)",
+      color: "var(--color-text)",
+      padding: "var(--sp-5)",
+      pointerEvents: "auto",
+    });
   }
 
   function pickChoices() {
@@ -109,24 +113,107 @@ export function createLeveling(player, enemySystem) {
     overlay.innerHTML = "";
     overlay.style.display = "flex";
 
+    const panel = document.createElement("div");
+    panel.className = "fantasy-panel fantasy-panel--ornate";
+    Object.assign(panel.style, {
+      maxWidth: "760px",
+      width: "100%",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      gap: "var(--sp-4)",
+      padding: "var(--sp-5)",
+      animation: "fantasy-rise var(--dur-base) var(--ease-out) both",
+    });
+
+    const sigil = document.createElement("div");
+    sigil.style.color = "var(--color-accent)";
+    sigil.style.opacity = "0.85";
+    sigil.style.filter = "drop-shadow(0 0 14px rgba(212,169,66,0.55))";
+    sigil.textContent = "★";
+    Object.assign(sigil.style, { font: "700 34px var(--font-display)" });
+    panel.appendChild(sigil);
+
     const title = document.createElement("h2");
-    title.textContent = `Уровень ${state.level}`;
-    title.style.margin = "0";
-    overlay.appendChild(title);
+    title.className = "fantasy-title";
+    title.textContent = `Новый уровень ${state.level}`;
+    Object.assign(title.style, { margin: "0", fontSize: "clamp(26px, 4vw, 40px)" });
+    panel.appendChild(title);
+
+    const hint = document.createElement("div");
+    hint.className = "fantasy-subtitle";
+    hint.textContent = "Выберите одно усиление. Клавиши 1-3 работают так же.";
+    panel.appendChild(hint);
 
     if (choices) {
       const cardRow = document.createElement("div");
-      Object.assign(cardRow.style, { display: "flex", gap: "12px" });
-      overlay.appendChild(cardRow);
+      Object.assign(cardRow.style, {
+        display: "flex",
+        gap: "var(--sp-3)",
+        flexWrap: "wrap",
+        justifyContent: "center",
+        width: "100%",
+      });
+      panel.appendChild(cardRow);
+
       choices.forEach((choice, index) => {
         const button = document.createElement("button");
         button.type = "button";
-        button.textContent = `${index + 1}. ${choice.label}`;
+        button.className = "fantasy-card fantasy-card--interactive";
+        Object.assign(button.style, {
+          minWidth: "180px",
+          maxWidth: "240px",
+          minHeight: "132px",
+          padding: "var(--sp-4)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "var(--sp-3)",
+          cursor: "pointer",
+          pointerEvents: "auto",
+          border: "1px solid var(--color-accent-border)",
+          background: "linear-gradient(180deg, rgba(42,32,26,0.95), rgba(27,20,16,0.95))",
+        });
+        const badge = document.createElement("div");
+        badge.className = "fantasy-mono";
+        Object.assign(badge.style, {
+          width: "34px",
+          height: "34px",
+          borderRadius: "var(--radius-pill)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "var(--color-accent-dim)",
+          border: "1px solid var(--color-accent-border)",
+          color: "var(--color-accent)",
+          font: "700 15px var(--font-display)",
+        });
+        badge.textContent = String(index + 1);
+        button.appendChild(badge);
+
+        const label = document.createElement("div");
+        label.textContent = choice.label;
+        Object.assign(label.style, {
+          font: "600 16px var(--font-display)",
+          color: "var(--color-text)",
+          textAlign: "center",
+          lineHeight: "1.35",
+        });
+        button.appendChild(label);
+
         button.addEventListener("click", () => applyChoice(choice));
-        Object.assign(button.style, { width: "140px", padding: "12px", background: "#222", color: "#fff", border: "1px solid #555", font: "14px sans-serif", cursor: "pointer" });
+        button.addEventListener("focus", () => {
+          button.style.boxShadow = "0 0 0 3px var(--color-accent-dim), var(--shadow-raised)";
+        });
+        button.addEventListener("blur", () => {
+          button.style.boxShadow = "";
+        });
         cardRow.appendChild(button);
       });
     }
+
+    overlay.appendChild(panel);
   }
 
   function levelUp() {

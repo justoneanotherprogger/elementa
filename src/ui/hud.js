@@ -1,7 +1,10 @@
+import { Graphics } from "pixi.js";
+import { icon, weaponIcon } from "./icons.js";
+
 export function createHud(app, player, enemySystem, leveling, camera, weaponSystem) {
   const cam = camera || { x: 0, y: 0 };
   const heroYBottom = 73;
-  void app;
+  if (app.stage) app.stage.sortableChildren = true;
   const uiRoot = document.getElementById("ui");
 
   const hud = document.createElement("div");
@@ -10,14 +13,13 @@ export function createHud(app, player, enemySystem, leveling, camera, weaponSyst
     position: "fixed",
     inset: "0",
     pointerEvents: "none",
-    maxWidth: "100%",
+    zIndex: "10",
+    color: "var(--color-text)",
+    fontFamily: "var(--font-body)",
   });
 
-  if (uiRoot) {
-    uiRoot.appendChild(hud);
-  } else {
-    document.body.appendChild(hud);
-  }
+  if (uiRoot) uiRoot.appendChild(hud);
+  else document.body.appendChild(hud);
 
   // Верхняя XP-полоса
   const xpTrack = document.createElement("div");
@@ -26,16 +28,19 @@ export function createHud(app, player, enemySystem, leveling, camera, weaponSyst
     top: "0",
     left: "0",
     right: "0",
-    width: "100%",
-    height: "16px",
-    background: "#333",
+    height: "10px",
+    background: "rgba(20, 14, 10, 0.78)",
+    borderBottom: "1px solid var(--color-accent-border)",
     pointerEvents: "none",
+    overflow: "hidden",
   });
   const xpFill = document.createElement("div");
   Object.assign(xpFill.style, {
     height: "100%",
     width: "0%",
-    background: "#ffd54f",
+    background: "linear-gradient(90deg, var(--color-accent-pressed), var(--color-accent), var(--color-accent-hover))",
+    boxShadow: "0 0 12px var(--color-accent-dim)",
+    transition: "width var(--dur-base) var(--ease-out)",
   });
   xpTrack.appendChild(xpFill);
   hud.appendChild(xpTrack);
@@ -43,11 +48,14 @@ export function createHud(app, player, enemySystem, leveling, camera, weaponSyst
   const levelText = document.createElement("div");
   Object.assign(levelText.style, {
     position: "absolute",
-    top: "30px",
-    left: "8px",
-    color: "#fff",
-    font: "bold 12px sans-serif",
+    top: "16px",
+    left: "var(--sp-5)",
+    color: "var(--color-accent)",
+    font: "600 13px var(--font-display)",
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
     pointerEvents: "none",
+    textShadow: "0 1px 3px rgba(0,0,0,0.95)",
   });
   levelText.textContent = "Уровень 1";
   hud.appendChild(levelText);
@@ -55,12 +63,14 @@ export function createHud(app, player, enemySystem, leveling, camera, weaponSyst
   const timer = document.createElement("div");
   Object.assign(timer.style, {
     position: "absolute",
-    top: "30px",
+    top: "14px",
     left: "50%",
     transform: "translateX(-50%)",
-    color: "#fff",
-    font: "bold 18px sans-serif",
+    color: "var(--color-text)",
+    font: "700 20px var(--font-display)",
+    letterSpacing: "0.04em",
     pointerEvents: "none",
+    textShadow: "0 1px 4px rgba(0,0,0,0.95), 0 0 12px var(--color-accent-dim)",
   });
   timer.textContent = "00:00";
   hud.appendChild(timer);
@@ -68,32 +78,19 @@ export function createHud(app, player, enemySystem, leveling, camera, weaponSyst
   const xpText = document.createElement("div");
   Object.assign(xpText.style, {
     position: "absolute",
-    top: "30px",
-    right: "8px",
-    color: "#fff",
-    font: "12px sans-serif",
+    top: "18px",
+    right: "var(--sp-5)",
+    color: "var(--color-text-dim)",
+    font: "500 12px var(--font-mono)",
     pointerEvents: "none",
+    textShadow: "0 1px 3px rgba(0,0,0,0.95)",
   });
   hud.appendChild(xpText);
 
-  // HP над головой героя
-  const overhead = document.createElement("div");
-  Object.assign(overhead.style, {
-    position: "absolute",
-    width: "36px",
-    height: "4px",
-    background: "#333",
-    transform: "translate(-50%, 0)",
-    pointerEvents: "none",
-  });
-  const overheadFill = document.createElement("div");
-  Object.assign(overheadFill.style, {
-    height: "100%",
-    width: "100%",
-    background: "red",
-  });
-  overhead.appendChild(overheadFill);
-  hud.appendChild(overhead);
+  // HP над головой героя — канвасный Graphics, как у врагов, для единого принципа
+  const overhead = new Graphics();
+  overhead.zIndex = 5;
+  app.stage.addChild(overhead);
 
   // Нижний блок
   const bottom = document.createElement("div");
@@ -102,21 +99,21 @@ export function createHud(app, player, enemySystem, leveling, camera, weaponSyst
     left: "0",
     right: "0",
     bottom: "0",
-    display: "block",
     pointerEvents: "none",
-    maxWidth: "100%",
   });
   hud.appendChild(bottom);
 
   const boosts = document.createElement("div");
   Object.assign(boosts.style, {
     position: "absolute",
-    left: "8px",
-    bottom: "8px",
+    left: "var(--sp-5)",
+    bottom: "var(--sp-5)",
     maxWidth: "30%",
-    color: "#fff",
-    font: "12px sans-serif",
+    color: "var(--color-text-dim)",
+    font: "500 13px var(--font-body)",
+    lineHeight: "1.5",
     pointerEvents: "none",
+    textShadow: "0 1px 3px rgba(0,0,0,0.95)",
   });
   boosts.textContent = "Усиления: —";
   bottom.appendChild(boosts);
@@ -125,12 +122,13 @@ export function createHud(app, player, enemySystem, leveling, camera, weaponSyst
   Object.assign(center.style, {
     position: "absolute",
     left: "50%",
-    bottom: "8px",
+    bottom: "var(--sp-5)",
     transform: "translateX(-50%)",
-    width: "40%",
+    width: "min(420px, 42vw)",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
+    gap: "var(--sp-2)",
     pointerEvents: "none",
   });
   bottom.appendChild(center);
@@ -138,83 +136,92 @@ export function createHud(app, player, enemySystem, leveling, camera, weaponSyst
   const weaponRow = document.createElement("div");
   Object.assign(weaponRow.style, {
     display: "flex",
-    gap: "4px",
-    marginBottom: "4px",
+    gap: "var(--sp-2)",
+    justifyContent: "center",
     pointerEvents: "none",
   });
   center.appendChild(weaponRow);
 
   const hpTrack = document.createElement("div");
   Object.assign(hpTrack.style, {
+    position: "relative",
     width: "100%",
-    height: "24px",
-    background: "#333",
+    height: "22px",
+    background: "rgba(20, 14, 10, 0.78)",
+    border: "1px solid var(--color-accent-border)",
+    borderRadius: "var(--radius-m)",
+    overflow: "hidden",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.45)",
     pointerEvents: "none",
   });
   const hpFill = document.createElement("div");
   Object.assign(hpFill.style, {
     height: "100%",
     width: "100%",
-    background: "red",
+    background: "linear-gradient(90deg, #8a2525, var(--color-danger), #f07a7a)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.18)",
+    transition: "width var(--dur-base) var(--ease-out)",
   });
   hpTrack.appendChild(hpFill);
-  center.appendChild(hpTrack);
 
   const hpText = document.createElement("div");
   Object.assign(hpText.style, {
     position: "absolute",
     left: "50%",
-    bottom: "12px",
-    transform: "translate(-50%, 50%)",
-    color: "#fff",
-    font: "12px sans-serif",
-    textShadow: "rgba(0,0,0,.6) 1px 1px",
+    top: "50%",
+    transform: "translate(-50%, -50%)",
+    color: "#fff5e8",
+    font: "600 13px var(--font-mono)",
+    textShadow: "0 1px 2px rgba(0,0,0,0.95)",
     pointerEvents: "none",
     whiteSpace: "nowrap",
+    fontVariantNumeric: "tabular-nums",
   });
-  center.appendChild(hpText);
+  hpTrack.appendChild(hpText);
+  center.appendChild(hpTrack);
 
   const statsCol = document.createElement("div");
   Object.assign(statsCol.style, {
     position: "absolute",
-    right: "8px",
-    bottom: "8px",
+    right: "var(--sp-5)",
+    bottom: "var(--sp-5)",
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-end",
-    gap: "2px",
+    gap: "var(--sp-1)",
     pointerEvents: "none",
+    textShadow: "0 1px 3px rgba(0,0,0,0.95)",
   });
   bottom.appendChild(statsCol);
 
-  const killsLine = document.createElement("div");
-  Object.assign(killsLine.style, {
-    color: "#fff",
-    font: "12px sans-serif",
-    pointerEvents: "none",
-    textAlign: "right",
-    maxWidth: "none",
-    width: "auto",
-    whiteSpace: "nowrap",
-  });
-  killsLine.textContent = `0 💀`;
-  statsCol.appendChild(killsLine);
+  function makeStatLine(iconName, initialText, color) {
+    const line = document.createElement("div");
+    Object.assign(line.style, {
+      display: "flex",
+      alignItems: "center",
+      gap: "6px",
+      color: color || "var(--color-text)",
+      font: "600 14px var(--font-mono)",
+      whiteSpace: "nowrap",
+      fontVariantNumeric: "tabular-nums",
+    });
+    const ic = icon(iconName, 16);
+    ic.style.color = "var(--color-accent)";
+    line.appendChild(ic);
+    const value = document.createElement("span");
+    value.textContent = initialText;
+    line.appendChild(value);
+    return { line, value };
+  }
 
-  const goldLine = document.createElement("div");
-  Object.assign(goldLine.style, {
-    color: "#fff",
-    font: "12px sans-serif",
-    pointerEvents: "none",
-    textAlign: "right",
-    maxWidth: "none",
-    width: "auto",
-    whiteSpace: "nowrap",
-  });
-  goldLine.textContent = `${player?.gold ?? 0} 🪙`;
-  statsCol.appendChild(goldLine);
+  const killsStat = makeStatLine("skull", "0", "var(--color-text)");
+  statsCol.appendChild(killsStat.line);
+
+  const goldStat = makeStatLine("coin", String(player?.gold ?? 0), "var(--color-gold)");
+  statsCol.appendChild(goldStat.line);
 
   function weaponEmoji(weapon) {
-    return weapon?.id === "spear" ? "🔱" : "🌙";
+    return weapon?.id === "spear" ? "spear" : "sickle";
   }
   function syncWeaponSlots() {
     const weapons = Array.isArray(weaponSystem?.weapons) ? weaponSystem.weapons : [];
@@ -223,21 +230,29 @@ export function createHud(app, player, enemySystem, leveling, camera, weaponSyst
     for (const weapon of weapons) {
       const slot = document.createElement("div");
       Object.assign(slot.style, {
-        padding: "2px 6px",
-        background: "#222",
-        color: "#fff",
-        font: "12px sans-serif",
-        pointerEvents: "none",
+        minWidth: "44px",
+        padding: "4px 8px",
+        background: "linear-gradient(180deg, rgba(42,32,26,0.85), rgba(27,20,16,0.85))",
+        color: "var(--color-text)",
+        border: "1px solid var(--color-accent-border)",
+        borderRadius: "var(--radius-m)",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
+        gap: "2px",
+        pointerEvents: "none",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
       });
-      const weaponIcon = document.createElement("div");
-      weaponIcon.textContent = weaponEmoji(weapon);
+      const weaponIconEl = weaponIcon(weapon?.id, 20);
+      weaponIconEl.style.color = "var(--color-accent)";
       const weaponStars = document.createElement("div");
-      Object.assign(weaponStars.style, { font: "bold 10px sans-serif" });
+      Object.assign(weaponStars.style, {
+        font: "700 10px var(--font-display)",
+        color: "var(--color-accent)",
+        letterSpacing: "0.12em",
+      });
       weaponStars.textContent = "★";
-      slot.appendChild(weaponIcon);
+      slot.appendChild(weaponIconEl);
       slot.appendChild(weaponStars);
       weaponRow.appendChild(slot);
     }
@@ -271,21 +286,27 @@ export function createHud(app, player, enemySystem, leveling, camera, weaponSyst
     const py = body.y ?? player.y ?? 0;
     const sx = px - cam.x + app.screen.width / 2;
     const sy = py - cam.y + app.screen.height / 2;
-    overhead.style.left = `${sx}px`;
     const offset = Math.round(heroYBottom * (player.body?.scale.y ?? 0.7)) + 4;
-    overhead.style.top = `${sy + offset}px`;
-    const hpRatio = Math.max(
-      0,
-      Math.min(1, (player.hp || 0) / (player.maxHp || 1)),
-    );
-    overheadFill.style.width = `${hpRatio * 100}%`;
-    overhead.style.display = player.hp < player.maxHp ? "block" : "none";
+    const hpRatio = Math.max(0, Math.min(1, (player.hp || 0) / (player.maxHp || 1)));
     hpFill.style.width = `${hpRatio * 100}%`;
+    // Канвасный HP-бар над игроком: единый принцип с врагами
+    overhead.visible = (player.hp || 0) < (player.maxHp || 1);
+    overhead.clear();
+    if (overhead.visible) {
+      const barWidth = 46;
+      const barHeight = 6;
+      const x = sx - barWidth / 2;
+      const y = sy + offset;
+      overhead.roundRect(x, y, barWidth, barHeight, 2).fill(0x1b1410);
+      overhead.roundRect(x, y, barWidth * hpRatio, barHeight, 2).fill(0xe25555);
+      overhead.roundRect(x, y, barWidth, barHeight, 2).stroke({ width: 1, color: 0x8a6d3b, alpha: 0.35 });
+    }
     hpText.textContent = `${player.hp ?? 0} / ${player.maxHp ?? 0}`;
 
     const kills = enemySystem?.kills ?? 0;
-    killsLine.textContent = `${kills} 💀`;
-    goldLine.textContent = `${player?.gold ?? 0} 🪙`;
+    killsStat.value.textContent = `${kills}`;
+    const gold = player?.gold ?? 0;
+    goldStat.value.textContent = `${gold}`;
   };
 
   return {
