@@ -483,7 +483,7 @@ export function createCharacterSelect({ onSave } = {}) {
   });
   saveRow.append(saveBtn);
 
-  card.append(layout, metaRow, controlRow, saveRow);
+  card.append(layout, metaRow, saveRow);
   root.appendChild(card);
 
   function refresh() {
