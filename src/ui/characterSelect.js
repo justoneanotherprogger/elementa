@@ -125,7 +125,7 @@ export function createCharacterSelect({ onSave } = {}) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "fantasy-tab";
-    Object.assign(button.style, { justifyContent: "flex-start", flex: "1", minWidth: "0", gap: "var(--sp-2)", whiteSpace: "nowrap" });
+    Object.assign(button.style, { justifyContent: "flex-start", flex: "1", minWidth: "0", gap: "var(--sp-2)", whiteSpace: "nowrap", minHeight: "64px", alignItems: "center" });
     const thumb = document.createElement("div");
     Object.assign(thumb.style, {
       width: "64px",
@@ -181,7 +181,7 @@ export function createCharacterSelect({ onSave } = {}) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "fantasy-tab";
-    Object.assign(button.style, { justifyContent: "flex-start", width: "100%" });
+    Object.assign(button.style, { justifyContent: "flex-start", width: "100%", minHeight: "64px", alignItems: "center", whiteSpace: "nowrap" });
     button.textContent = cls.name;
     button.addEventListener("click", () => {
       current.classId = cls.id;
