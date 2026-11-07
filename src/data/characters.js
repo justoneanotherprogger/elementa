@@ -43,16 +43,10 @@ export const AVAILABLE_WEAPONS = [
   { id: "spear", name: "Копьё (Вода)" },
 ];
 
-// Combat sprite assets that currently exist. New assets are added here explicitly.
-const COMBAT_SPRITES = {
-  "human:m": "/assets/player/pix_human_m.png",
-};
-
-// Preview/cutout assets that currently exist.
-const PREVIEW_SPRITES = {
-  "human:m:executioner": "/assets/ai_executioner_cutout.png",
-};
-
+// Asset convention requested by the designer:
+// - combat sprite: /assets/player/races/pix_{race}_{gender}.png
+// - class preview/cutout: /assets/player/classes/pix_{race}_{gender}_{class}.png
+// New combinations are added by dropping a file into the matching folder, not by editing data.
 const ELEMENT_WEAPON = {
   fire: "serp",
   water: "spear",
@@ -98,13 +92,11 @@ export function saveCharacter(value) {
 }
 
 export function combatSpriteUrl(character) {
-  const key = `${character.race}:${character.gender}`;
-  return COMBAT_SPRITES[key] || COMBAT_SPRITES["human:m"];
+  return `/assets/player/races/pix_${character.race}_${character.gender}.png`;
 }
 
 export function previewSpriteUrl(character) {
-  const key = `${character.race}:${character.gender}:${character.classId}`;
-  return PREVIEW_SPRITES[key] || null;
+  return `/assets/player/classes/pix_${character.race}_${character.gender}_${character.classId}.png`;
 }
 
 export function startingWeaponId(character) {

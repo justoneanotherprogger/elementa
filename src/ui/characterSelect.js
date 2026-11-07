@@ -46,6 +46,37 @@ export function createCharacterSelect({ onSave } = {}) {
   subtitle.className = "fantasy-subtitle";
   subtitle.textContent = "Выбор сохраняется и будет использован при следующем забеге. Ассеты, которых ещё нет, показываются как «будет добавлено».";
 
+  // Пол — кнопки с иконками над выбором расы.
+  const genderRow = document.createElement("div");
+  Object.assign(genderRow.style, { display: "flex", gap: "var(--sp-2)", justifyContent: "center", flexWrap: "wrap" });
+  const genderButtons = {};
+  for (const gender of GENDERS) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "fantasy-button fantasy-button--ghost";
+    Object.assign(button.style, { minWidth: "120px", justifyContent: "center", gap: "var(--sp-2)" });
+    button.appendChild(icon(gender.id === "m" ? "genderMale" : "genderFemale", 16));
+    const label = document.createElement("span");
+    label.textContent = gender.name;
+    button.appendChild(label);
+    button.addEventListener("click", () => {
+      current.gender = gender.id;
+      current = normalizeCharacter(current);
+      syncGenderButtons();
+      updateRaceImages();
+      syncRaceButtons();
+      refreshPreview();
+    });
+    genderButtons[gender.id] = button;
+    genderRow.appendChild(button);
+  }
+  function syncGenderButtons() {
+    for (const gender of GENDERS) {
+      genderButtons[gender.id].classList.toggle("fantasy-tab--active", gender.id === current.gender);
+    }
+  }
+  syncGenderButtons();
+
   const layout = document.createElement("div");
   Object.assign(layout.style, {
     display: "grid",
@@ -73,6 +104,16 @@ export function createCharacterSelect({ onSave } = {}) {
   // Race column
   const raceColumn = createColumn("Раса");
   const raceButtons = {};
+  const raceImages = {};
+  function updateRaceImages() {
+    for (const race of RACES) {
+      const img = raceImages[race.id];
+      if (!img) continue;
+      img.src = withAssetBase(combatSpriteUrl({ race: race.id, gender: current.gender, classId: current.classId }));
+      img.onerror = () => { img.style.opacity = "0.3"; };
+      img.onload = () => { img.style.opacity = "1"; };
+    }
+  }
   function syncRaceButtons() {
     for (const race of RACES) {
       const button = raceButtons[race.id];
@@ -84,8 +125,20 @@ export function createCharacterSelect({ onSave } = {}) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "fantasy-tab";
-    Object.assign(button.style, { justifyContent: "flex-start", width: "100%" });
-    button.textContent = race.name;
+    Object.assign(button.style, { justifyContent: "flex-start", width: "100%", gap: "var(--sp-2)" });
+    const image = document.createElement("img");
+    Object.assign(image.style, {
+      width: "30px",
+      height: "42px",
+      imageRendering: "pixelated",
+      borderRadius: "var(--radius-s)",
+      background: "rgba(0,0,0,0.35)",
+      flexShrink: "0",
+    });
+    button.appendChild(image);
+    const label = document.createElement("span");
+    label.textContent = race.name;
+    button.appendChild(label);
     button.addEventListener("click", () => {
       current.race = race.id;
       current = normalizeCharacter(current);
@@ -93,8 +146,10 @@ export function createCharacterSelect({ onSave } = {}) {
       refreshPreview();
     });
     raceButtons[race.id] = button;
+    raceImages[race.id] = image;
     raceColumn.appendChild(button);
   }
+  updateRaceImages();
   syncRaceButtons();
 
   // Class column
@@ -244,40 +299,19 @@ export function createCharacterSelect({ onSave } = {}) {
   syncToggleGroup(elementGroup, current.element);
   syncToggleGroup(weaponGroup, current.weaponId);
 
-  // Keep weapon selection aligned with element by default only if user has not touched it.
-  let weaponTouched = false;
-  const originalWeaponSet = (v) => { weaponTouched = true; current.weaponId = v; };
-  // Replace weapon callback with touched tracking
-  for (const button of Object.values(weaponGroup._buttons)) {
-    button.onclick = null;
-  }
-  // Recreate weapon group cleanly
-  weaponGroup.remove();
-  const weaponGroup2 = createToggleGroup("Оружие", AVAILABLE_WEAPONS, () => current.weaponId, (v) => {
-    weaponTouched = true;
-    current.weaponId = v;
-  });
-  syncToggleGroup(weaponGroup2, current.weaponId);
-  AVAILABLE_WEAPONS.forEach((w) => {
-    const btn = weaponGroup2._buttons[w.id];
+  // Element change automatically determines starting weapon; weapon no longer has a separate selector.
+  ELEMENTS.forEach((element) => {
+    const btn = elementGroup._buttons[element.id];
     btn.addEventListener("click", () => {
+      current.element = element.id;
+      current.weaponId = element.id === "fire" ? "serp" : element.id === "water" ? "spear" : current.weaponId;
+      current = normalizeCharacter(current);
+      syncToggleGroup(elementGroup, current.element);
       refreshPreview();
     });
   });
 
-  // Element change should auto-pick weapon only if not manually changed.
-  ELEMENTS.forEach((element) => {
-    const btn = elementGroup._buttons[element.id];
-    btn.addEventListener("click", () => {
-      if (!weaponTouched) {
-        current.weaponId = (element.id === "fire" ? "serp" : element.id === "water" ? "spear" : current.weaponId);
-        syncToggleGroup(weaponGroup2, current.weaponId);
-        refreshPreview();
-      }
-    });
-  });
-
-  controlRow.append(genderGroup, elementGroup, weaponGroup2);
+  controlRow.append(elementGroup);
 
   const saveRow = document.createElement("div");
   Object.assign(saveRow.style, { display: "flex", gap: "var(--sp-3)", justifyContent: "center", flexWrap: "wrap" });
@@ -295,7 +329,7 @@ export function createCharacterSelect({ onSave } = {}) {
   });
   saveRow.append(saveBtn);
 
-  card.append(title, subtitle, layout, metaRow, controlRow, saveRow, status);
+  card.append(title, subtitle, genderRow, layout, metaRow, controlRow, saveRow, status);
   root.appendChild(card);
 
   function refresh() {
@@ -305,7 +339,6 @@ export function createCharacterSelect({ onSave } = {}) {
     syncClassButtons();
     syncToggleGroup(genderGroup, current.gender);
     syncToggleGroup(elementGroup, current.element);
-    syncToggleGroup(weaponGroup2, current.weaponId);
     refreshPreview();
     status.textContent = "";
   }
