@@ -479,7 +479,7 @@ export function createCharacterSelect({ onSave } = {}) {
     syncClassButtons();
     updateClassImages();
     syncToggleGroup(genderGroup, current.gender);
-    syncToggleGroup(elementGroup, current.element);
+    syncElementButtons();
     refreshPreview();
     status.textContent = "";
   }
