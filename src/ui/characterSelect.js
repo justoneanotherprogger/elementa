@@ -125,7 +125,7 @@ export function createCharacterSelect({ onSave } = {}) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "fantasy-tab";
-    Object.assign(button.style, { justifyContent: "flex-start", width: "100%", gap: "var(--sp-2)" });
+    Object.assign(button.style, { justifyContent: "flex-start", flex: "1", minWidth: "0", gap: "var(--sp-2)" });
     const thumb = document.createElement("div");
     Object.assign(thumb.style, {
       width: "42px",
@@ -148,7 +148,6 @@ export function createCharacterSelect({ onSave } = {}) {
       imageRendering: "pixelated",
     });
     thumb.appendChild(image);
-    button.appendChild(thumb);
     const label = document.createElement("span");
     label.textContent = race.name;
     button.appendChild(label);
@@ -158,9 +157,12 @@ export function createCharacterSelect({ onSave } = {}) {
       syncRaceButtons();
       refreshPreview();
     });
+    const row = document.createElement("div");
+    Object.assign(row.style, { display: "flex", alignItems: "center", gap: "var(--sp-2)", width: "100%" });
+    row.append(thumb, button);
     raceButtons[race.id] = button;
     raceImages[race.id] = image;
-    raceColumn.appendChild(button);
+    raceColumn.appendChild(row);
   }
   updateRaceImages();
   syncRaceButtons();
