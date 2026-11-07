@@ -80,7 +80,7 @@ export function createCharacterSelect({ onSave } = {}) {
   const layout = document.createElement("div");
   Object.assign(layout.style, {
     display: "grid",
-    gridTemplateColumns: "minmax(180px, 220px) 1fr minmax(180px, 220px)",
+    gridTemplateColumns: "minmax(220px, 260px) 1fr minmax(220px, 260px)",
     gap: "var(--sp-4)",
     alignItems: "start",
   });
@@ -125,11 +125,11 @@ export function createCharacterSelect({ onSave } = {}) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "fantasy-tab";
-    Object.assign(button.style, { justifyContent: "flex-start", flex: "1", minWidth: "0", gap: "var(--sp-2)" });
+    Object.assign(button.style, { justifyContent: "flex-start", flex: "1", minWidth: "0", gap: "var(--sp-2)", whiteSpace: "normal", overflowWrap: "anywhere", lineHeight: "1.2" });
     const thumb = document.createElement("div");
     Object.assign(thumb.style, {
-      width: "42px",
-      height: "42px",
+      width: "64px",
+      height: "64px",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
