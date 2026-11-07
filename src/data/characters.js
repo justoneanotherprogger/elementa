@@ -52,6 +52,11 @@ const ELEMENT_WEAPON = {
   water: "spear",
 };
 
+// Only executioner has implemented starting weapons in the current game build.
+const CLASS_ELEMENT_WEAPONS = {
+  executioner: ELEMENT_WEAPON,
+};
+
 export function defaultCharacter() {
   return {
     race: "human",
@@ -79,9 +84,7 @@ export function normalizeCharacter(value) {
   const gender = GENDERS.find((g) => g.id === value?.gender)?.id ?? fallback.gender;
   const classId = CLASSES.find((c) => c.id === value?.classId)?.id ?? fallback.classId;
   const element = ELEMENTS.find((e) => e.id === value?.element)?.id ?? fallback.element;
-  const weaponId = AVAILABLE_WEAPONS.find((w) => w.id === value?.weaponId)?.id
-    ?? ELEMENT_WEAPON[element]
-    ?? fallback.weaponId;
+  const weaponId = startingWeaponId({ race, gender, classId, element });
   return { race, gender, classId, element, weaponId };
 }
 
@@ -100,9 +103,19 @@ export function previewSpriteUrl(character) {
 }
 
 export function startingWeaponId(character) {
-  if (character.weaponId) return character.weaponId;
-  return ELEMENT_WEAPON[character.element] ?? "spear";
+  const classWeapons = CLASS_ELEMENT_WEAPONS[character.classId];
+  const weaponId = classWeapons?.[character.element] ?? null;
+  return weaponId;
 }
+
+export function startingWeaponLabel(character) {
+  const weaponId = startingWeaponId(character);
+  if (!weaponId) return "Будет добавлено";
+  const found = AVAILABLE_WEAPONS.find((weapon) => weapon.id === weaponId);
+  return found ? found.name : weaponId;
+}
+
+
 
 export function weaponConfigById(id) {
   if (id === "serp") return STARTER_WEAPON;
