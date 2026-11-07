@@ -458,7 +458,6 @@ export function createCharacterSelect({ onSave } = {}) {
 
   genderGroup._dummy = null;
   syncToggleGroup(genderGroup, current.gender);
-  previewColumn.append(elementGroup);
 
   const saveRow = document.createElement("div");
   Object.assign(saveRow.style, { display: "flex", gap: "var(--sp-3)", justifyContent: "center", flexWrap: "wrap" });
@@ -500,7 +499,7 @@ export function createCharacterSelect({ onSave } = {}) {
   });
   saveRow.append(saveBtn);
 
-  card.append(layout, metaRow, saveRow);
+  card.append(layout, saveRow);
   root.appendChild(card);
 
   function refresh() {
