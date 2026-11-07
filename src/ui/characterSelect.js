@@ -454,17 +454,41 @@ export function createCharacterSelect({ onSave } = {}) {
   saveBtn.type = "button";
   saveBtn.className = "fantasy-button fantasy-button--primary";
   saveBtn.textContent = "Сохранить персонажа";
-  const status = document.createElement("div");
-  status.className = "fantasy-subtitle";
   saveBtn.addEventListener("click", () => {
     current = saveCharacter(current);
-    status.textContent = "Сохранено. Применится при следующем забеге.";
+    const toast = document.createElement("div");
+    toast.textContent = "Сохранено. Применится при следующем забеге.";
+    Object.assign(toast.style, {
+      position: "fixed",
+      top: "18px",
+      left: "50%",
+      transform: "translateX(-50%)",
+      zIndex: "3000",
+      background: "rgba(42, 32, 26, 0.96)",
+      color: "var(--color-text)",
+      border: "1px solid var(--color-accent-border)",
+      borderRadius: "var(--radius-m)",
+      padding: "var(--sp-2) var(--sp-4)",
+      boxShadow: "0 8px 24px rgba(0,0,0,0.45)",
+      opacity: "0",
+      transition: "opacity var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out)",
+    });
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => {
+      toast.style.opacity = "1";
+      toast.style.transform = "translateX(-50%) translateY(4px)";
+    });
+    setTimeout(() => {
+      toast.style.opacity = "0";
+      toast.style.transform = "translateX(-50%)";
+      setTimeout(() => toast.remove(), 180);
+    }, 1600);
     refreshPreview();
     if (typeof onSave === "function") onSave(current);
   });
   saveRow.append(saveBtn);
 
-  card.append(genderRow, layout, metaRow, controlRow, weaponRow, saveRow, status);
+  card.append(genderRow, layout, metaRow, controlRow, weaponRow, saveRow);
   root.appendChild(card);
 
   function refresh() {

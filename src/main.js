@@ -20,7 +20,7 @@ import { createChestSystem } from "./systems/chests.js";
 import { createRewardScreen } from "./ui/rewardScreen.js";
 import { createLobby } from "./ui/lobby.js";
 import { createCharacterSelect } from "./ui/characterSelect.js";
-import { loadCharacter, combatSpriteUrl, startingWeaponId, weaponConfigById, withAssetBase } from "./data/characters.js";
+import { loadCharacter, combatSpriteUrl, previewSpriteUrl, startingWeaponId, weaponConfigById, withAssetBase } from "./data/characters.js";
 import "./ui/theme.css";
 import { STARTER_WEAPON, SPEAR_WEAPON } from "./data/weapons.js";
 const app = new Application();
@@ -45,11 +45,21 @@ async function start() {
   const assetUrl = (path) => `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
   const enemyTexture = await Assets.load(assetUrl("assets/enemies/pix_goblin.png"));
   const selectedCharacter = loadCharacter();
-  const playerSpriteUrl = withAssetBase(combatSpriteUrl(selectedCharacter));
-  let playerTexture;
-  try {
-    playerTexture = await Assets.load(playerSpriteUrl);
-  } catch (_error) {
+  const playerSpriteCandidates = [
+    withAssetBase(previewSpriteUrl(selectedCharacter)),
+    withAssetBase(combatSpriteUrl(selectedCharacter)),
+    assetUrl("assets/player/races/pix_human_m.png"),
+  ].filter(Boolean);
+  let playerTexture = null;
+  for (const spriteUrl of playerSpriteCandidates) {
+    try {
+      playerTexture = await Assets.load(spriteUrl);
+      break;
+    } catch (_error) {
+      // Try the next available sprite.
+    }
+  }
+  if (!playerTexture) {
     playerTexture = await Assets.load(assetUrl("assets/player/races/pix_human_m.png"));
   }
   const player = createPlayer(app, input, playerTexture);
