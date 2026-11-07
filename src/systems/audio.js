@@ -38,37 +38,15 @@ export function createAudio() {
   let volume = Number(localStorage.getItem(VOLUME_KEY));
   if (!Number.isFinite(volume) || volume < 0 || volume > 1) volume = 0.45;
 
-  const FOREST_TEMPLATES = ["ambient_goblin_forest", "ambient-goblin-forest", "forest-ambient", "forest_ambient", "ambient-forest", "forest", "Goblin Forest Ambience"];
-  const BOSS_TEMPLATES = ["boss_fight_goblin_forest", "boss-fight-goblin-forest", "boss-battle", "boss_battle", "battle-boss", "boss", "Goblin Forest Boss"];
-  const EXTENSIONS = ["mp3", "ogg", "wav", "webm", "m4a"];
-  const INDEX_COUNT = 14;
-
-  function basesWithIndices(base) {
-    const out = [base];
-    for (let i = 1; i <= INDEX_COUNT; i += 1) {
-      out.push(`${base}_${i}`);
-      out.push(`${base}-${i}`);
-      out.push(`${base} (${i})`);
-    }
-    return out;
-  }
-
-  function candidateUrls(bases) {
-    const urls = [];
-    const seen = new Set();
-    for (const base of bases) {
-      for (const ext of EXTENSIONS) {
-        const url = `${import.meta.env.BASE_URL}assets/audio/${encodeURIComponent(base)}.${ext}`.replace(/\/{2,}/g, "/");
-        if (!seen.has(url)) { seen.add(url); urls.push(url); }
-      }
-    }
-    return urls;
-  }
-
-  const forestUrls = candidateUrls(FOREST_TEMPLATES.flatMap(basesWithIndices));
-  const bossUrls = candidateUrls(BOSS_TEMPLATES.flatMap(basesWithIndices));
+  const FOREST_TEMPLATES = ["ambient_goblin_forest"];
+  const BOSS_TEMPLATES = ["boss_fight_goblin_forest"];
   const MENU_TEMPLATES = [];
-  const menuUrls = candidateUrls(MENU_TEMPLATES.flatMap(basesWithIndices));
+  const EXTENSIONS = ["mp3", "ogg", "wav", "webm", "m4a"];
+  const MAX_TRACK_INDEX = 12;
+
+  function audioUrl(base, ext) {
+    return `${import.meta.env.BASE_URL}assets/audio/${encodeURIComponent(base)}.${ext}`.replace(/\/{2,}/g, "/");
+  }
 
   const forestPool = [];
   const bossPool = [];
@@ -144,30 +122,56 @@ export function createAudio() {
     currentKey = null;
   }
 
-  async function probeUrls(urls, pool) {
-    for (const url of urls) {
+  async function discoverPool(template, pool) {
+    let missingStreak = 0;
+    for (let i = 0; i <= MAX_TRACK_INDEX; i += 1) {
+      const base = i === 0 ? template : `${template}_${i}`;
+      const mp3Url = audioUrl(base, "mp3");
       try {
-        let response = await fetch(url, { method: "HEAD", cache: "no-store" });
-        if (response.status === 405) response = await fetch(url, { method: "GET", cache: "no-store" });
+        let response = await fetch(mp3Url, { method: "HEAD", cache: "no-store" });
+        if (response.status === 405) response = await fetch(mp3Url, { method: "GET", cache: "no-store" });
         const contentType = (response.headers.get("content-type") || "").toLowerCase();
-        const looksLikeAudio = /audio|octet-stream/i.test(contentType);
-        if (response.ok && looksLikeAudio && !pool.includes(url)) {
-          try { if (response.body && typeof response.body.cancel === "function") response.body.cancel(); } catch (_e) { void _e; }
-          pool.push(url);
-          console.info("[audio] found", url, "pool=", pool.length);
-          if (runActive && !currentKey && !muted) syncTracks();
+        const isAudio = response.ok && /audio|octet-stream/i.test(contentType);
+        if (isAudio) {
+          if (!pool.includes(mp3Url)) {
+            pool.push(mp3Url);
+            console.info("[audio] found", mp3Url, "pool=", pool.length);
+          }
+          missingStreak = 0;
+          // Other formats, but only for an existing numbered track
+          for (const ext of EXTENSIONS) {
+            if (ext === "mp3") continue;
+            const extUrl = audioUrl(base, ext);
+            try {
+              let extResponse = await fetch(extUrl, { method: "HEAD", cache: "no-store" });
+              if (extResponse.status === 405) extResponse = await fetch(extUrl, { method: "GET", cache: "no-store" });
+              const extType = (extResponse.headers.get("content-type") || "").toLowerCase();
+              if (extResponse.ok && /audio|octet-stream/i.test(extType) && !pool.includes(extUrl)) {
+                pool.push(extUrl);
+                console.info("[audio] found", extUrl, "pool=", pool.length);
+              }
+            } catch (_e) { void _e; }
+          }
+        } else if (response.status === 404) {
+          if (i > 0) {
+            missingStreak += 1;
+            if (missingStreak >= 2) break;
+          }
         }
-      } catch (_e) {
-        void _e;
-      }
+      } catch (_e) { void _e; }
+      if (runActive && !currentKey && !muted && pool.length) syncTracks();
     }
-    if (runActive && !currentKey && !muted) syncTracks();
   }
 
-  // Start background discovery immediately (sequential HEAD probes, no extra media players)
-  probeUrls(forestUrls, forestPool).catch(() => {});
-  probeUrls(bossUrls, bossPool).catch(() => {});
-  probeUrls(menuUrls, menuPool).catch(() => {});
+  // Start background discovery immediately (sequential HEAD probes, early stop on 2 missing indices)
+  (async () => {
+    for (const template of ["ambient_goblin_forest"]) await discoverPool(template, forestPool);
+  })().catch(() => {});
+  (async () => {
+    for (const template of ["boss_fight_goblin_forest"]) await discoverPool(template, bossPool);
+  })().catch(() => {});
+  // Menu templates intentionally empty; pool stays empty until themes are added.
+  // e.g. (async () => { for (const template of MENU_TEMPLATES) await discoverPool(template, menuPool); })();
 
   function playTrack(key) {
     if (isTransitioning) { console.info("[audio] playTrack skipped: transitioning"); return false; }
