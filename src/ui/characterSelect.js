@@ -11,6 +11,7 @@ import {
   previewSpriteUrl,
   combatSpriteUrl,
   startingWeaponId,
+  startingWeaponLabel,
   withAssetBase,
   defaultCharacter,
 } from "../data/characters.js";
@@ -335,12 +336,10 @@ export function createCharacterSelect({ onSave } = {}) {
       previewImage.style.display = "none";
       previewCard.appendChild(previewEmpty);
     }
-    const weaponId = startingWeaponId(current);
-    const weaponName = AVAILABLE_WEAPONS.find((w) => w.id === weaponId)?.name ?? weaponId;
     const raceName = RACES.find((r) => r.id === current.race)?.name ?? current.race;
     const className = CLASSES.find((c) => c.id === current.classId)?.name ?? current.classId;
     const genderName = GENDERS.find((g) => g.id === current.gender)?.name ?? current.gender;
-    previewMeta.textContent = `${raceName} · ${genderName} · ${className}\nНачальное оружие: ${weaponName}`;
+    previewMeta.textContent = `${raceName} · ${genderName} · ${className}`;
   }
   layout.append(raceColumn, previewColumn, classColumn);
   const metaRow = document.createElement("div");
@@ -408,12 +407,6 @@ export function createCharacterSelect({ onSave } = {}) {
   elementGroup.appendChild(elementLabel);
   const elementButtonRow = document.createElement("div");
   Object.assign(elementButtonRow.style, { display: "flex", gap: "var(--sp-2)", flexWrap: "wrap", justifyContent: "center" });
-  const elementWeaponText = {
-    fire: "Серп",
-    water: "Копьё",
-    air: "Будет позже",
-    earth: "Будет позже",
-  };
   for (const element of ELEMENTS) {
     const button = document.createElement("button");
     button.type = "button";
@@ -424,17 +417,12 @@ export function createCharacterSelect({ onSave } = {}) {
     const name = document.createElement("span");
     name.textContent = element.name;
     button.appendChild(name);
-    const weapon = document.createElement("span");
-    weapon.style.fontSize = "10px";
-    weapon.style.color = "var(--color-text-dim)";
-    weapon.textContent = elementWeaponText[element.id];
-    button.appendChild(weapon);
     button.addEventListener("click", () => {
       current.element = element.id;
-      current.weaponId = element.id === "fire" ? "serp" : element.id === "water" ? "spear" : current.weaponId;
       current = normalizeCharacter(current);
       for (const b of Object.values(elementButtons)) b.classList.remove("fantasy-tab--active");
       button.classList.add("fantasy-tab--active");
+      refreshWeaponInfo();
       refreshPreview();
     });
     elementButtons[element.id] = button;
@@ -453,6 +441,17 @@ export function createCharacterSelect({ onSave } = {}) {
   syncToggleGroup(genderGroup, current.gender);
   controlRow.append(elementGroup);
 
+  const weaponRow = document.createElement("div");
+  Object.assign(weaponRow.style, { display: "flex", justifyContent: "center", alignItems: "center", gap: "var(--sp-2)" });
+  const weaponInfo = document.createElement("div");
+  weaponInfo.className = "fantasy-subtitle";
+  Object.assign(weaponInfo.style, { textAlign: "center" });
+  function refreshWeaponInfo() {
+    weaponInfo.textContent = `Начальное оружие: ${startingWeaponLabel(current)}`;
+  }
+  refreshWeaponInfo();
+  weaponRow.appendChild(weaponInfo);
+
   const saveRow = document.createElement("div");
   Object.assign(saveRow.style, { display: "flex", gap: "var(--sp-3)", justifyContent: "center", flexWrap: "wrap" });
   const saveBtn = document.createElement("button");
@@ -469,7 +468,7 @@ export function createCharacterSelect({ onSave } = {}) {
   });
   saveRow.append(saveBtn);
 
-  card.append(title, subtitle, genderRow, layout, metaRow, controlRow, saveRow, status);
+  card.append(title, subtitle, genderRow, layout, metaRow, controlRow, weaponRow, saveRow, status);
   root.appendChild(card);
 
   function refresh() {
@@ -480,6 +479,7 @@ export function createCharacterSelect({ onSave } = {}) {
     updateClassImages();
     syncToggleGroup(genderGroup, current.gender);
     syncElementButtons();
+    refreshWeaponInfo();
     refreshPreview();
     status.textContent = "";
   }
