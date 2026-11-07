@@ -64,6 +64,7 @@ export function createCharacterSelect({ onSave } = {}) {
       current = normalizeCharacter(current);
       syncGenderButtons();
       updateRaceImages();
+      updateClassImages();
       syncRaceButtons();
       refreshPreview();
     });
@@ -101,8 +102,10 @@ export function createCharacterSelect({ onSave } = {}) {
     return column;
   }
 
-  // Race column
+  // Race column (3x3 square tiles)
   const raceColumn = createColumn("Раса");
+  const raceGrid = document.createElement("div");
+  Object.assign(raceGrid.style, { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "var(--sp-2)", marginTop: "var(--sp-2)" });
   const raceButtons = {};
   const raceImages = {};
   function updateRaceImages() {
@@ -110,7 +113,7 @@ export function createCharacterSelect({ onSave } = {}) {
       const img = raceImages[race.id];
       if (!img) continue;
       img.src = withAssetBase(combatSpriteUrl({ race: race.id, gender: current.gender, classId: current.classId }));
-      img.onerror = () => { img.style.opacity = "0.3"; };
+      img.onerror = () => { img.style.opacity = "0.25"; };
       img.onload = () => { img.style.opacity = "1"; };
     }
   }
@@ -125,11 +128,21 @@ export function createCharacterSelect({ onSave } = {}) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "fantasy-tab";
-    Object.assign(button.style, { justifyContent: "flex-start", flex: "1", minWidth: "0", gap: "var(--sp-2)", whiteSpace: "nowrap", minHeight: "64px", alignItems: "center" });
+    Object.assign(button.style, {
+      aspectRatio: "1 / 1",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: "var(--sp-1)",
+      padding: "var(--sp-2)",
+      overflow: "hidden",
+      whiteSpace: "nowrap",
+    });
     const thumb = document.createElement("div");
     Object.assign(thumb.style, {
-      width: "64px",
-      height: "64px",
+      width: "100%",
+      aspectRatio: "1 / 1",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -137,39 +150,55 @@ export function createCharacterSelect({ onSave } = {}) {
       background: "rgba(20, 14, 10, 0.72)",
       border: "1px solid var(--color-accent-border)",
       overflow: "hidden",
-      flexShrink: "0",
       boxShadow: "inset 0 0 0 1px rgba(212,169,66,0.12)",
     });
     const image = document.createElement("img");
     Object.assign(image.style, {
-      width: "100%",
-      height: "100%",
+      width: "82%",
+      height: "82%",
       objectFit: "contain",
       imageRendering: "pixelated",
     });
     thumb.appendChild(image);
     const label = document.createElement("span");
+    Object.assign(label.style, { font: "500 11px var(--font-body)", color: "var(--color-text)", textAlign: "center", lineHeight: "1.1" });
     label.textContent = race.name;
-    button.appendChild(label);
+    button.append(thumb, label);
     button.addEventListener("click", () => {
       current.race = race.id;
       current = normalizeCharacter(current);
       syncRaceButtons();
+      updateRaceImages();
+      updateClassImages();
       refreshPreview();
     });
-    const row = document.createElement("div");
-    Object.assign(row.style, { display: "flex", alignItems: "center", gap: "var(--sp-2)", width: "100%" });
-    row.append(thumb, button);
     raceButtons[race.id] = button;
     raceImages[race.id] = image;
-    raceColumn.appendChild(row);
+    raceGrid.appendChild(button);
   }
   updateRaceImages();
   syncRaceButtons();
+  raceColumn.appendChild(raceGrid);
 
-  // Class column
+  // Class column (3x3 square tiles)
   const classColumn = createColumn("Класс");
+  const classGrid = document.createElement("div");
+  Object.assign(classGrid.style, { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "var(--sp-2)", marginTop: "var(--sp-2)" });
   const classButtons = {};
+  const classImages = {};
+  function updateClassImages() {
+    for (const cls of CLASSES) {
+      const img = classImages[cls.id];
+      if (!img) continue;
+      const url = previewSpriteUrl({ ...current, classId: cls.id });
+      if (url) {
+        img.src = withAssetBase(url);
+        img.style.display = "block";
+      } else {
+        img.style.display = "none";
+      }
+    }
+  }
   function syncClassButtons() {
     for (const cls of CLASSES) {
       const button = classButtons[cls.id];
@@ -181,8 +210,37 @@ export function createCharacterSelect({ onSave } = {}) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "fantasy-tab";
-    Object.assign(button.style, { justifyContent: "flex-start", width: "100%", minHeight: "64px", alignItems: "center", whiteSpace: "nowrap" });
-    button.textContent = cls.name;
+    Object.assign(button.style, {
+      aspectRatio: "1 / 1",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: "var(--sp-1)",
+      padding: "var(--sp-2)",
+      overflow: "hidden",
+      whiteSpace: "nowrap",
+    });
+    const thumb = document.createElement("div");
+    Object.assign(thumb.style, {
+      width: "100%",
+      aspectRatio: "1 / 1",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: "var(--radius-s)",
+      background: "rgba(20, 14, 10, 0.72)",
+      border: "1px solid var(--color-accent-border)",
+      overflow: "hidden",
+      boxShadow: "inset 0 0 0 1px rgba(212,169,66,0.12)",
+    });
+    const image = document.createElement("img");
+    Object.assign(image.style, { width: "78%", height: "78%", objectFit: "contain", imageRendering: "pixelated" });
+    thumb.appendChild(image);
+    const label = document.createElement("span");
+    Object.assign(label.style, { font: "500 10px var(--font-body)", color: "var(--color-text)", textAlign: "center", lineHeight: "1.1" });
+    label.textContent = cls.name;
+    button.append(thumb, label);
     button.addEventListener("click", () => {
       current.classId = cls.id;
       current = normalizeCharacter(current);
@@ -190,9 +248,12 @@ export function createCharacterSelect({ onSave } = {}) {
       refreshPreview();
     });
     classButtons[cls.id] = button;
-    classColumn.appendChild(button);
+    classImages[cls.id] = image;
+    classGrid.appendChild(button);
   }
+  updateClassImages();
   syncClassButtons();
+  classColumn.appendChild(classGrid);
 
   // Middle: preview + gender/element/weapon
   const previewColumn = createColumn("Превью");
@@ -350,7 +411,9 @@ export function createCharacterSelect({ onSave } = {}) {
   function refresh() {
     current = loadCharacter();
     syncRaceButtons();
+    updateRaceImages();
     syncClassButtons();
+    updateClassImages();
     syncToggleGroup(genderGroup, current.gender);
     syncToggleGroup(elementGroup, current.element);
     refreshPreview();
