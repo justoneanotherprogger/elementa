@@ -268,7 +268,6 @@ export function createCharacterSelect({ onSave } = {}) {
       current.classId = cls.id;
       current = normalizeCharacter(current);
       syncClassButtons();
-      refreshWeaponInfo();
       refreshPreview();
     });
     classButtons[cls.id] = button;
