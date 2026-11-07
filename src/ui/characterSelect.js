@@ -41,13 +41,6 @@ export function createCharacterSelect({ onSave } = {}) {
     padding: "var(--sp-5)",
   });
 
-  const title = document.createElement("h2");
-  title.className = "fantasy-title fantasy-title--section";
-  title.textContent = "Персонаж";
-  const subtitle = document.createElement("div");
-  subtitle.className = "fantasy-subtitle";
-  subtitle.textContent = "Выбор сохраняется и будет использован при следующем забеге. Ассеты, которых ещё нет, показываются как «будет добавлено».";
-
   // Пол — кнопки с иконками над выбором расы.
   const genderRow = document.createElement("div");
   Object.assign(genderRow.style, { display: "flex", gap: "var(--sp-2)", justifyContent: "center", flexWrap: "wrap" });
@@ -471,7 +464,7 @@ export function createCharacterSelect({ onSave } = {}) {
   });
   saveRow.append(saveBtn);
 
-  card.append(title, subtitle, genderRow, layout, metaRow, controlRow, weaponRow, saveRow, status);
+  card.append(genderRow, layout, metaRow, controlRow, weaponRow, saveRow, status);
   root.appendChild(card);
 
   function refresh() {

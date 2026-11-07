@@ -184,10 +184,6 @@ export function createLobby({ onStart, audio } = {}) {
     gap: "var(--sp-4)",
   });
 
-  const settingsTitle = document.createElement("h2");
-  settingsTitle.className = "fantasy-title fantasy-title--section";
-  settingsTitle.textContent = "Настройки";
-
   const audioSection = document.createElement("div");
   Object.assign(audioSection.style, { display: "flex", flexDirection: "column", gap: "var(--sp-3)" });
   const audioSectionTitle = document.createElement("h3");
@@ -245,11 +241,7 @@ export function createLobby({ onStart, audio } = {}) {
   volumeRow.append(volumeLabel, volumeSlider, volumeValue);
   audioSection.append(audioSectionTitle, audioToggle, volumeRow);
 
-  const settingsHint = document.createElement("div");
-  settingsHint.className = "fantasy-subtitle";
-  settingsHint.textContent = "Настройки звука применяются сразу и сохраняются между запусками.";
-
-  settingsCard.append(settingsTitle, audioSection, settingsHint);
+  settingsCard.append(audioSection);
   settingsPanel.append(settingsCard);
 
   const panelMap = { run: runPanel, character: characterPanel, skills: skillsPanel, settings: settingsPanel };
