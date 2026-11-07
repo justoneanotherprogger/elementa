@@ -38,8 +38,13 @@ export function createLobby({ onStart, audio } = {}) {
   title.textContent = "ELEMENTA";
   title.className = "fantasy-title fantasy-title--hero";
   Object.assign(title.style, {
+    position: "absolute",
+    left: "0",
+    top: "50%",
+    transform: "translateY(-50%)",
     margin: "0",
-    fontSize: "clamp(36px, 6vw, 64px)",
+    fontSize: "clamp(24px, 4vw, 40px)",
+    pointerEvents: "none",
   });
 
   const wallet = document.createElement("div");
@@ -274,7 +279,8 @@ export function createLobby({ onStart, audio } = {}) {
   });
 
   panels.append(runPanel, characterPanel, skillsPanel, settingsPanel);
-  overlay.append(header, tabs, panels);
+  header.append(tabs);
+  overlay.append(header, panels);
   document.body.append(overlay);
 
   function readGold() {
