@@ -335,7 +335,8 @@ export function createCharacterSelect({ onSave } = {}) {
     const raceName = RACES.find((r) => r.id === current.race)?.name ?? current.race;
     const className = CLASSES.find((c) => c.id === current.classId)?.name ?? current.classId;
     const genderName = GENDERS.find((g) => g.id === current.gender)?.name ?? current.gender;
-    previewMeta.textContent = `${raceName} · ${genderName} · ${className}`;
+    const weaponLabel = startingWeaponLabel(current);
+    previewMeta.textContent = `${raceName} · ${genderName} · ${className}\nНачальное оружие: ${weaponLabel}`;
   }
   layout.append(raceColumn, previewColumn, classColumn);
   const metaRow = document.createElement("div");
@@ -418,7 +419,6 @@ export function createCharacterSelect({ onSave } = {}) {
       current = normalizeCharacter(current);
       for (const b of Object.values(elementButtons)) b.classList.remove("fantasy-tab--active");
       button.classList.add("fantasy-tab--active");
-      refreshWeaponInfo();
       refreshPreview();
     });
     elementButtons[element.id] = button;
@@ -436,17 +436,6 @@ export function createCharacterSelect({ onSave } = {}) {
   genderGroup._dummy = null;
   syncToggleGroup(genderGroup, current.gender);
   controlRow.append(elementGroup);
-
-  const weaponRow = document.createElement("div");
-  Object.assign(weaponRow.style, { display: "flex", justifyContent: "center", alignItems: "center", gap: "var(--sp-2)" });
-  const weaponInfo = document.createElement("div");
-  weaponInfo.className = "fantasy-subtitle";
-  Object.assign(weaponInfo.style, { textAlign: "center" });
-  function refreshWeaponInfo() {
-    weaponInfo.textContent = `Начальное оружие: ${startingWeaponLabel(current)}`;
-  }
-  refreshWeaponInfo();
-  weaponRow.appendChild(weaponInfo);
 
   const saveRow = document.createElement("div");
   Object.assign(saveRow.style, { display: "flex", gap: "var(--sp-3)", justifyContent: "center", flexWrap: "wrap" });
@@ -488,7 +477,7 @@ export function createCharacterSelect({ onSave } = {}) {
   });
   saveRow.append(saveBtn);
 
-  card.append(genderRow, layout, metaRow, controlRow, weaponRow, saveRow);
+  card.append(genderRow, layout, metaRow, controlRow, saveRow);
   root.appendChild(card);
 
   function refresh() {
@@ -499,7 +488,6 @@ export function createCharacterSelect({ onSave } = {}) {
     updateClassImages();
     syncToggleGroup(genderGroup, current.gender);
     syncElementButtons();
-    refreshWeaponInfo();
     refreshPreview();
     status.textContent = "";
   }
