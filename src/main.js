@@ -50,7 +50,7 @@ async function start() {
   try {
     playerTexture = await Assets.load(playerSpriteUrl);
   } catch (_error) {
-    playerTexture = await Assets.load(assetUrl("assets/player/pix_human_m.png"));
+    playerTexture = await Assets.load(assetUrl("assets/player/races/pix_human_m.png"));
   }
   const player = createPlayer(app, input, playerTexture);
   player.gold = 0;
