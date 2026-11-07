@@ -56,7 +56,7 @@ export function createCharacterSelect({ onSave } = {}) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "fantasy-button fantasy-button--ghost";
-    Object.assign(button.style, { minWidth: "120px", justifyContent: "center", gap: "var(--sp-2)" });
+    Object.assign(button.style, { display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: "120px", gap: "6px" });
     button.appendChild(icon(gender.id === "m" ? "genderMale" : "genderFemale", 16));
     const label = document.createElement("span");
     label.textContent = gender.name;
@@ -412,7 +412,7 @@ export function createCharacterSelect({ onSave } = {}) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "fantasy-tab";
-    Object.assign(button.style, { minWidth: "84px", justifyContent: "center", alignItems: "center", gap: "6px", flexDirection: "column", padding: "var(--sp-2)" });
+    Object.assign(button.style, { display: "flex", minWidth: "84px", justifyContent: "center", alignItems: "center", gap: "6px", flexDirection: "column", padding: "var(--sp-2)" });
     const iconName = element.id === "fire" ? "fire" : element.id === "water" ? "water" : element.id === "air" ? "air" : "earth";
     button.appendChild(icon(iconName, 18));
     const name = document.createElement("span");
