@@ -22,7 +22,7 @@ export function createCharacterSelect({ onSave } = {}) {
   Object.assign(root.style, {
     display: "none",
     width: "100%",
-    maxWidth: "900px",
+    maxWidth: "1320px",
     margin: "0 auto",
     alignItems: "stretch",
     justifyContent: "center",
@@ -76,7 +76,7 @@ export function createCharacterSelect({ onSave } = {}) {
   const layout = document.createElement("div");
   Object.assign(layout.style, {
     display: "grid",
-    gridTemplateColumns: "minmax(250px, 320px) 1fr minmax(250px, 320px)",
+    gridTemplateColumns: "minmax(500px, 540px) 1fr minmax(500px, 540px)",
     gap: "var(--sp-4)",
     alignItems: "start",
   });
@@ -126,20 +126,20 @@ export function createCharacterSelect({ onSave } = {}) {
     button.type = "button";
     button.className = "fantasy-tab";
     Object.assign(button.style, {
-      aspectRatio: "1 / 1",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      justifyContent: "space-between",
-      gap: "var(--sp-1)",
+      justifyContent: "center",
+      gap: "6px",
       padding: "var(--sp-2)",
+      width: "176px",
       overflow: "hidden",
       whiteSpace: "nowrap",
     });
     const thumb = document.createElement("div");
     Object.assign(thumb.style, {
-      width: "100%",
-      aspectRatio: "1 / 1",
+      width: "160px",
+      height: "160px",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -148,11 +148,14 @@ export function createCharacterSelect({ onSave } = {}) {
       border: "1px solid var(--color-accent-border)",
       overflow: "hidden",
       boxShadow: "inset 0 0 0 1px rgba(212,169,66,0.12)",
+      flexShrink: "0",
     });
     const image = document.createElement("img");
     Object.assign(image.style, {
-      width: "82%",
-      height: "82%",
+      width: "auto",
+      height: "auto",
+      maxWidth: "160px",
+      maxHeight: "160px",
       objectFit: "contain",
       imageRendering: "pixelated",
     });
@@ -221,20 +224,20 @@ export function createCharacterSelect({ onSave } = {}) {
     button.type = "button";
     button.className = "fantasy-tab";
     Object.assign(button.style, {
-      aspectRatio: "1 / 1",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      justifyContent: "space-between",
-      gap: "var(--sp-1)",
+      justifyContent: "center",
+      gap: "6px",
       padding: "var(--sp-2)",
+      width: "176px",
       overflow: "hidden",
       whiteSpace: "nowrap",
     });
     const thumb = document.createElement("div");
     Object.assign(thumb.style, {
-      width: "100%",
-      aspectRatio: "1 / 1",
+      width: "160px",
+      height: "160px",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -243,9 +246,10 @@ export function createCharacterSelect({ onSave } = {}) {
       border: "1px solid var(--color-accent-border)",
       overflow: "hidden",
       boxShadow: "inset 0 0 0 1px rgba(212,169,66,0.12)",
+      flexShrink: "0",
     });
     const image = document.createElement("img");
-    Object.assign(image.style, { width: "82%", height: "82%", objectFit: "contain", imageRendering: "pixelated" });
+    Object.assign(image.style, { width: "auto", height: "auto", maxWidth: "160px", maxHeight: "160px", objectFit: "contain", imageRendering: "pixelated" });
     thumb.appendChild(image);
     const placeholder = document.createElement("span");
     placeholder.textContent = "будет добавлено";
