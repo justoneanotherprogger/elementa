@@ -17,6 +17,7 @@ export function createLobby({ onStart, audio } = {}) {
     padding: "var(--sp-5)",
     gap: "var(--sp-4)",
     overflow: "auto",
+    scrollbarGutter: "stable",
   });
 
   const header = document.createElement("header");
@@ -27,7 +28,10 @@ export function createLobby({ onStart, audio } = {}) {
     justifyContent: "center",
     paddingBottom: "var(--sp-3)",
     borderBottom: "1px solid var(--color-border-subtle)",
+    height: "56px",
     minHeight: "56px",
+    maxHeight: "56px",
+    overflow: "hidden",
   });
 
   const title = document.createElement("h1");
