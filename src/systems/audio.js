@@ -42,7 +42,7 @@ export function createAudio() {
   const BOSS_TEMPLATES = ["boss_fight_goblin_forest"];
   const MENU_TEMPLATES = [];
   const EXTENSIONS = ["mp3", "ogg", "wav", "webm", "m4a"];
-  const MAX_TRACK_INDEX = 12;
+  const MAX_TRACK_INDEX = 4;
 
   function audioUrl(base, ext) {
     return `${import.meta.env.BASE_URL}assets/audio/${encodeURIComponent(base)}.${ext}`.replace(/\/{2,}/g, "/");
