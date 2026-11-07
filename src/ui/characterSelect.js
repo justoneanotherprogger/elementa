@@ -126,16 +126,29 @@ export function createCharacterSelect({ onSave } = {}) {
     button.type = "button";
     button.className = "fantasy-tab";
     Object.assign(button.style, { justifyContent: "flex-start", width: "100%", gap: "var(--sp-2)" });
+    const thumb = document.createElement("div");
+    Object.assign(thumb.style, {
+      width: "42px",
+      height: "42px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: "var(--radius-s)",
+      background: "rgba(20, 14, 10, 0.72)",
+      border: "1px solid var(--color-accent-border)",
+      overflow: "hidden",
+      flexShrink: "0",
+      boxShadow: "inset 0 0 0 1px rgba(212,169,66,0.12)",
+    });
     const image = document.createElement("img");
     Object.assign(image.style, {
-      width: "30px",
-      height: "42px",
+      width: "100%",
+      height: "100%",
+      objectFit: "contain",
       imageRendering: "pixelated",
-      borderRadius: "var(--radius-s)",
-      background: "rgba(0,0,0,0.35)",
-      flexShrink: "0",
     });
-    button.appendChild(image);
+    thumb.appendChild(image);
+    button.appendChild(thumb);
     const label = document.createElement("span");
     label.textContent = race.name;
     button.appendChild(label);
