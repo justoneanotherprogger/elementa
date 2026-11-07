@@ -36,7 +36,7 @@ export function createAudio() {
   const VOLUME_KEY = "elementa_audio_volume_v1";
   let muted = (localStorage.getItem(MUTE_KEY) === "1");
   let volume = Number(localStorage.getItem(VOLUME_KEY));
-  if (!Number.isFinite(volume) || volume < 0 || volume > 1) volume = 0.45;
+  if (!Number.isFinite(volume) || volume < 0 || volume > 1) volume = 1;
 
   const BASE = import.meta.env.BASE_URL;
   const withBase = (path) => `${BASE}${path.replace(/^\//, "")}`.replace(/\/{2,}/g, "/");
