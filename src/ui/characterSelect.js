@@ -43,15 +43,16 @@ export function createCharacterSelect({ onSave } = {}) {
 
   // Пол — кнопки с иконками над выбором расы.
   const genderRow = document.createElement("div");
-  Object.assign(genderRow.style, { display: "flex", gap: "var(--sp-2)", justifyContent: "center", flexWrap: "wrap" });
+  Object.assign(genderRow.style, { display: "flex", gap: "4px", justifyContent: "center", width: "200px", flexWrap: "nowrap" });
   const genderButtons = {};
   for (const gender of GENDERS) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "fantasy-button fantasy-button--ghost";
-    Object.assign(button.style, { display: "inline-flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minWidth: "100px", gap: "6px" });
-    button.appendChild(icon(gender.id === "m" ? "genderMale" : "genderFemale", 16));
+    Object.assign(button.style, { display: "inline-flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: "1", minWidth: "0", gap: "2px", padding: "var(--sp-1)" });
+    button.appendChild(icon(gender.id === "m" ? "genderMale" : "genderFemale", 30));
     const label = document.createElement("span");
+    Object.assign(label.style, { fontSize: "12px" });
     label.textContent = gender.name;
     button.appendChild(label);
     button.addEventListener("click", () => {
@@ -286,8 +287,10 @@ export function createCharacterSelect({ onSave } = {}) {
   const previewColumn = createColumn("Превью");
   const previewCard = document.createElement("div");
   Object.assign(previewCard.style, {
-    aspectRatio: "3 / 4",
-    minHeight: "200px",
+    width: "200px",
+    height: "300px",
+    aspectRatio: "2 / 3",
+    minHeight: "300px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -322,7 +325,7 @@ export function createCharacterSelect({ onSave } = {}) {
     textAlign: "center",
     lineHeight: "1.5",
   });
-  previewColumn.append(previewCard, previewMeta);
+  previewColumn.append(previewCard, previewMeta, genderRow);
 
   function refreshPreview() {
     previewCard.replaceChildren();
@@ -480,7 +483,7 @@ export function createCharacterSelect({ onSave } = {}) {
   });
   saveRow.append(saveBtn);
 
-  card.append(genderRow, layout, metaRow, controlRow, saveRow);
+  card.append(layout, metaRow, controlRow, saveRow);
   root.appendChild(card);
 
   function refresh() {
