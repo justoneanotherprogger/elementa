@@ -326,7 +326,7 @@ export function createCharacterSelect({ onSave } = {}) {
     textAlign: "center",
     lineHeight: "1.5",
   });
-  previewColumn.append(previewCard, previewMeta, genderRow);
+  previewColumn.append(previewCard, genderRow);
 
   function refreshPreview() {
     previewCard.replaceChildren();
@@ -343,12 +343,26 @@ export function createCharacterSelect({ onSave } = {}) {
     const className = CLASSES.find((c) => c.id === current.classId)?.name ?? current.classId;
     const genderName = GENDERS.find((g) => g.id === current.gender)?.name ?? current.gender;
     const weaponLabel = startingWeaponLabel(current);
-    previewMeta.textContent = `${raceName} · ${genderName} · ${className}\nНачальное оружие: ${weaponLabel}`;
+    buildLineRace.textContent = `${raceName} · ${genderName}`;
+    buildLineClass.textContent = className;
+    buildLineWeapon.textContent = `Начальное оружие: ${weaponLabel}`;
   }
   layout.append(raceColumn, previewColumn, classColumn);
   const metaRow = document.createElement("div");
-  Object.assign(metaRow.style, { textAlign: "center", width: "200px" });
-  metaRow.appendChild(previewMeta);
+  Object.assign(metaRow.style, {
+    display: "flex",
+    flexDirection: "column",
+    gap: "2px",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "200px",
+    marginTop: "var(--sp-2)",
+    textAlign: "center",
+  });
+  const buildLineRace = document.createElement("div");
+  const buildLineClass = document.createElement("div");
+  const buildLineWeapon = document.createElement("div");
+  metaRow.append(buildLineRace, buildLineClass, buildLineWeapon);
 
   // Gender + element + weapon row
   const controlRow = document.createElement("div");
@@ -433,6 +447,7 @@ export function createCharacterSelect({ onSave } = {}) {
     elementButtonRow.appendChild(button);
   }
   elementGroup.append(elementLabel, elementButtonRow);
+  previewColumn.append(elementGroup, metaRow);
 
   function syncElementButtons() {
     for (const element of ELEMENTS) {
