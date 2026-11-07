@@ -28,9 +28,9 @@ export function createLobby({ onStart, audio } = {}) {
     justifyContent: "center",
     paddingBottom: "var(--sp-3)",
     borderBottom: "1px solid var(--color-border-subtle)",
-    height: "56px",
-    minHeight: "56px",
-    maxHeight: "56px",
+    height: "70px",
+    minHeight: "70px",
+    maxHeight: "70px",
     overflow: "hidden",
   });
 
