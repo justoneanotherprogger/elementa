@@ -1,4 +1,5 @@
 import { icon } from "./icons.js";
+import { createCharacterSelect } from "./characterSelect.js";
 
 export function createLobby({ onStart, audio } = {}) {
   const overlay = document.createElement("div");
@@ -167,7 +168,8 @@ export function createLobby({ onStart, audio } = {}) {
     return panel;
   }
 
-  const characterPanel = emptyPanel("character", "Выбор героя", "Классы и снаряжение откроются после завершения базового билда. Пока доступен стартовый герой.");
+  const characterModule = createCharacterSelect({});
+  const characterPanel = characterModule.root;
   const skillsPanel = emptyPanel("skills", "Дерево навыков", "Усиления и ветки навыков будут доступны после первого обновления прогрессии.");
 
   const settingsPanel = makePanel("settings");
@@ -289,6 +291,7 @@ export function createLobby({ onStart, audio } = {}) {
 
   function show() {
     refresh();
+    characterModule.refresh();
     overlay.style.display = "flex";
     activateTab("run");
     requestAnimationFrame(() => overlay.focus());

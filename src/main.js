@@ -19,6 +19,8 @@ import { createWaves } from "./systems/waves.js";
 import { createChestSystem } from "./systems/chests.js";
 import { createRewardScreen } from "./ui/rewardScreen.js";
 import { createLobby } from "./ui/lobby.js";
+import { createCharacterSelect } from "./ui/characterSelect.js";
+import { loadCharacter, combatSpriteUrl, startingWeaponId, weaponConfigById, withAssetBase } from "./data/characters.js";
 import "./ui/theme.css";
 import { STARTER_WEAPON, SPEAR_WEAPON } from "./data/weapons.js";
 const app = new Application();
@@ -42,7 +44,14 @@ async function start() {
 
   const assetUrl = (path) => `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
   const enemyTexture = await Assets.load(assetUrl("assets/enemies/pix_goblin.png"));
-  const playerTexture = await Assets.load(assetUrl("assets/player/pix_human_m.png"));
+  const selectedCharacter = loadCharacter();
+  const playerSpriteUrl = withAssetBase(combatSpriteUrl(selectedCharacter));
+  let playerTexture;
+  try {
+    playerTexture = await Assets.load(playerSpriteUrl);
+  } catch (_error) {
+    playerTexture = await Assets.load(assetUrl("assets/player/pix_human_m.png"));
+  }
   const player = createPlayer(app, input, playerTexture);
   player.gold = 0;
   const audio = createAudio();
@@ -132,7 +141,7 @@ async function start() {
   );
   const zoneSystem = createZoneSystem(app, enemySystem, player);
   const reactionSystem = createReactionSystem({ zoneSystem, audio });
-  const weaponSystem = createWeaponSystem(app, player, enemySystem, [SPEAR_WEAPON], reactionSystem);
+  const weaponSystem = createWeaponSystem(app, player, enemySystem, [], reactionSystem);
   const leveling = createLeveling(player, enemySystem);
   rewardScreen = createRewardScreen({
     onPick: (choice) => {
@@ -177,10 +186,10 @@ async function start() {
     pauseOpen = false;
     pauseOverlay.style.display = "none";
     rewardScreen?.close();
+    const runCharacter = loadCharacter();
     if (weaponSystem && Array.isArray(weaponSystem.weapons)) {
-      weaponSystem.weapons.forEach((weapon) => {
-        if (weapon) weapon.timer = 0;
-      });
+      weaponSystem.weapons.length = 0;
+      weaponSystem.addWeapon(weaponConfigById(startingWeaponId(runCharacter)));
     }
     enemySystem.reset();
     zoneSystem.reset();
