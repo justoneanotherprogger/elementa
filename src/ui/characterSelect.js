@@ -29,6 +29,7 @@ export function createCharacterSelect({ onSave } = {}) {
   });
 
   let current = loadCharacter();
+  const labelsToMeasure = [];
 
   const card = document.createElement("div");
   card.className = "fantasy-panel fantasy-panel--ornate";
@@ -163,6 +164,7 @@ export function createCharacterSelect({ onSave } = {}) {
     const label = document.createElement("span");
     Object.assign(label.style, { font: "500 11px var(--font-body)", color: "var(--color-text)", textAlign: "center", lineHeight: "1.1" });
     label.textContent = race.name;
+    labelsToMeasure.push(label);
     button.append(thumb, label);
     button.addEventListener("click", () => {
       current.race = race.id;
@@ -186,16 +188,28 @@ export function createCharacterSelect({ onSave } = {}) {
   Object.assign(classGrid.style, { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "var(--sp-2)", marginTop: "var(--sp-2)" });
   const classButtons = {};
   const classImages = {};
+  const classPlaceholders = {};
   function updateClassImages() {
     for (const cls of CLASSES) {
       const img = classImages[cls.id];
+      const placeholder = classPlaceholders[cls.id];
       if (!img) continue;
       const url = previewSpriteUrl({ ...current, classId: cls.id });
       if (url) {
-        img.src = withAssetBase(url);
         img.style.display = "block";
+        if (placeholder) placeholder.style.display = "none";
+        img.onerror = () => {
+          img.style.display = "none";
+          if (placeholder) placeholder.style.display = "block";
+        };
+        img.onload = () => {
+          img.style.display = "block";
+          if (placeholder) placeholder.style.display = "none";
+        };
+        img.src = withAssetBase(url);
       } else {
         img.style.display = "none";
+        if (placeholder) placeholder.style.display = "block";
       }
     }
   }
@@ -237,10 +251,23 @@ export function createCharacterSelect({ onSave } = {}) {
     const image = document.createElement("img");
     Object.assign(image.style, { width: "78%", height: "78%", objectFit: "contain", imageRendering: "pixelated" });
     thumb.appendChild(image);
+    const placeholder = document.createElement("span");
+    placeholder.textContent = "будет добавлено";
+    Object.assign(placeholder.style, {
+      display: "none",
+      font: "500 9px var(--font-body)",
+      color: "var(--color-text-dim)",
+      textAlign: "center",
+      padding: "var(--sp-1)",
+      lineHeight: "1.1",
+    });
+    thumb.appendChild(placeholder);
     const label = document.createElement("span");
     Object.assign(label.style, { font: "500 10px var(--font-body)", color: "var(--color-text)", textAlign: "center", lineHeight: "1.1" });
     label.textContent = cls.name;
+    labelsToMeasure.push(label);
     button.append(thumb, label);
+    classPlaceholders[cls.id] = placeholder;
     button.addEventListener("click", () => {
       current.classId = cls.id;
       current = normalizeCharacter(current);
@@ -369,24 +396,61 @@ export function createCharacterSelect({ onSave } = {}) {
   }
 
   const genderGroup = createToggleGroup("Пол", GENDERS, () => current.gender, (v) => { current.gender = v; });
-  const elementGroup = createToggleGroup("Стихия", ELEMENTS, () => current.element, (v) => { current.element = v; });
-  const weaponGroup = createToggleGroup("Оружие", AVAILABLE_WEAPONS, () => current.weaponId, (v) => { current.weaponId = v; });
-  syncToggleGroup(genderGroup, current.gender);
-  syncToggleGroup(elementGroup, current.element);
-  syncToggleGroup(weaponGroup, current.weaponId);
-
-  // Element change automatically determines starting weapon; weapon no longer has a separate selector.
-  ELEMENTS.forEach((element) => {
-    const btn = elementGroup._buttons[element.id];
-    btn.addEventListener("click", () => {
+  const elementButtons = {};
+  const elementGroup = document.createElement("div");
+  Object.assign(elementGroup.style, { display: "flex", flexDirection: "column", gap: "var(--sp-1)", alignItems: "center" });
+  const elementLabel = document.createElement("span");
+  elementLabel.style.color = "var(--color-text-dim)";
+  elementLabel.style.fontSize = "12px";
+  elementLabel.style.textTransform = "uppercase";
+  elementLabel.style.letterSpacing = "0.08em";
+  elementLabel.textContent = "Стихия";
+  elementGroup.appendChild(elementLabel);
+  const elementButtonRow = document.createElement("div");
+  Object.assign(elementButtonRow.style, { display: "flex", gap: "var(--sp-2)", flexWrap: "wrap", justifyContent: "center" });
+  const elementWeaponText = {
+    fire: "Серп",
+    water: "Копьё",
+    air: "Будет позже",
+    earth: "Будет позже",
+  };
+  for (const element of ELEMENTS) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "fantasy-tab";
+    Object.assign(button.style, { minWidth: "84px", justifyContent: "center", gap: "var(--sp-2)", flexDirection: "column", padding: "var(--sp-2)" });
+    const iconName = element.id === "fire" ? "fire" : element.id === "water" ? "water" : element.id === "air" ? "air" : "earth";
+    button.appendChild(icon(iconName, 18));
+    const name = document.createElement("span");
+    name.textContent = element.name;
+    button.appendChild(name);
+    const weapon = document.createElement("span");
+    weapon.style.fontSize = "10px";
+    weapon.style.color = "var(--color-text-dim)";
+    weapon.textContent = elementWeaponText[element.id];
+    button.appendChild(weapon);
+    button.addEventListener("click", () => {
       current.element = element.id;
       current.weaponId = element.id === "fire" ? "serp" : element.id === "water" ? "spear" : current.weaponId;
       current = normalizeCharacter(current);
-      syncToggleGroup(elementGroup, current.element);
+      for (const b of Object.values(elementButtons)) b.classList.remove("fantasy-tab--active");
+      button.classList.add("fantasy-tab--active");
       refreshPreview();
     });
-  });
+    elementButtons[element.id] = button;
+    elementButtonRow.appendChild(button);
+  }
+  elementGroup.append(elementLabel, elementButtonRow);
 
+  function syncElementButtons() {
+    for (const element of ELEMENTS) {
+      elementButtons[element.id].classList.toggle("fantasy-tab--active", element.id === current.element);
+    }
+  }
+  syncElementButtons();
+
+  genderGroup._dummy = null;
+  syncToggleGroup(genderGroup, current.gender);
   controlRow.append(elementGroup);
 
   const saveRow = document.createElement("div");
@@ -421,5 +485,23 @@ export function createCharacterSelect({ onSave } = {}) {
   }
   refreshPreview();
 
-  return { root, refresh };
+  function fitLabels() {
+    for (const label of labelsToMeasure) {
+      const parent = label.parentElement;
+      if (!parent) continue;
+      let size = 11;
+      label.style.fontSize = `${size}px`;
+      // Shrink until the whole label fits the button; floor at 7px.
+      while (label.scrollWidth > parent.clientWidth - 2 && size > 7) {
+        size -= 0.5;
+        label.style.fontSize = `${size}px`;
+      }
+    }
+  }
+  window.addEventListener("resize", () => {
+    requestAnimationFrame(fitLabels);
+  });
+  requestAnimationFrame(fitLabels);
+
+  return { root, refresh, fitLabels };
 }

@@ -294,7 +294,10 @@ export function createLobby({ onStart, audio } = {}) {
     characterModule.refresh();
     overlay.style.display = "flex";
     activateTab("run");
-    requestAnimationFrame(() => overlay.focus());
+    requestAnimationFrame(() => {
+      characterModule.fitLabels?.();
+      overlay.focus();
+    });
   }
 
   function hide() {

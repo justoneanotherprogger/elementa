@@ -40,7 +40,13 @@ export const Icons = {
   check: (s) => svgNode('<path d="M5 13l4 4L19 7"/>', s),
   arrow: (s) => svgNode('<path d="M5 12h14M13 6l6 6-6 6"/>', s),
   volume: (s) => svgNode('<path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a4.5 4.5 0 0 1 0 7M18 6a8 8 0 0 1 0 12"/>', s),
+  genderMale: (s) => svgNode('<circle cx="10" cy="8" r="3"/><path d="M12.5 5.5l6-6M13 0h5.5v5.5"/>', s),
+  genderFemale: (s) => svgNode('<circle cx="12" cy="8" r="3.5"/><path d="M12 11.5V21M8.5 17h7"/>', s),
   volumeOff: (s) => svgNode('<path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M17 9l5 6M22 9l-5 6"/>', s),
+  fire: (s) => svgNode('<path d="M12 3c3 4 4.5 6.5 4.5 9a4.5 4.5 0 1 1-9 0c0-1.5.7-2.8 1.8-4.1C10 9.5 12 12 12 12s-.5-3 0-9z"/>', s),
+  water: (s) => svgNode('<path d="M12 3s6 6.5 6 10a6 6 0 1 1-12 0c0-3.5 6-10 6-10z"/>', s),
+  air: (s) => svgNode('<path d="M3 8h12a4 4 0 1 0-4-4M3 12h15a3 3 0 1 1-3 3M3 16h9"/>', s),
+  earth: (s) => svgNode('<path d="M3 20l9-16 9 16H3z"/><path d="M8 12h8"/>', s),
   clock: (s) => svgNode('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', s),
   target: (s) => svgNode('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>', s),
 };
