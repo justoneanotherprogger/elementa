@@ -22,7 +22,7 @@ export function createCharacterSelect({ onSave } = {}) {
   Object.assign(root.style, {
     display: "none",
     width: "100%",
-    maxWidth: "1320px",
+    maxWidth: "1420px",
     margin: "0 auto",
     alignItems: "stretch",
     justifyContent: "center",
@@ -77,7 +77,7 @@ export function createCharacterSelect({ onSave } = {}) {
   const layout = document.createElement("div");
   Object.assign(layout.style, {
     display: "grid",
-    gridTemplateColumns: "minmax(500px, 540px) 1fr minmax(500px, 540px)",
+    gridTemplateColumns: "minmax(530px, 1fr) 220px minmax(530px, 1fr)",
     gap: "var(--sp-4)",
     alignItems: "start",
   });
