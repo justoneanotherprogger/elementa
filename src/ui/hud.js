@@ -1,7 +1,8 @@
 import { Graphics } from "pixi.js";
 import { icon, weaponIcon } from "./icons.js";
 
-export function createHud(app, player, enemySystem, leveling, camera, weaponSystem) {
+export function createHud(app, player, enemySystem, leveling, camera, weaponSystem, audio) {
+  const audioController = audio?.music;
   const cam = camera || { x: 0, y: 0 };
   const heroYBottom = 73;
   if (app.stage) app.stage.sortableChildren = true;

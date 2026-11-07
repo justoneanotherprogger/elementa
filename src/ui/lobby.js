@@ -1,6 +1,6 @@
 import { icon } from "./icons.js";
 
-export function createLobby({ onStart } = {}) {
+export function createLobby({ onStart, audio } = {}) {
   const overlay = document.createElement("div");
   overlay.id = "elementa-lobby";
   overlay.tabIndex = -1;
@@ -85,6 +85,7 @@ export function createLobby({ onStart } = {}) {
     { id: "run", label: "В бой" },
     { id: "character", label: "Персонаж" },
     { id: "skills", label: "Навыки" },
+    { id: "settings", label: "Настройки" },
   ];
 
   function makePanel(id) {
@@ -169,7 +170,87 @@ export function createLobby({ onStart } = {}) {
   const characterPanel = emptyPanel("character", "Выбор героя", "Классы и снаряжение откроются после завершения базового билда. Пока доступен стартовый герой.");
   const skillsPanel = emptyPanel("skills", "Дерево навыков", "Усиления и ветки навыков будут доступны после первого обновления прогрессии.");
 
-  const panelMap = { run: runPanel, character: characterPanel, skills: skillsPanel };
+  const settingsPanel = makePanel("settings");
+  const settingsCard = document.createElement("div");
+  settingsCard.className = "fantasy-panel fantasy-panel--ornate";
+  Object.assign(settingsCard.style, {
+    margin: "0 auto",
+    maxWidth: "560px",
+    width: "100%",
+    display: "flex",
+    flexDirection: "column",
+    gap: "var(--sp-4)",
+  });
+
+  const settingsTitle = document.createElement("h2");
+  settingsTitle.className = "fantasy-title fantasy-title--section";
+  settingsTitle.textContent = "Настройки";
+
+  const audioSection = document.createElement("div");
+  Object.assign(audioSection.style, { display: "flex", flexDirection: "column", gap: "var(--sp-3)" });
+  const audioSectionTitle = document.createElement("h3");
+  audioSectionTitle.className = "fantasy-title--section";
+  Object.assign(audioSectionTitle.style, { margin: "0", fontSize: "16px" });
+  audioSectionTitle.textContent = "Звук и музыка";
+
+  const audioToggle = document.createElement("button");
+  audioToggle.type = "button";
+  audioToggle.className = "fantasy-button fantasy-button--ghost";
+  Object.assign(audioToggle.style, { width: "100%", justifyContent: "space-between" });
+
+  const volumeRow = document.createElement("div");
+  Object.assign(volumeRow.style, { display: "flex", alignItems: "center", gap: "var(--sp-3)" });
+  const volumeLabel = document.createElement("span");
+  volumeLabel.className = "fantasy-subtitle";
+  volumeLabel.textContent = "Громкость";
+  const volumeSlider = document.createElement("input");
+  volumeSlider.type = "range";
+  volumeSlider.min = "0";
+  volumeSlider.max = "100";
+  Object.assign(volumeSlider.style, { flex: "1", accentColor: "var(--color-accent)" });
+  const volumeValue = document.createElement("span");
+  volumeValue.className = "fantasy-mono";
+  Object.assign(volumeValue.style, { minWidth: "42px", textAlign: "right", color: "var(--color-accent)" });
+
+  const syncAudioSettings = () => {
+    if (!audio?.music) {
+      audioToggle.disabled = true;
+      volumeSlider.disabled = true;
+      audioToggle.textContent = "Звук недоступен";
+      volumeValue.textContent = "—";
+      return;
+    }
+    audioToggle.replaceChildren();
+    audioToggle.appendChild(icon(audio.music.isMuted() ? "volumeOff" : "volume", 18));
+    const label = document.createElement("span");
+    label.textContent = audio.music.isMuted() ? "Звук выключен" : "Звук включён";
+    audioToggle.appendChild(label);
+    const currentVolume = Math.round(audio.music.getVolume() * 100);
+    volumeSlider.value = String(currentVolume);
+    volumeValue.textContent = `${currentVolume}%`;
+  };
+  syncAudioSettings();
+
+  audioToggle.addEventListener("click", () => {
+    audio?.music?.toggleMuted();
+    syncAudioSettings();
+  });
+  volumeSlider.addEventListener("input", () => {
+    audio?.music?.setVolume(Number(volumeSlider.value) / 100);
+    volumeValue.textContent = `${volumeSlider.value}%`;
+  });
+
+  volumeRow.append(volumeLabel, volumeSlider, volumeValue);
+  audioSection.append(audioSectionTitle, audioToggle, volumeRow);
+
+  const settingsHint = document.createElement("div");
+  settingsHint.className = "fantasy-subtitle";
+  settingsHint.textContent = "Настройки звука применяются сразу и сохраняются между запусками.";
+
+  settingsCard.append(settingsTitle, audioSection, settingsHint);
+  settingsPanel.append(settingsCard);
+
+  const panelMap = { run: runPanel, character: characterPanel, skills: skillsPanel, settings: settingsPanel };
 
   const tabButtons = {};
   function activateTab(tabId) {
@@ -194,7 +275,7 @@ export function createLobby({ onStart } = {}) {
     if (typeof onStart === "function") onStart();
   });
 
-  panels.append(runPanel, characterPanel, skillsPanel);
+  panels.append(runPanel, characterPanel, skillsPanel, settingsPanel);
   overlay.append(header, tabs, panels);
   document.body.append(overlay);
 

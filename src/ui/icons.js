@@ -39,6 +39,8 @@ export const Icons = {
   star: (s) => svgNode('<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>', s),
   check: (s) => svgNode('<path d="M5 13l4 4L19 7"/>', s),
   arrow: (s) => svgNode('<path d="M5 12h14M13 6l6 6-6 6"/>', s),
+  volume: (s) => svgNode('<path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a4.5 4.5 0 0 1 0 7M18 6a8 8 0 0 1 0 12"/>', s),
+  volumeOff: (s) => svgNode('<path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M17 9l5 6M22 9l-5 6"/>', s),
   clock: (s) => svgNode('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', s),
   target: (s) => svgNode('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>', s),
 };

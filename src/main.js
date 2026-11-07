@@ -44,6 +44,7 @@ async function start() {
   const playerTexture = await Assets.load("/assets/player/pix_human_m.png");
   const player = createPlayer(app, input, playerTexture);
   player.gold = 0;
+  const audio = createAudio();
   let rewardOpen = false;
   let rewardScreen = null;
   let pauseOpen = false;
@@ -87,7 +88,19 @@ async function start() {
     pauseOverlay.style.display = "none";
     quitRun();
   });
-  pauseOverlay.append(pauseSigil, pauseText, pauseHint, pauseQuitBtn);
+
+  const pauseSoundBtn = document.createElement("button");
+  pauseSoundBtn.type = "button";
+  pauseSoundBtn.className = "fantasy-button fantasy-button--ghost";
+  const syncPauseSound = () => {
+    pauseSoundBtn.textContent = audio.music.isMuted() ? "Звук: выкл" : "Звук: вкл";
+  };
+  syncPauseSound();
+  pauseSoundBtn.addEventListener("click", () => {
+    audio.music.toggleMuted();
+    syncPauseSound();
+  });
+  pauseOverlay.append(pauseSigil, pauseText, pauseHint, pauseSoundBtn, pauseQuitBtn);
   document.body.appendChild(pauseOverlay);
   window.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
@@ -116,7 +129,6 @@ async function start() {
       },
     },
   );
-  const audio = createAudio();
   const zoneSystem = createZoneSystem(app, enemySystem, player);
   const reactionSystem = createReactionSystem({ zoneSystem, audio });
   const weaponSystem = createWeaponSystem(app, player, enemySystem, [SPEAR_WEAPON], reactionSystem);
@@ -132,7 +144,7 @@ async function start() {
       rewardOpen = false;
     },
   });
-  hud = createHud(app, player, enemySystem, leveling, camera, weaponSystem);
+  hud = createHud(app, player, enemySystem, leveling, camera, weaponSystem, audio);
 
   const debug = createDebugPanel();
 
@@ -204,11 +216,13 @@ async function start() {
 
   function quitRun() {
     restartRun();
+    audio.music.runStop();
     deathScreen.hide();
     victoryScreen.hide();
     lobby?.refresh();
     lobbyOpen = true;
     lobby?.show();
+    audio.music.menuStart?.();
   }
 
   function restartNow() {
@@ -238,10 +252,12 @@ async function start() {
   );
 
   const lobby = createLobby({
+    audio,
     onStart: () => {
       lobbyOpen = false;
       lobby.hide();
       restartRun();
+      audio.music.runStart();
     },
   });
   lobby.show();
@@ -249,6 +265,7 @@ async function start() {
   const onVictory = () => {
     gamePaused = true;
     leveling.paused = true;
+    audio.music.runStop();
     saveRunGold();
     victoryScreen.show();
   };
@@ -279,6 +296,7 @@ async function start() {
         gamePaused = true;
         leveling.paused = true;
         player.hp = 0;
+        audio.music.runStop();
         saveRunGold();
         deathScreen.show();
       }
@@ -307,6 +325,7 @@ async function start() {
         player.hp = 0;
         deathScreen.show();
       }
+      audio.music.setBossActive(Array.isArray(enemySystem.enemies) && enemySystem.enemies.some((e) => e.isBoss));
       if (!gamePaused && !lobbyOpen) leveling.update(dt);
       deathScreen.update(dt);
       victoryScreen.update(dt);
