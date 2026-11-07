@@ -76,7 +76,7 @@ export function createCharacterSelect({ onSave } = {}) {
   const layout = document.createElement("div");
   Object.assign(layout.style, {
     display: "grid",
-    gridTemplateColumns: "minmax(250px, 320px) 1fr minmax(220px, 260px)",
+    gridTemplateColumns: "minmax(250px, 320px) 1fr minmax(250px, 320px)",
     gap: "var(--sp-4)",
     alignItems: "start",
   });
@@ -245,7 +245,7 @@ export function createCharacterSelect({ onSave } = {}) {
       boxShadow: "inset 0 0 0 1px rgba(212,169,66,0.12)",
     });
     const image = document.createElement("img");
-    Object.assign(image.style, { width: "78%", height: "78%", objectFit: "contain", imageRendering: "pixelated" });
+    Object.assign(image.style, { width: "82%", height: "82%", objectFit: "contain", imageRendering: "pixelated" });
     thumb.appendChild(image);
     const placeholder = document.createElement("span");
     placeholder.textContent = "будет добавлено";
