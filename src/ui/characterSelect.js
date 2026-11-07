@@ -285,6 +285,7 @@ export function createCharacterSelect({ onSave } = {}) {
 
   // Middle: preview + gender/element/weapon
   const previewColumn = createColumn("Превью");
+  Object.assign(previewColumn.style, { alignItems: "center", width: "220px" });
   const previewCard = document.createElement("div");
   Object.assign(previewCard.style, {
     width: "200px",
@@ -346,6 +347,7 @@ export function createCharacterSelect({ onSave } = {}) {
   }
   layout.append(raceColumn, previewColumn, classColumn);
   const metaRow = document.createElement("div");
+  Object.assign(metaRow.style, { textAlign: "center", width: "200px" });
   metaRow.appendChild(previewMeta);
 
   // Gender + element + weapon row
