@@ -400,7 +400,7 @@ export function createCharacterSelect({ onSave } = {}) {
   const genderGroup = createToggleGroup("Пол", GENDERS, () => current.gender, (v) => { current.gender = v; });
   const elementButtons = {};
   const elementGroup = document.createElement("div");
-  Object.assign(elementGroup.style, { display: "flex", flexDirection: "column", gap: "var(--sp-1)", alignItems: "center" });
+  Object.assign(elementGroup.style, { display: "flex", flexDirection: "column", gap: "var(--sp-2)", alignItems: "center", marginTop: "var(--sp-5)" });
   const elementLabel = document.createElement("span");
   elementLabel.style.color = "var(--color-text-dim)";
   elementLabel.style.fontSize = "12px";
@@ -409,7 +409,7 @@ export function createCharacterSelect({ onSave } = {}) {
   elementLabel.textContent = "Стихия";
   elementGroup.appendChild(elementLabel);
   const elementButtonRow = document.createElement("div");
-  Object.assign(elementButtonRow.style, { display: "flex", gap: "var(--sp-2)", flexWrap: "wrap", justifyContent: "center" });
+  Object.assign(elementButtonRow.style, { display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "var(--sp-2)", justifyContent: "center", width: "200px" });
   for (const element of ELEMENTS) {
     const button = document.createElement("button");
     button.type = "button";
@@ -441,7 +441,7 @@ export function createCharacterSelect({ onSave } = {}) {
 
   genderGroup._dummy = null;
   syncToggleGroup(genderGroup, current.gender);
-  controlRow.append(elementGroup);
+  previewColumn.append(elementGroup);
 
   const saveRow = document.createElement("div");
   Object.assign(saveRow.style, { display: "flex", gap: "var(--sp-3)", justifyContent: "center", flexWrap: "wrap" });
