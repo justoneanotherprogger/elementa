@@ -489,7 +489,6 @@ export function createCharacterSelect({ onSave } = {}) {
     syncToggleGroup(genderGroup, current.gender);
     syncElementButtons();
     refreshPreview();
-    status.textContent = "";
   }
   refreshPreview();
 
