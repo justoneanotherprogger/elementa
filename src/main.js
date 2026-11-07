@@ -40,8 +40,9 @@ async function start() {
   const input = createInput();
   const spatialHash = createSpatialHash();
 
-  const enemyTexture = await Assets.load("/assets/enemies/pix_goblin.png");
-  const playerTexture = await Assets.load("/assets/player/pix_human_m.png");
+  const assetUrl = (path) => `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
+  const enemyTexture = await Assets.load(assetUrl("assets/enemies/pix_goblin.png"));
+  const playerTexture = await Assets.load(assetUrl("assets/player/pix_human_m.png"));
   const player = createPlayer(app, input, playerTexture);
   player.gold = 0;
   const audio = createAudio();

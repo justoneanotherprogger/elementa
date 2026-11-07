@@ -58,7 +58,7 @@ export function createAudio() {
     const seen = new Set();
     for (const base of bases) {
       for (const ext of EXTENSIONS) {
-        const url = `/assets/audio/${encodeURIComponent(base)}.${ext}`;
+        const url = `${import.meta.env.BASE_URL}assets/audio/${encodeURIComponent(base)}.${ext}`.replace(/\/{2,}/g, "/");
         if (!seen.has(url)) { seen.add(url); urls.push(url); }
       }
     }
