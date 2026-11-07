@@ -95,11 +95,11 @@ export function saveCharacter(value) {
 }
 
 export function combatSpriteUrl(character) {
-  return `/assets/player/races/pix_${character.race}_${character.gender}.png`;
+  return `./assets/player/races/pix_${character.race}_${character.gender}.png`;
 }
 
 export function previewSpriteUrl(character) {
-  return `/assets/player/classes/pix_${character.race}_${character.gender}_${character.classId}.png`;
+  return `./assets/player/classes/pix_${character.race}_${character.gender}_${character.classId}.png`;
 }
 
 export function startingWeaponId(character) {
@@ -125,6 +125,6 @@ export function weaponConfigById(id) {
 
 export function withAssetBase(assetPath) {
   if (!assetPath) return null;
-  const base = (typeof import.meta !== "undefined" && import.meta.env?.BASE_URL) || "./";
-  return `${base}${assetPath.replace(/^\//, "")}`.replace(/\/{2,}/g, "/");
+  // Keep paths relative so they work both in Vite dev and GitHub Pages.
+  return assetPath.startsWith("./") ? assetPath : `./${assetPath.replace(/^\/+/, "")}`;
 }

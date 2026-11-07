@@ -411,7 +411,7 @@ export function createCharacterSelect({ onSave } = {}) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "fantasy-tab";
-    Object.assign(button.style, { minWidth: "84px", justifyContent: "center", gap: "var(--sp-2)", flexDirection: "column", padding: "var(--sp-2)" });
+    Object.assign(button.style, { minWidth: "84px", justifyContent: "center", alignItems: "center", gap: "6px", flexDirection: "column", padding: "var(--sp-2)" });
     const iconName = element.id === "fire" ? "fire" : element.id === "water" ? "water" : element.id === "air" ? "air" : "earth";
     button.appendChild(icon(iconName, 18));
     const name = document.createElement("span");
