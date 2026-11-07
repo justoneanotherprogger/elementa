@@ -334,7 +334,6 @@ export function createCharacterSelect({ onSave } = {}) {
 
   function refresh() {
     current = loadCharacter();
-    weaponTouched = false;
     syncRaceButtons();
     syncClassButtons();
     syncToggleGroup(genderGroup, current.gender);
