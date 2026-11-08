@@ -343,7 +343,7 @@ export function createCharacterSelect({ onSave } = {}) {
     const className = CLASSES.find((c) => c.id === current.classId)?.name ?? current.classId;
     const genderName = GENDERS.find((g) => g.id === current.gender)?.name ?? current.gender;
     const elementName = ELEMENTS.find((e) => e.id === current.element)?.name ?? current.element;
-    const weaponLabel = startingWeaponLabel(current);
+    const weaponLabel = startingWeaponLabel(current).replace(/\s*\([^)]*\)\s*$/, "").trim();
     buildLineRace.textContent = `${raceName} · ${genderName}`;
     buildLineClass.textContent = `${className} · ${elementName}`;
     buildLineWeapon.textContent = `Оружие: ${weaponLabel}`;
