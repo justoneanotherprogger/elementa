@@ -162,7 +162,7 @@ export function createCharacterSelect({ onSave } = {}) {
     });
     thumb.appendChild(image);
     const label = document.createElement("span");
-    Object.assign(label.style, { font: "500 11px var(--font-body)", color: "var(--color-text)", textAlign: "center", lineHeight: "1.1" });
+    Object.assign(label.style, { font: "500 12px var(--font-body)", color: "var(--color-text)", textAlign: "center", lineHeight: "1.1" });
     label.textContent = race.name;
     labelsToMeasure.push(label);
     button.append(thumb, label);
@@ -264,7 +264,7 @@ export function createCharacterSelect({ onSave } = {}) {
     });
     thumb.appendChild(placeholder);
     const label = document.createElement("span");
-    Object.assign(label.style, { font: "500 10px var(--font-body)", color: "var(--color-text)", textAlign: "center", lineHeight: "1.1" });
+    Object.assign(label.style, { font: "500 12px var(--font-body)", color: "var(--color-text)", textAlign: "center", lineHeight: "1.1" });
     label.textContent = cls.name;
     labelsToMeasure.push(label);
     button.append(thumb, label);
@@ -522,7 +522,7 @@ export function createCharacterSelect({ onSave } = {}) {
     for (const label of labelsToMeasure) {
       const parent = label.parentElement;
       if (!parent) continue;
-      let size = 11;
+      let size = 12;
       label.style.fontSize = `${size}px`;
       // Shrink until the whole label fits the button; floor at 7px.
       while (label.scrollWidth > parent.clientWidth - 2 && size > 7) {
