@@ -262,6 +262,9 @@ export function createLobby({ onStart, audio } = {}) {
       if (btn) btn.classList.toggle("fantasy-tab--active", def.id === tabId);
       panelMap[def.id].style.display = def.id === tabId ? "flex" : "none";
     }
+    if (tabId === "character") {
+      requestAnimationFrame(() => requestAnimationFrame(() => characterModule.fitLabels?.()));
+    }
   }
 
   for (const def of tabDefs) {

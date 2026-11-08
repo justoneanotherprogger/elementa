@@ -515,13 +515,15 @@ export function createCharacterSelect({ onSave } = {}) {
     syncToggleGroup(genderGroup, current.gender);
     syncElementButtons();
     refreshPreview();
+    requestAnimationFrame(() => requestAnimationFrame(fitLabels));
   }
   refreshPreview();
+  requestAnimationFrame(() => requestAnimationFrame(fitLabels));
 
   function fitLabels() {
     for (const label of labelsToMeasure) {
       const parent = label.parentElement;
-      if (!parent) continue;
+      if (!parent || parent.clientWidth === 0) continue;
       let size = 12;
       label.style.fontSize = `${size}px`;
       // Shrink until the whole label fits the button; floor at 7px.
