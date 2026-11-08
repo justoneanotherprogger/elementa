@@ -363,9 +363,9 @@ export function createCharacterSelect({ onSave } = {}) {
   const buildLineRace = document.createElement("div");
   const buildLineClass = document.createElement("div");
   const buildLineWeapon = document.createElement("div");
-  Object.assign(buildLineRace.style, { fontSize: "11px", lineHeight: "1.2" });
-  Object.assign(buildLineClass.style, { fontSize: "11px", lineHeight: "1.2" });
-  Object.assign(buildLineWeapon.style, { fontSize: "11px", lineHeight: "1.2", color: "var(--color-text-dim)" });
+  Object.assign(buildLineRace.style, { fontSize: "13px", lineHeight: "1.2" });
+  Object.assign(buildLineClass.style, { fontSize: "13px", lineHeight: "1.2" });
+  Object.assign(buildLineWeapon.style, { fontSize: "13px", lineHeight: "1.2", color: "var(--color-text-dim)" });
   metaRow.append(buildLineRace, buildLineClass, buildLineWeapon);
 
   // Gender + element + weapon row
