@@ -342,10 +342,11 @@ export function createCharacterSelect({ onSave } = {}) {
     const raceName = RACES.find((r) => r.id === current.race)?.name ?? current.race;
     const className = CLASSES.find((c) => c.id === current.classId)?.name ?? current.classId;
     const genderName = GENDERS.find((g) => g.id === current.gender)?.name ?? current.gender;
+    const elementName = ELEMENTS.find((e) => e.id === current.element)?.name ?? current.element;
     const weaponLabel = startingWeaponLabel(current);
     buildLineRace.textContent = `${raceName} · ${genderName}`;
-    buildLineClass.textContent = className;
-    buildLineWeapon.textContent = `Начальное оружие: ${weaponLabel}`;
+    buildLineClass.textContent = `${className} · ${elementName}`;
+    buildLineWeapon.textContent = `Оружие: ${weaponLabel}`;
   }
   layout.append(raceColumn, previewColumn, classColumn);
   const metaRow = document.createElement("div");
@@ -362,6 +363,9 @@ export function createCharacterSelect({ onSave } = {}) {
   const buildLineRace = document.createElement("div");
   const buildLineClass = document.createElement("div");
   const buildLineWeapon = document.createElement("div");
+  Object.assign(buildLineRace.style, { fontSize: "11px", lineHeight: "1.2" });
+  Object.assign(buildLineClass.style, { fontSize: "11px", lineHeight: "1.2" });
+  Object.assign(buildLineWeapon.style, { fontSize: "11px", lineHeight: "1.2", color: "var(--color-text-dim)" });
   metaRow.append(buildLineRace, buildLineClass, buildLineWeapon);
 
   // Gender + element + weapon row
