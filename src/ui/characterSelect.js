@@ -363,9 +363,9 @@ export function createCharacterSelect({ onSave } = {}) {
   const buildLineRace = document.createElement("div");
   const buildLineClass = document.createElement("div");
   const buildLineWeapon = document.createElement("div");
-  Object.assign(buildLineRace.style, { fontSize: "13px", lineHeight: "1.2" });
-  Object.assign(buildLineClass.style, { fontSize: "13px", lineHeight: "1.2" });
-  Object.assign(buildLineWeapon.style, { fontSize: "13px", lineHeight: "1.2", color: "var(--color-text-dim)" });
+  Object.assign(buildLineRace.style, { fontSize: "14px", lineHeight: "1.2" });
+  Object.assign(buildLineClass.style, { fontSize: "14px", lineHeight: "1.2" });
+  Object.assign(buildLineWeapon.style, { fontSize: "14px", lineHeight: "1.2", color: "var(--color-text-dim)" });
   metaRow.append(buildLineRace, buildLineClass, buildLineWeapon);
 
   // Gender + element + weapon row
@@ -420,7 +420,7 @@ export function createCharacterSelect({ onSave } = {}) {
   const genderGroup = createToggleGroup("Пол", GENDERS, () => current.gender, (v) => { current.gender = v; });
   const elementButtons = {};
   const elementGroup = document.createElement("div");
-  Object.assign(elementGroup.style, { display: "flex", flexDirection: "column", gap: "var(--sp-2)", alignItems: "center", marginTop: "var(--sp-5)" });
+  Object.assign(elementGroup.style, { display: "flex", flexDirection: "column", gap: "var(--sp-2)", alignItems: "center", marginTop: "10px" });
   const elementLabel = document.createElement("span");
   elementLabel.style.color = "var(--color-text-dim)";
   elementLabel.style.fontSize = "12px";
