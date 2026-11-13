@@ -1,5 +1,6 @@
 import { icon } from "./icons.js";
 import { createCharacterSelect } from "./characterSelect.js";
+import { createSkillTree } from "./skillTree.js";
 
 export function createLobby({ onStart, audio } = {}) {
   const overlay = document.createElement("div");
@@ -152,34 +153,10 @@ export function createLobby({ onStart, audio } = {}) {
   card.append(arenaTitle, arenaDuration, arenaMeta, startBtn);
   runPanel.append(card);
 
-  function emptyPanel(id, title, body) {
-    const panel = makePanel(id);
-    const empty = document.createElement("div");
-    empty.className = "fantasy-empty fantasy-panel";
-    Object.assign(empty.style, { maxWidth: "520px", margin: "0 auto" });
-    const badge = document.createElement("div");
-    badge.style.color = "var(--color-accent)";
-    badge.style.opacity = "0.5";
-    badge.appendChild(icon("target", 48));
-    const heading = document.createElement("div");
-    heading.className = "fantasy-empty__title";
-    heading.textContent = title;
-    const text = document.createElement("div");
-    text.className = "fantasy-empty__body";
-    text.textContent = body;
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "fantasy-button";
-    btn.textContent = "Скоро";
-    btn.disabled = true;
-    empty.append(badge, heading, text, btn);
-    panel.append(empty);
-    return panel;
-  }
-
   const characterModule = createCharacterSelect({});
   const characterPanel = characterModule.root;
-  const skillsPanel = emptyPanel("skills", "Дерево навыков", "Усиления и ветки навыков будут доступны после первого обновления прогрессии.");
+  const skillTree = createSkillTree({ onGoldChange: refresh });
+  const skillsPanel = skillTree.root;
 
   const settingsPanel = makePanel("settings");
   const settingsCard = document.createElement("div");
@@ -315,6 +292,7 @@ export function createLobby({ onStart, audio } = {}) {
   function show() {
     refresh();
     characterModule.refresh();
+    skillTree.refresh();
     syncAudioSettings();
     overlay.style.display = "flex";
     activateTab("run");

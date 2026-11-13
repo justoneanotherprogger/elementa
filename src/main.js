@@ -20,6 +20,7 @@ import { createChestSystem } from "./systems/chests.js";
 import { createRewardScreen } from "./ui/rewardScreen.js";
 import { createLobby } from "./ui/lobby.js";
 import { loadCharacter, combatSpriteUrl, previewSpriteUrl, startingWeaponId, weaponConfigById, withAssetBase } from "./data/characters.js";
+import { damageMultiplier } from "./data/upgrades.js";
 import "./ui/theme.css";
 import { STARTER_WEAPON, SPEAR_WEAPON } from "./data/weapons.js";
 const app = new Application();
@@ -202,7 +203,7 @@ async function start() {
     }
     enemySystem.reset();
     zoneSystem.reset();
-    player.dmgMult = 1;
+    player.dmgMult = damageMultiplier();
     player.aspdMult = 1;
     player.speedMult = 1;
     player.areaMult = 1;
