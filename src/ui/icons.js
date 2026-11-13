@@ -43,6 +43,8 @@ export const Icons = {
   genderMale: (s) => svgNode('<circle cx="11" cy="12" r="4"/><path d="M14.4 9.6L19 5M16.5 5h2.5v2.5"/>', s),
   genderFemale: (s) => svgNode('<circle cx="12" cy="9" r="4"/><path d="M12 13V20M9 17h6"/>', s),
   volumeOff: (s) => svgNode('<path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M17 9l5 6M22 9l-5 6"/>', s),
+  music: (s) => svgNode('<path d="M9 18V5l10-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="16" cy="16" r="3"/>', s),
+  musicOff: (s) => svgNode('<path d="M9 18V5l10-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="16" cy="16" r="3"/><path d="M3 3l18 18"/>', s),
   fire: (s) => svgNode('<path d="M12 3c3 4 4.5 6.5 4.5 9a4.5 4.5 0 1 1-9 0c0-1.5.7-2.8 1.8-4.1C10 9.5 12 12 12 12s-.5-3 0-9z"/>', s),
   water: (s) => svgNode('<path d="M12 3s6 6.5 6 10a6 6 0 1 1-12 0c0-3.5 6-10 6-10z"/>', s),
   air: (s) => svgNode('<path d="M3 8h12a4 4 0 1 0-4-4M3 12h15a3 3 0 1 1-3 3M3 16h9"/>', s),

@@ -19,7 +19,6 @@ import { createWaves } from "./systems/waves.js";
 import { createChestSystem } from "./systems/chests.js";
 import { createRewardScreen } from "./ui/rewardScreen.js";
 import { createLobby } from "./ui/lobby.js";
-import { createCharacterSelect } from "./ui/characterSelect.js";
 import { loadCharacter, combatSpriteUrl, previewSpriteUrl, startingWeaponId, weaponConfigById, withAssetBase } from "./data/characters.js";
 import "./ui/theme.css";
 import { STARTER_WEAPON, SPEAR_WEAPON } from "./data/weapons.js";
@@ -55,7 +54,7 @@ async function start() {
     try {
       playerTexture = await Assets.load(spriteUrl);
       break;
-    } catch (_error) {
+    } catch {
       // Try the next available sprite.
     }
   }
@@ -164,7 +163,7 @@ async function start() {
       rewardOpen = false;
     },
   });
-  hud = createHud(app, player, enemySystem, leveling, camera, weaponSystem, audio);
+  hud = createHud(app, player, enemySystem, leveling, camera, weaponSystem);
 
   const debug = createDebugPanel();
 
@@ -281,6 +280,7 @@ async function start() {
     },
   });
   lobby.show();
+  audio.music.menuStart();
 
   const onVictory = () => {
     gamePaused = true;

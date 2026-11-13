@@ -1,3 +1,5 @@
+import MondstadtGen from "./main_menu_music_gen.js";
+
 export function createAudio() {
   let context = null;
   let ready = false;
@@ -6,8 +8,8 @@ export function createAudio() {
     try { context = new (window.AudioContext || window.webkitAudioContext)(); } catch (_error) { context = null; void _error; }
     return context;
   }
-  window.addEventListener("pointerdown", () => { ready = true; if (!context) init(); }, { once: true });
-  window.addEventListener("keydown", () => { ready = true; if (!context) init(); }, { once: true });
+  window.addEventListener("pointerdown", () => { ready = true; if (!context) init(); if (menuActive) playMenuTheme(); }, { once: true });
+  window.addEventListener("keydown", () => { ready = true; if (!context) init(); if (menuActive) playMenuTheme(); }, { once: true });
   function playSteam() {
     if (!ready) return;
     const ctx = context || init();
@@ -34,7 +36,9 @@ export function createAudio() {
   // --- Music (public audio assets, no runtime directory probing) ---
   const MUTE_KEY = "elementa_audio_muted_v1";
   const VOLUME_KEY = "elementa_audio_volume_v1";
+  const MUSIC_KEY = "elementa_music_enabled_v1";
   let muted = (localStorage.getItem(MUTE_KEY) === "1");
+  let musicEnabled = (localStorage.getItem(MUSIC_KEY) !== "0");
   let volume = Number(localStorage.getItem(VOLUME_KEY));
   if (!Number.isFinite(volume) || volume < 0 || volume > 1) volume = 1;
 
@@ -66,6 +70,17 @@ export function createAudio() {
   bossAudio.volume = muted ? 0 : volume;
   menuAudio.volume = muted ? 0 : volume;
 
+  // Процедурная меню-тема: сид случайный на загрузку страницы, ?seed=... — для проверки.
+  const MENU_SEED = (() => {
+    const override = new URLSearchParams(window.location.search).get("seed");
+    const parsed = Number(override);
+    if (override !== null && Number.isFinite(parsed)) return Math.floor(parsed);
+    return Math.floor(Math.random() * 2147483647);
+  })();
+  let menuChannelsPromise = null;
+  let menuBufferPromise = null;
+  let menuNode = null;
+
   let currentKey = null; // 'forest' | 'boss' | 'menu' | null
   let currentAudio = null;
   let transitionToken = 0;
@@ -96,8 +111,80 @@ export function createAudio() {
     if (idx >= 0) pool.splice(idx, 1);
   }
 
+  function loadMenuChannels() {
+    if (!menuChannelsPromise) {
+      console.info("[audio] menu theme seed", MENU_SEED);
+      menuChannelsPromise = MondstadtGen.render(MENU_SEED).catch((error) => {
+        menuChannelsPromise = null;
+        throw error;
+      });
+    }
+    return menuChannelsPromise;
+  }
+
+  function loadMenuBuffer(ctx) {
+    if (!menuBufferPromise) {
+      menuBufferPromise = loadMenuChannels()
+        .then((channels) => {
+          const buffer = MondstadtGen.toAudioBuffer(ctx, channels);
+          menuChannelsPromise = null;
+          return buffer;
+        })
+        .catch((error) => {
+          menuBufferPromise = null;
+          throw error;
+        });
+    }
+    return menuBufferPromise;
+  }
+
+  function stopMenuTheme() {
+    const node = menuNode;
+    menuNode = null;
+    if (!node || !context) return;
+    try {
+      const now = context.currentTime;
+      node.gain.gain.cancelScheduledValues(now);
+      node.gain.gain.setValueAtTime(node.gain.gain.value, now);
+      node.gain.gain.linearRampToValueAtTime(0, now + 0.3);
+      node.source.stop(now + 0.32);
+    } catch (error) { void error; }
+  }
+
+  function playMenuTheme() {
+    if (!menuActive || !musicEnabled || muted || !ready || menuNode) return;
+    const ctx = context || init();
+    if (!ctx) return;
+    try {
+      if (ctx.state === "suspended") {
+        const promise = ctx.resume();
+        if (promise && typeof promise.catch === "function") promise.catch(() => {});
+      }
+    } catch (error) { void error; }
+    loadMenuBuffer(ctx)
+      .then((buffer) => {
+        if (!menuActive || !musicEnabled || muted || !ready || menuNode) return;
+        const source = ctx.createBufferSource();
+        source.buffer = buffer;
+        source.loop = true;
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(volume, ctx.currentTime + 0.8);
+        source.connect(gain);
+        gain.connect(ctx.destination);
+        source.start();
+        menuNode = { source, gain };
+        source.onended = () => {
+          if (menuNode && menuNode.source === source) menuNode = null;
+        };
+      })
+      .catch((error) => {
+        console.warn("[audio] menu theme failed", error);
+      });
+  }
+
   function playTrack(key) {
-    if (isTransitioning) return false;
+    if (!musicEnabled || isTransitioning) return false;
     const pool = poolFor(key);
     if (!pool.length) return false;
     const url = randomFromPool(pool);
@@ -175,6 +262,19 @@ export function createAudio() {
 
   function isMuted() { return muted; }
   function getVolume() { return volume; }
+  function isMusicEnabled() { return musicEnabled; }
+
+  function setMusicEnabled(next) {
+    musicEnabled = !!next;
+    localStorage.setItem(MUSIC_KEY, musicEnabled ? "1" : "0");
+    if (!musicEnabled) {
+      pauseAll();
+    } else if (!muted) {
+      syncTracks();
+    }
+  }
+
+  function toggleMusicEnabled() { setMusicEnabled(!musicEnabled); }
 
   function setMuted(next) {
     muted = !!next;
@@ -198,10 +298,14 @@ export function createAudio() {
       if (currentKey === "forest") forestAudio.volume = volume;
       if (currentKey === "boss") bossAudio.volume = volume;
       if (currentKey === "menu") menuAudio.volume = volume;
+      if (menuNode && context) {
+        try { menuNode.gain.gain.setTargetAtTime(volume, context.currentTime, 0.05); } catch (error) { void error; }
+      }
     }
   }
 
   function pauseAll() {
+    stopMenuTheme();
     try { forestAudio.pause(); } catch (_e) { void _e; }
     try { bossAudio.pause(); } catch (_e) { void _e; }
     try { menuAudio.pause(); } catch (_e) { void _e; }
@@ -210,10 +314,19 @@ export function createAudio() {
   }
 
   function syncTracks() {
-    if (!runActive || muted) {
+    if (muted || !musicEnabled) {
       pauseAll();
       return;
     }
+    if (!runActive) {
+      if (menuActive) {
+        playMenuTheme();
+      } else {
+        pauseAll();
+      }
+      return;
+    }
+    stopMenuTheme();
     const nextKey = bossActive ? "boss" : "forest";
     if (currentKey !== nextKey) {
       playTrack(nextKey);
@@ -255,7 +368,14 @@ export function createAudio() {
     menuActive = true;
     runActive = false;
     pauseAll();
-    if (menuPool.length) playTrack("menu");
+    if (musicEnabled) {
+      if (!menuBufferPromise) {
+        loadMenuChannels().catch((error) => {
+          console.warn("[audio] menu theme failed", error);
+        });
+      }
+      playMenuTheme();
+    }
   }
 
   function menuStop() {
@@ -276,6 +396,9 @@ export function createAudio() {
   const music = {
     isMuted,
     getVolume,
+    isMusicEnabled,
+    setMusicEnabled,
+    toggleMusicEnabled,
     setMuted,
     toggleMuted,
     setVolume,

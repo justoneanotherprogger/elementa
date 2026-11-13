@@ -205,6 +205,11 @@ export function createLobby({ onStart, audio } = {}) {
   audioToggle.className = "fantasy-button fantasy-button--ghost";
   Object.assign(audioToggle.style, { width: "100%", justifyContent: "space-between" });
 
+  const musicToggle = document.createElement("button");
+  musicToggle.type = "button";
+  musicToggle.className = "fantasy-button fantasy-button--ghost";
+  Object.assign(musicToggle.style, { width: "100%", justifyContent: "space-between" });
+
   const volumeRow = document.createElement("div");
   Object.assign(volumeRow.style, { display: "flex", alignItems: "center", gap: "var(--sp-3)" });
   const volumeLabel = document.createElement("span");
@@ -222,8 +227,10 @@ export function createLobby({ onStart, audio } = {}) {
   const syncAudioSettings = () => {
     if (!audio?.music) {
       audioToggle.disabled = true;
+      musicToggle.disabled = true;
       volumeSlider.disabled = true;
       audioToggle.textContent = "Звук недоступен";
+      musicToggle.textContent = "Музыка недоступна";
       volumeValue.textContent = "—";
       return;
     }
@@ -232,6 +239,13 @@ export function createLobby({ onStart, audio } = {}) {
     const label = document.createElement("span");
     label.textContent = audio.music.isMuted() ? "Звук выключен" : "Звук включён";
     audioToggle.appendChild(label);
+
+    musicToggle.replaceChildren();
+    musicToggle.appendChild(icon(audio.music.isMusicEnabled() ? "music" : "musicOff", 18));
+    const musicLabel = document.createElement("span");
+    musicLabel.textContent = audio.music.isMusicEnabled() ? "Музыка включена" : "Музыка выключена";
+    musicToggle.appendChild(musicLabel);
+
     const currentVolume = Math.round(audio.music.getVolume() * 100);
     volumeSlider.value = String(currentVolume);
     volumeValue.textContent = `${currentVolume}%`;
@@ -242,13 +256,17 @@ export function createLobby({ onStart, audio } = {}) {
     audio?.music?.toggleMuted();
     syncAudioSettings();
   });
+  musicToggle.addEventListener("click", () => {
+    audio?.music?.toggleMusicEnabled();
+    syncAudioSettings();
+  });
   volumeSlider.addEventListener("input", () => {
     audio?.music?.setVolume(Number(volumeSlider.value) / 100);
     volumeValue.textContent = `${volumeSlider.value}%`;
   });
 
   volumeRow.append(volumeLabel, volumeSlider, volumeValue);
-  audioSection.append(audioSectionTitle, audioToggle, volumeRow);
+  audioSection.append(audioSectionTitle, audioToggle, musicToggle, volumeRow);
 
   settingsCard.append(audioSection);
   settingsPanel.append(settingsCard);
@@ -297,6 +315,7 @@ export function createLobby({ onStart, audio } = {}) {
   function show() {
     refresh();
     characterModule.refresh();
+    syncAudioSettings();
     overlay.style.display = "flex";
     activateTab("run");
     requestAnimationFrame(() => {
