@@ -1,8 +1,7 @@
 import { Graphics } from "pixi.js";
 import { icon, weaponIcon } from "./icons.js";
 
-export function createHud(app, player, enemySystem, leveling, camera, weaponSystem, audio) {
-  const audioController = audio?.music;
+export function createHud(app, player, enemySystem, leveling, camera, weaponSystem) {
   const cam = camera || { x: 0, y: 0 };
   const heroYBottom = 73;
   if (app.stage) app.stage.sortableChildren = true;
@@ -221,9 +220,6 @@ export function createHud(app, player, enemySystem, leveling, camera, weaponSyst
   const goldStat = makeStatLine("coin", String(player?.gold ?? 0), "var(--color-gold)");
   statsCol.appendChild(goldStat.line);
 
-  function weaponEmoji(weapon) {
-    return weapon?.id === "spear" ? "spear" : "sickle";
-  }
   function syncWeaponSlots() {
     const weapons = Array.isArray(weaponSystem?.weapons) ? weaponSystem.weapons : [];
     if (weaponRow.childElementCount === weapons.length) return;

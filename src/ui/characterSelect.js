@@ -4,16 +4,13 @@ import {
   GENDERS,
   CLASSES,
   ELEMENTS,
-  AVAILABLE_WEAPONS,
   loadCharacter,
   saveCharacter,
   normalizeCharacter,
   previewSpriteUrl,
   combatSpriteUrl,
-  startingWeaponId,
   startingWeaponLabel,
   withAssetBase,
-  defaultCharacter,
 } from "../data/characters.js";
 
 export function createCharacterSelect({ onSave } = {}) {

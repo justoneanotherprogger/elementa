@@ -73,7 +73,7 @@ export function loadCharacter() {
     if (!raw) return defaultCharacter();
     const parsed = JSON.parse(raw);
     return normalizeCharacter(parsed);
-  } catch (_e) {
+  } catch {
     return defaultCharacter();
   }
 }
