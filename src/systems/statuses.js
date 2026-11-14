@@ -27,7 +27,7 @@ export function updateStatuses(enemySystem, dt) {
     for (const [statusId, entry] of [...enemy.statuses.entries()]) {
       entry.remaining -= dt;
       const status = STATUSES[statusId];
-      if (status?.dps) enemy.hp -= rollDamage(status.dps * dt);
+      if (status?.dps) enemySystem.damage(enemy, rollDamage(status.dps * dt));
       if (entry.remaining <= 0) enemy.statuses.delete(statusId);
     }
 

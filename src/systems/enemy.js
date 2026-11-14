@@ -79,12 +79,22 @@ export function createEnemySystem(app, player, spatialHash, texture, camera, hoo
     enemies.push(enemy);
   }
 
+  function damageEnemy(enemy, amount) {
+    if (!enemy || enemy.alive === false || enemy.hp <= 0) return 0;
+    const dealt = Math.max(0, Math.round(amount));
+    if (dealt <= 0) return 0;
+    enemy.hp -= dealt;
+    hooks.onEnemyDamage?.(enemy, dealt);
+    return dealt;
+  }
+
   const system = {
     enemies,
     camera,
     kills: 0,
     xpEarned: 0,
     spawnEnemy,
+    damage: damageEnemy,
     maxEnemies,
     update(dt) {
       spawnTimer += dt;

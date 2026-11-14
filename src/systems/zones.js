@@ -118,7 +118,7 @@ export function createZoneSystem(app, enemySystem, player) {
         if (!enemy || enemy.alive === false || enemy.hp <= 0) continue;
         const d = Math.hypot(enemy.x - zone.x, enemy.y - zone.y);
         if (d <= zone.radius) {
-          enemy.hp -= rollDamage(zone.dps * dt);
+          enemySystem.damage(enemy, rollDamage(zone.dps * dt));
         }
       }
 

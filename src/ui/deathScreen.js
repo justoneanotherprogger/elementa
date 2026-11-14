@@ -10,7 +10,6 @@ export function createDeathScreen(
   onQuit,
 ) {
   void app;
-  void player;
 
   const overlay = document.createElement("div");
   overlay.id = "deathscreen";
@@ -47,6 +46,11 @@ export function createDeathScreen(
     textShadow: "0 2px 12px rgba(226,85,85,0.45)",
   });
   overlay.appendChild(title);
+
+  const subtitle = document.createElement("div");
+  subtitle.className = "fantasy-subtitle";
+  subtitle.style.display = "none";
+  overlay.appendChild(subtitle);
 
   const statsCard = document.createElement("div");
   statsCard.className = "fantasy-panel";
@@ -101,7 +105,10 @@ export function createDeathScreen(
 
   document.body.appendChild(overlay);
 
-  const show = () => {
+  const show = (options = {}) => {
+    title.textContent = options.title ?? "Вы погибли";
+    subtitle.textContent = options.subtitle ?? "";
+    subtitle.style.display = options.subtitle ? "block" : "none";
     overlay.style.display = "flex";
     update(0);
   };
@@ -114,12 +121,15 @@ export function createDeathScreen(
     const elapsed = Number(hud?.elapsed) || 0;
     const level = leveling?.level ?? 1;
     const kills = enemySystem?.kills ?? 0;
+    const gold = player?.gold ?? 0;
     stats.innerHTML = `
       <span style="color:var(--color-text-dim)">Время </span><span class="fantasy-mono">${formatTime(elapsed)}</span>
       &nbsp;·&nbsp;
       <span style="color:var(--color-text-dim)">Уровень </span><span class="fantasy-mono">${level}</span>
       &nbsp;·&nbsp;
       <span style="color:var(--color-text-dim)">Убийства </span><span class="fantasy-mono">${kills}</span>
+      &nbsp;·&nbsp;
+      <span style="color:var(--color-text-dim)">Золото </span><span class="fantasy-mono">+${gold}</span>
     `;
   }
 

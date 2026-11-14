@@ -1,8 +1,7 @@
 import { Graphics } from "pixi.js";
 import { icon, weaponIcon } from "./icons.js";
 
-export function createHud(app, player, enemySystem, leveling, camera, weaponSystem) {
-  const cam = camera || { x: 0, y: 0 };
+export function createHud(app, player, enemySystem, leveling, weaponSystem) {
   const heroYBottom = 73;
   if (app.stage) app.stage.sortableChildren = true;
   const uiRoot = document.getElementById("ui");
@@ -281,19 +280,17 @@ export function createHud(app, player, enemySystem, leveling, camera, weaponSyst
     const body = player.body || {};
     const px = body.x ?? player.x ?? 0;
     const py = body.y ?? player.y ?? 0;
-    const sx = px - cam.x + app.screen.width / 2;
-    const sy = py - cam.y + app.screen.height / 2;
     const offset = Math.round(heroYBottom * (player.body?.scale.y ?? 0.7)) + 4;
     const hpRatio = Math.max(0, Math.min(1, (player.hp || 0) / (player.maxHp || 1)));
     hpFill.style.width = `${hpRatio * 100}%`;
-    // Канвасный HP-бар над игроком: единый принцип с врагами
+    // Канвасный HP-бар над игроком: единый принцип с врагами, мировые координаты сцены
     overhead.visible = (player.hp || 0) < (player.maxHp || 1);
     overhead.clear();
     if (overhead.visible) {
       const barWidth = 46;
       const barHeight = 6;
-      const x = sx - barWidth / 2;
-      const y = sy + offset;
+      const x = px - barWidth / 2;
+      const y = py + offset;
       overhead.roundRect(x, y, barWidth, barHeight, 2).fill(0x1b1410);
       overhead.roundRect(x, y, barWidth * hpRatio, barHeight, 2).fill(0xe25555);
       overhead.roundRect(x, y, barWidth, barHeight, 2).stroke({ width: 1, color: 0x8a6d3b, alpha: 0.35 });

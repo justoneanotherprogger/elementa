@@ -67,5 +67,5 @@ export function buyUpgrade(id) {
 export function damageMultiplier() {
   const node = SKILL_NODES.find((item) => item.id === "damage");
   if (!node) return 1;
-  return 1 + node.step * loadUpgrades()[node.id];
+  return (1 + node.step) ** loadUpgrades()[node.id];
 }

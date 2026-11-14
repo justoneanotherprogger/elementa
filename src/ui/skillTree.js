@@ -242,7 +242,7 @@ export function createSkillTree({ onGoldChange } = {}) {
     }
     if (selectedDef) {
       const bought = upgrades[selectedDef.id] ?? 0;
-      infoBought.textContent = `Куплено копий: ${bought}`;
+      infoBought.textContent = `Получено: ${bought}`;
       infoPrice.textContent = String(selectedDef.price);
       infoBuy.disabled = gold < selectedDef.price;
     }

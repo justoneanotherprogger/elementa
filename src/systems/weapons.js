@@ -89,7 +89,7 @@ export function createWeaponSystem(app, player, enemySystem, initialWeapons = [S
         }
       }
       if (hit) {
-        enemy.hp -= rollDamage(amount * (enemy.damageTakenMult ?? 1));
+        enemySystem.damage(enemy, rollDamage(amount * (enemy.damageTakenMult ?? 1)));
         applyStatus(enemy, element, amount);
         reactionSystem?.handleHit(enemy, element, amount);
         hitTargets?.add(enemy);
@@ -258,7 +258,7 @@ export function createWeaponSystem(app, player, enemySystem, initialWeapons = [S
             }
           }
           if (hit) {
-            enemy.hp -= rollDamage(thrust.amount * (enemy.damageTakenMult ?? 1));
+            enemySystem.damage(enemy, rollDamage(thrust.amount * (enemy.damageTakenMult ?? 1)));
             applyStatus(enemy, thrust.element, thrust.amount);
             reactionSystem?.handleHit(enemy, thrust.element, thrust.amount);
             thrust.hitEnemies.add(enemy);

@@ -2,6 +2,7 @@ import { Application, Assets } from "pixi.js";
 import { createLoop } from "./core/loop.js";
 import { createInput } from "./systems/input.js";
 import { createPlayer } from "./systems/player.js";
+import { createDamageNumbers } from "./systems/damageNumbers.js";
 import { createEnemySystem } from "./systems/enemy.js";
 import { createWeaponSystem } from "./systems/weapons.js";
 import { createReactionSystem } from "./systems/reactions.js";
@@ -19,6 +20,7 @@ import { createWaves } from "./systems/waves.js";
 import { createChestSystem } from "./systems/chests.js";
 import { createRewardScreen } from "./ui/rewardScreen.js";
 import { createLobby } from "./ui/lobby.js";
+import { createSettingsPanel } from "./ui/settingsPanel.js";
 import { loadCharacter, combatSpriteUrl, previewSpriteUrl, startingWeaponId, weaponConfigById, withAssetBase } from "./data/characters.js";
 import { damageMultiplier } from "./data/upgrades.js";
 import "./ui/theme.css";
@@ -64,10 +66,13 @@ async function start() {
   }
   const player = createPlayer(app, input, playerTexture);
   player.gold = 0;
+  const damageNumbers = createDamageNumbers(app);
+  player.onDamage = (amount) => damageNumbers.spawnOnPlayer(player, amount);
   const audio = createAudio();
   let rewardOpen = false;
   let rewardScreen = null;
   let pauseOpen = false;
+  let pauseSettingsOpen = false;
   const pauseOverlay = document.createElement("div");
   pauseOverlay.className = "fantasy-grain";
   Object.assign(pauseOverlay.style, {
@@ -86,6 +91,15 @@ async function start() {
     pointerEvents: "auto",
   });
   pauseOverlay.style.display = "none";
+
+  const pauseMainView = document.createElement("div");
+  Object.assign(pauseMainView.style, {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "var(--sp-4)",
+  });
+
   const pauseSigil = document.createElement("div");
   pauseSigil.style.color = "var(--color-accent)";
   pauseSigil.style.opacity = "0.8";
@@ -99,34 +113,73 @@ async function start() {
   const pauseHint = document.createElement("div");
   pauseHint.className = "fantasy-subtitle";
   pauseHint.textContent = "Esc — продолжить";
+
+  const pauseResumeBtn = document.createElement("button");
+  pauseResumeBtn.type = "button";
+  pauseResumeBtn.className = "fantasy-button";
+  pauseResumeBtn.textContent = "Продолжить";
+
+  const pauseSettingsBtn = document.createElement("button");
+  pauseSettingsBtn.type = "button";
+  pauseSettingsBtn.className = "fantasy-button fantasy-button--ghost";
+  pauseSettingsBtn.textContent = "Настройки";
+
   const pauseQuitBtn = document.createElement("button");
   pauseQuitBtn.type = "button";
   pauseQuitBtn.className = "fantasy-button fantasy-button--ghost";
   pauseQuitBtn.textContent = "Покинуть поле боя";
+
+  const pauseSettings = createSettingsPanel({ audio });
+  const pauseSettingsView = document.createElement("div");
+  Object.assign(pauseSettingsView.style, {
+    display: "none",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "var(--sp-4)",
+    width: "min(560px, 100%)",
+    maxHeight: "82vh",
+    overflowY: "auto",
+    padding: "var(--sp-2)",
+  });
+  const pauseSettingsBackBtn = document.createElement("button");
+  pauseSettingsBackBtn.type = "button";
+  pauseSettingsBackBtn.className = "fantasy-button fantasy-button--ghost";
+  pauseSettingsBackBtn.textContent = "Назад";
+  pauseSettingsView.append(pauseSettings.root, pauseSettingsBackBtn);
+
+  function setPauseSettingsOpen(value) {
+    pauseSettingsOpen = value;
+    pauseMainView.style.display = value ? "none" : "flex";
+    pauseSettingsView.style.display = value ? "flex" : "none";
+    if (value) pauseSettings.refresh();
+  }
+
+  function setPauseOpen(value) {
+    pauseOpen = value;
+    pauseOverlay.style.display = value ? "flex" : "none";
+    if (!value) setPauseSettingsOpen(false);
+  }
+
+  pauseResumeBtn.addEventListener("click", () => setPauseOpen(false));
+  pauseSettingsBtn.addEventListener("click", () => setPauseSettingsOpen(true));
+  pauseSettingsBackBtn.addEventListener("click", () => setPauseSettingsOpen(false));
   pauseQuitBtn.addEventListener("click", () => {
-    pauseOpen = false;
-    pauseOverlay.style.display = "none";
-    quitRun();
+    setPauseOpen(false);
+    finishRun("quit");
   });
 
-  const pauseSoundBtn = document.createElement("button");
-  pauseSoundBtn.type = "button";
-  pauseSoundBtn.className = "fantasy-button fantasy-button--ghost";
-  const syncPauseSound = () => {
-    pauseSoundBtn.textContent = audio.music.isMuted() ? "Звук: выкл" : "Звук: вкл";
-  };
-  syncPauseSound();
-  pauseSoundBtn.addEventListener("click", () => {
-    audio.music.toggleMuted();
-    syncPauseSound();
-  });
-  pauseOverlay.append(pauseSigil, pauseText, pauseHint, pauseSoundBtn, pauseQuitBtn);
+  pauseMainView.append(pauseSigil, pauseText, pauseHint, pauseResumeBtn, pauseSettingsBtn, pauseQuitBtn);
+  pauseOverlay.append(pauseMainView, pauseSettingsView);
   document.body.appendChild(pauseOverlay);
   window.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
     if (lobbyOpen || rewardOpen || leveling.paused || player.hp <= 0 || gamePaused) return;
-    pauseOpen = !pauseOpen;
-    pauseOverlay.style.display = pauseOpen ? "flex" : "none";
+    if (pauseOpen && pauseSettingsOpen) {
+      setPauseSettingsOpen(false);
+      event.preventDefault();
+      return;
+    }
+    setPauseOpen(!pauseOpen);
     event.preventDefault();
   });
   let hud = null;
@@ -135,7 +188,12 @@ async function start() {
   const savedGold = Number(localStorage.getItem("elementa_gold_v1") || 0);
   void savedGold;
   const chestSystem = createChestSystem(app, player, {
-    onCollect: () => { openRewardScreen(); },
+    onCollect: () => {
+      const chestGold = 100 + Math.floor(Math.random() * 51);
+      runGold += chestGold;
+      player.gold = runGold;
+      openRewardScreen(chestGold);
+    },
   });
   const enemySystem = createEnemySystem(
     app,
@@ -147,6 +205,7 @@ async function start() {
       onBossDeath: (x, y) => {
         chestSystem?.spawn(x, y);
       },
+      onEnemyDamage: (enemy, amount) => damageNumbers.spawnOnEnemy(enemy, amount),
     },
   );
   const zoneSystem = createZoneSystem(app, enemySystem, player);
@@ -164,7 +223,7 @@ async function start() {
       rewardOpen = false;
     },
   });
-  hud = createHud(app, player, enemySystem, leveling, camera, weaponSystem);
+  hud = createHud(app, player, enemySystem, leveling, weaponSystem);
 
   const debug = createDebugPanel();
 
@@ -174,14 +233,12 @@ async function start() {
     const hasSpear = weaponSystem.weapons.some((w) => w.id === "spear");
     if (!hasSpear) choices.push({ kind: "weapon", label: "Копьё · Вода", config: SPEAR_WEAPON });
     else if (!hasSerp) choices.push({ kind: "weapon", label: "Серп · Огонь", config: STARTER_WEAPON });
-    else choices.push({ kind: "gold", label: "+10 🪙", amount: 10 });
-    choices.push({ kind: "gold", label: "+15 🪙", amount: 15 });
-    choices.push({ kind: "gold", label: "+25 🪙", amount: 25 });
+    else choices.push({ kind: "gold", label: "+25 🪙", amount: 25 });
     return choices;
   }
-  function openRewardScreen() {
+  function openRewardScreen(chestGold = 0) {
     rewardOpen = true;
-    rewardScreen.open(makeRewardChoices());
+    rewardScreen.open(makeRewardChoices(), { gold: chestGold });
   }
 
   let gamePaused = false;
@@ -193,8 +250,7 @@ async function start() {
     runTime = 0;
     player.runTime = 0;
     rewardOpen = false;
-    pauseOpen = false;
-    pauseOverlay.style.display = "none";
+    setPauseOpen(false);
     rewardScreen?.close();
     const runCharacter = loadCharacter();
     if (weaponSystem && Array.isArray(weaponSystem.weapons)) {
@@ -215,6 +271,7 @@ async function start() {
     player.gold = 0;
     runGoldSaved = false;
     if (chestSystem) chestSystem.reset();
+    damageNumbers.reset();
     const cx = app.screen.width / 2;
     const cy = app.screen.height / 2;
     if (player.body) {
@@ -284,11 +341,7 @@ async function start() {
   audio.music.menuStart();
 
   const onVictory = () => {
-    gamePaused = true;
-    leveling.paused = true;
-    audio.music.runStop();
-    saveRunGold();
-    victoryScreen.show();
+    finishRun("victory");
   };
 
   const waves = createWaves({
@@ -306,21 +359,29 @@ async function start() {
     localStorage.setItem("elementa_gold_v1", String(previous + runGold));
   }
 
-  window.addEventListener("beforeunload", saveRunGold);
+  function finishRun(outcome) {
+    if (gamePaused) return;
+    gamePaused = true;
+    leveling.paused = true;
+    audio.music.runStop();
+    if (outcome === "death") player.hp = 0;
+    saveRunGold();
+    if (outcome === "victory") {
+      victoryScreen.show();
+    } else {
+      deathScreen.show(
+        outcome === "quit"
+          ? { title: "Поражение", subtitle: "Вы покинули поле боя." }
+          : {},
+      );
+    }
+  }
 
   const loop = createLoop({
     update(dt) {
       arena.update(dt);
       player.pauseOpen = pauseOpen;
       player.rewardOpen = rewardOpen;
-      if (player.hp <= 0 && !gamePaused) {
-        gamePaused = true;
-        leveling.paused = true;
-        player.hp = 0;
-        audio.music.runStop();
-        saveRunGold();
-        deathScreen.show();
-      }
       const paused = gamePaused || leveling.paused || rewardOpen || pauseOpen || lobbyOpen;
       if (!paused) {
         runTime += dt;
@@ -339,13 +400,9 @@ async function start() {
         weaponSystem.update(dt);
         chestSystem?.update(dt);
         zoneSystem?.update(dt);
+        damageNumbers.update(dt);
       }
-      if (player.hp <= 0 && !gamePaused) {
-        gamePaused = true;
-        leveling.paused = true;
-        player.hp = 0;
-        deathScreen.show();
-      }
+      if (player.hp <= 0) finishRun("death");
       audio.music.setBossActive(Array.isArray(enemySystem.enemies) && enemySystem.enemies.some((e) => e.isBoss));
       if (!gamePaused && !lobbyOpen) leveling.update(dt);
       deathScreen.update(dt);

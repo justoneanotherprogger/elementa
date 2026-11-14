@@ -10,7 +10,6 @@ export function createVictoryScreen(
   onQuit,
 ) {
   void app;
-  void player;
 
   const overlay = document.createElement("div");
   overlay.id = "victoryscreen";
@@ -119,12 +118,15 @@ export function createVictoryScreen(
     const elapsed = Number(hud?.elapsed) || 0;
     const level = leveling?.level ?? 1;
     const kills = enemySystem?.kills ?? 0;
+    const gold = player?.gold ?? 0;
     stats.innerHTML = `
       <span style="color:var(--color-text-dim)">Время </span><span class="fantasy-mono">${formatTime(elapsed)}</span>
       &nbsp;·&nbsp;
       <span style="color:var(--color-text-dim)">Уровень </span><span class="fantasy-mono">${level}</span>
       &nbsp;·&nbsp;
       <span style="color:var(--color-text-dim)">Убийства </span><span class="fantasy-mono">${kills}</span>
+      &nbsp;·&nbsp;
+      <span style="color:var(--color-text-dim)">Золото </span><span class="fantasy-mono">+${gold}</span>
     `;
   }
 

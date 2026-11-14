@@ -39,8 +39,8 @@ export const ELEMENTS = [
 ];
 
 export const AVAILABLE_WEAPONS = [
-  { id: "serp", name: "Серп (Огонь)" },
-  { id: "spear", name: "Копьё (Вода)" },
+  { id: "serp", name: "Серп" },
+  { id: "spear", name: "Копьё" },
 ];
 
 // Asset convention requested by the designer:

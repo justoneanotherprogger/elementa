@@ -44,7 +44,7 @@ export function createRewardScreen({ onPick } = {}) {
     close();
   }
 
-  function open(choices = []) {
+  function open(choices = [], options = {}) {
     ensure();
     if (!overlay) return;
     overlay.innerHTML = "";
@@ -69,8 +69,19 @@ export function createRewardScreen({ onPick } = {}) {
 
     const hint = document.createElement("div");
     hint.className = "fantasy-subtitle";
-    hint.textContent = "Выберите одну награду. Клавиши 1-3 работают так же.";
+    hint.textContent =
+      choices.length > 1
+        ? "Выберите одну награду. Клавиши 1-3 работают так же."
+        : "Заберите награду.";
     overlay.appendChild(hint);
+
+    if (options.gold > 0) {
+      const goldNote = document.createElement("div");
+      goldNote.className = "fantasy-mono";
+      Object.assign(goldNote.style, { color: "var(--color-gold)", fontSize: "14px" });
+      goldNote.textContent = `Из сундука: +${options.gold} золота`;
+      overlay.appendChild(goldNote);
+    }
 
     const row = document.createElement("div");
     Object.assign(row.style, {

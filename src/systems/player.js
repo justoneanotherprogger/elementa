@@ -1,5 +1,10 @@
 import { Sprite } from "pixi.js";
 
+export const PLAYER_BASE = {
+  maxHp: 100,
+  speed: 180,
+};
+
 export function createPlayer(app, input, texture) {
   const body = new Sprite(texture);
   body.anchor.set(0.5);
@@ -9,7 +14,7 @@ export function createPlayer(app, input, texture) {
   body.y = app.screen.height / 2;
   app.stage.addChild(body);
 
-  const maxHp = 100;
+  const maxHp = PLAYER_BASE.maxHp;
 
   const player = {
     body,
@@ -23,7 +28,7 @@ export function createPlayer(app, input, texture) {
     durMult: 1,
     lastMoveDir: { x: 0, y: -1 },
     update(dt) {
-      const speed = 180 * (player.speedMult ?? 1);
+      const speed = PLAYER_BASE.speed * (player.speedMult ?? 1);
       const direction = input.direction();
       body.x += direction.x * speed * dt;
       body.y += direction.y * speed * dt;
@@ -42,6 +47,7 @@ export function createPlayer(app, input, texture) {
       if (player.invuln <= 0) {
         player.hp -= amount;
         player.invuln = 0.5;
+        player.onDamage?.(amount);
       }
     },
   };
