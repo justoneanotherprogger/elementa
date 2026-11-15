@@ -243,7 +243,7 @@ export function createAudio() {
 
     const step = (now) => {
       if (token !== transitionToken) return;
-      const t = Math.min(1, (now - start) / duration);
+      const t = Math.max(0, Math.min(1, (now - start) / duration));
       const gain = (muted ? 0 : volume);
       audio.volume = gain * t;
       if (previousAudio && previousAudio !== audio && !previousAudio.paused) {
