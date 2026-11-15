@@ -66,8 +66,14 @@ export function createAudio() {
   ];
   // Turn on to bring back the generated lobby theme instead of the track pool.
   const USE_PROCEDURAL_MENU = false;
-  const victoryPool = [withBase("assets/audio/victory/victory_1.mp3")];
-  const defeatPool = [withBase("assets/audio/defeat/defeat_1.mp3")];
+  const victoryPool = [
+    withBase("assets/audio/victory/victory_1.mp3"),
+    withBase("assets/audio/victory/victory_2.mp3"),
+  ];
+  const defeatPool = [
+    withBase("assets/audio/defeat/defeat_1.mp3"),
+    withBase("assets/audio/defeat/defeat_2.mp3"),
+  ];
 
   const forestAudio = new Audio();
   const bossAudio = new Audio();
