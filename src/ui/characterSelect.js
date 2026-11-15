@@ -472,7 +472,7 @@ export function createCharacterSelect({ onSave } = {}) {
     toast.textContent = "Сохранено. Применится при следующем забеге.";
     Object.assign(toast.style, {
       position: "fixed",
-      top: "18px",
+      bottom: "18px",
       left: "50%",
       transform: "translateX(-50%)",
       zIndex: "3000",
