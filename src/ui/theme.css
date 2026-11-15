@@ -104,7 +104,6 @@ button {
 .fantasy-button:hover {
   background: linear-gradient(180deg, #4a3626, #302319);
   border-color: var(--color-border-strong);
-  transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
 }
 
