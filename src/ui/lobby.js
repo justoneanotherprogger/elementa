@@ -131,9 +131,6 @@ export function createLobby({ onStart, audio } = {}) {
   const arenaTitle = document.createElement("div");
   arenaTitle.className = "fantasy-title fantasy-title--section";
   arenaTitle.textContent = "Гоблинский лес";
-  const arenaDuration = document.createElement("div");
-  arenaDuration.className = "fantasy-subtitle";
-  arenaDuration.textContent = "Забег · 30:00 · стартовый набор";
   const arenaMeta = document.createElement("div");
   Object.assign(arenaMeta.style, {
     display: "flex",
@@ -148,13 +145,13 @@ export function createLobby({ onStart, audio } = {}) {
     el.innerHTML = `<span style="color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.08em;font-size:11px">${label}</span><br><span style="color:var(--color-text);font:600 14px var(--font-mono)">${value}</span>`;
     return el;
   };
-  arenaMeta.append(metaItem("Сложность", "Нормальная"), metaItem("Враги", "Гоблины"), metaItem("Босс", "1"));
+  arenaMeta.append(metaItem("Сложность", "Лёгкая"), metaItem("Ограничение по времени", "30:00"));
   const startBtn = document.createElement("button");
   startBtn.type = "button";
   startBtn.className = "fantasy-button fantasy-button--primary";
   startBtn.textContent = "Начать забег";
   Object.assign(startBtn.style, { width: "100%", marginTop: "var(--sp-2)" });
-  card.append(arenaTitle, arenaDuration, arenaMeta, startBtn);
+  card.append(arenaTitle, arenaMeta, startBtn);
   const buildPanel = createBuildPanel();
   runPanel.append(buildPanel.root, card);
 
