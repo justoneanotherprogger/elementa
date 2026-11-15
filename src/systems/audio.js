@@ -8,8 +8,8 @@ export function createAudio() {
     try { context = new (window.AudioContext || window.webkitAudioContext)(); } catch (_error) { context = null; void _error; }
     return context;
   }
-  window.addEventListener("pointerdown", () => { ready = true; if (!context) init(); if (menuActive) playMenuTheme(); }, { once: true });
-  window.addEventListener("keydown", () => { ready = true; if (!context) init(); if (menuActive) playMenuTheme(); }, { once: true });
+  window.addEventListener("pointerdown", () => { ready = true; if (!context) init(); if (menuActive) playMenuMusic(); }, { once: true });
+  window.addEventListener("keydown", () => { ready = true; if (!context) init(); if (menuActive) playMenuMusic(); }, { once: true });
   function playSteam() {
     if (!ready) return;
     const ctx = context || init();
@@ -55,8 +55,17 @@ export function createAudio() {
     withBase("assets/audio/arena/boss_fight_goblin_forest.mp3"),
     withBase("assets/audio/arena/boss_fight_goblin_forest_1.mp3"),
   ];
-  // Lobby tracks go into assets/audio/lobby and get listed here once they arrive.
-  const menuPool = [];
+  // Lobby tracks live in assets/audio/lobby; the procedural theme stays as a fallback.
+  const menuPool = [
+    withBase("assets/audio/lobby/lobby_1.mp3"),
+    withBase("assets/audio/lobby/lobby_2.mp3"),
+    withBase("assets/audio/lobby/lobby_3.mp3"),
+    withBase("assets/audio/lobby/lobby_4.mp3"),
+    withBase("assets/audio/lobby/lobby_5.mp3"),
+    withBase("assets/audio/lobby/lobby_6.mp3"),
+  ];
+  // Turn on to bring back the generated lobby theme instead of the track pool.
+  const USE_PROCEDURAL_MENU = false;
 
   const forestAudio = new Audio();
   const bossAudio = new Audio();
@@ -214,7 +223,7 @@ export function createAudio() {
       console.warn("[audio] failed to load", url);
       pruneInvalid(pool, url);
       isTransitioning = false;
-      if (runActive && !muted) syncTracks();
+      if ((runActive || menuActive) && !muted) syncTracks();
     };
     audio.addEventListener("error", errorHandler, { once: true });
 
@@ -314,6 +323,15 @@ export function createAudio() {
     currentKey = null;
   }
 
+  function playMenuMusic() {
+    if (USE_PROCEDURAL_MENU) {
+      playMenuTheme();
+      return;
+    }
+    if (!ready) return;
+    if (currentKey !== "menu") playTrack("menu");
+  }
+
   function syncTracks() {
     if (muted || !musicEnabled) {
       pauseAll();
@@ -321,7 +339,7 @@ export function createAudio() {
     }
     if (!runActive) {
       if (menuActive) {
-        playMenuTheme();
+        playMenuMusic();
       } else {
         pauseAll();
       }
@@ -369,14 +387,13 @@ export function createAudio() {
     menuActive = true;
     runActive = false;
     pauseAll();
-    if (musicEnabled) {
-      if (!menuBufferPromise) {
-        loadMenuChannels().catch((error) => {
-          console.warn("[audio] menu theme failed", error);
-        });
-      }
-      playMenuTheme();
+    if (!musicEnabled) return;
+    if (USE_PROCEDURAL_MENU && !menuBufferPromise) {
+      loadMenuChannels().catch((error) => {
+        console.warn("[audio] menu theme failed", error);
+      });
     }
+    playMenuMusic();
   }
 
   function menuStop() {
