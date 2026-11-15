@@ -48,13 +48,14 @@ export function createAudio() {
   // Pools contain explicit candidate URLs. They start with the known files and shed
   // any URL that fails to play, so missing variants do not repeat on every start.
   const forestPool = [
-    withBase("assets/audio/ambient_goblin_forest.mp3"),
-    withBase("assets/audio/ambient_goblin_forest_1.mp3"),
+    withBase("assets/audio/arena/ambient_goblin_forest.mp3"),
+    withBase("assets/audio/arena/ambient_goblin_forest_1.mp3"),
   ];
   const bossPool = [
-    withBase("assets/audio/boss_fight_goblin_forest.mp3"),
-    withBase("assets/audio/boss_fight_goblin_forest_1.mp3"),
+    withBase("assets/audio/arena/boss_fight_goblin_forest.mp3"),
+    withBase("assets/audio/arena/boss_fight_goblin_forest_1.mp3"),
   ];
+  // Lobby tracks go into assets/audio/lobby and get listed here once they arrive.
   const menuPool = [];
 
   const forestAudio = new Audio();
