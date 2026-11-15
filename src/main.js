@@ -306,6 +306,7 @@ async function start() {
     lobbyOpen = false;
     lobby?.hide();
     restartRun();
+    audio.music.runStart();
   }
 
   const deathScreen = createDeathScreen(
@@ -363,7 +364,7 @@ async function start() {
     if (gamePaused) return;
     gamePaused = true;
     leveling.paused = true;
-    audio.music.runStop();
+    audio.music.endStart(outcome);
     if (outcome === "death") player.hp = 0;
     saveRunGold();
     if (outcome === "victory") {

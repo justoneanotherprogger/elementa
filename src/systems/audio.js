@@ -66,19 +66,29 @@ export function createAudio() {
   ];
   // Turn on to bring back the generated lobby theme instead of the track pool.
   const USE_PROCEDURAL_MENU = false;
+  const victoryPool = [withBase("assets/audio/victory/victory_1.mp3")];
+  const defeatPool = [withBase("assets/audio/defeat/defeat_1.mp3")];
 
   const forestAudio = new Audio();
   const bossAudio = new Audio();
   const menuAudio = new Audio();
+  const victoryAudio = new Audio();
+  const defeatAudio = new Audio();
   forestAudio.loop = true;
   bossAudio.loop = true;
   menuAudio.loop = true;
+  victoryAudio.loop = true;
+  defeatAudio.loop = true;
   forestAudio.preload = "auto";
   bossAudio.preload = "auto";
   menuAudio.preload = "auto";
+  victoryAudio.preload = "auto";
+  defeatAudio.preload = "auto";
   forestAudio.volume = muted ? 0 : volume;
   bossAudio.volume = muted ? 0 : volume;
   menuAudio.volume = muted ? 0 : volume;
+  victoryAudio.volume = muted ? 0 : volume;
+  defeatAudio.volume = muted ? 0 : volume;
 
   // Процедурная меню-тема: сид случайный на загрузку страницы, ?seed=... — для проверки.
   const MENU_SEED = (() => {
@@ -99,15 +109,20 @@ export function createAudio() {
   let runActive = false;
   let bossActive = false;
   let menuActive = false;
+  let endKey = null; // 'victory' | 'defeat' | null
 
   function poolFor(key) {
     if (key === "boss") return bossPool;
     if (key === "menu") return menuPool;
+    if (key === "victory") return victoryPool;
+    if (key === "defeat") return defeatPool;
     return forestPool;
   }
   function audioFor(key) {
     if (key === "boss") return bossAudio;
     if (key === "menu") return menuAudio;
+    if (key === "victory") return victoryAudio;
+    if (key === "defeat") return defeatAudio;
     return forestAudio;
   }
 
@@ -289,13 +304,7 @@ export function createAudio() {
   function setMuted(next) {
     muted = !!next;
     localStorage.setItem(MUTE_KEY, muted ? "1" : "0");
-    if (muted) {
-      try { forestAudio.pause(); } catch (_e) { void _e; }
-      try { bossAudio.pause(); } catch (_e) { void _e; }
-      try { menuAudio.pause(); } catch (_e) { void _e; }
-      currentKey = null;
-      currentAudio = null;
-    }
+    if (muted) pauseAll();
     syncTracks();
   }
 
@@ -308,6 +317,8 @@ export function createAudio() {
       if (currentKey === "forest") forestAudio.volume = volume;
       if (currentKey === "boss") bossAudio.volume = volume;
       if (currentKey === "menu") menuAudio.volume = volume;
+      if (currentKey === "victory") victoryAudio.volume = volume;
+      if (currentKey === "defeat") defeatAudio.volume = volume;
       if (menuNode && context) {
         try { menuNode.gain.gain.setTargetAtTime(volume, context.currentTime, 0.05); } catch (error) { void error; }
       }
@@ -315,10 +326,14 @@ export function createAudio() {
   }
 
   function pauseAll() {
+    cancelAnimationFrame(fadeRaf);
+    isTransitioning = false;
     stopMenuTheme();
     try { forestAudio.pause(); } catch (_e) { void _e; }
     try { bossAudio.pause(); } catch (_e) { void _e; }
     try { menuAudio.pause(); } catch (_e) { void _e; }
+    try { victoryAudio.pause(); } catch (_e) { void _e; }
+    try { defeatAudio.pause(); } catch (_e) { void _e; }
     currentAudio = null;
     currentKey = null;
   }
@@ -332,6 +347,11 @@ export function createAudio() {
     if (currentKey !== "menu") playTrack("menu");
   }
 
+  function playEndMusic() {
+    if (!endKey) return;
+    if (currentKey !== endKey) playTrack(endKey);
+  }
+
   function syncTracks() {
     if (muted || !musicEnabled) {
       pauseAll();
@@ -340,6 +360,8 @@ export function createAudio() {
     if (!runActive) {
       if (menuActive) {
         playMenuMusic();
+      } else if (endKey) {
+        playEndMusic();
       } else {
         pauseAll();
       }
@@ -363,6 +385,7 @@ export function createAudio() {
     menuActive = false;
     runActive = true;
     bossActive = false;
+    endKey = null;
     init();
     syncTracks();
   }
@@ -371,6 +394,15 @@ export function createAudio() {
     runActive = false;
     bossActive = false;
     pauseAll();
+  }
+
+  function endStart(outcome) {
+    menuActive = false;
+    runActive = false;
+    bossActive = false;
+    endKey = outcome === "victory" ? "victory" : "defeat";
+    pauseAll();
+    playEndMusic();
   }
 
   function setBossActive(active) {
@@ -386,6 +418,7 @@ export function createAudio() {
   function menuStart() {
     menuActive = true;
     runActive = false;
+    endKey = null;
     pauseAll();
     if (!musicEnabled) return;
     if (USE_PROCEDURAL_MENU && !menuBufferPromise) {
@@ -431,6 +464,11 @@ export function createAudio() {
       else syncTracks();
       return;
     }
+    if (endKey) {
+      if (currentKey === endKey && currentAudio) resumeAudio(currentAudio);
+      else playEndMusic();
+      return;
+    }
     if (!menuActive) return;
     if (USE_PROCEDURAL_MENU) {
       menuStart();
@@ -459,6 +497,7 @@ export function createAudio() {
     setVolume,
     runStart,
     runStop,
+    endStart,
     setBossActive,
     menuStart,
     menuStop,
