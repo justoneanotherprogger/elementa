@@ -24,7 +24,7 @@ import { createSettingsPanel } from "./ui/settingsPanel.js";
 import { loadCharacter, combatSpriteUrl, previewSpriteUrl, startingWeaponId, weaponConfigById, withAssetBase } from "./data/characters.js";
 import { damageMultiplier } from "./data/upgrades.js";
 import "./ui/theme.css";
-import { STARTER_WEAPON, SPEAR_WEAPON } from "./data/weapons.js";
+import { STARTER_WEAPON, SPEAR_WEAPON } from "./data/weapons/index.js";
 const app = new Application();
 
 async function start() {

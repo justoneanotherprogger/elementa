@@ -1,4 +1,7 @@
-import { STARTER_WEAPON, SPEAR_WEAPON } from "./weapons.js";
+import { CLASSES } from "./classes.js";
+import { getWeapon } from "./weapons/index.js";
+
+export { CLASSES };
 
 export const STORAGE_KEY = "elementa_character_v1";
 
@@ -19,18 +22,6 @@ export const GENDERS = [
   { id: "f", name: "Женский" },
 ];
 
-export const CLASSES = [
-  { id: "monk", name: "Монах" },
-  { id: "forester", name: "Лесничий" },
-  { id: "executioner", name: "Палач" },
-  { id: "actor", name: "Лицедей" },
-  { id: "shaman", name: "Шаман" },
-  { id: "necromancer", name: "Некромант" },
-  { id: "templar", name: "Храмовник" },
-  { id: "virtuoso", name: "Виртуоз" },
-  { id: "invoker", name: "Заклинатель" },
-];
-
 export const ELEMENTS = [
   { id: "fire", name: "Огонь" },
   { id: "water", name: "Вода" },
@@ -38,33 +29,19 @@ export const ELEMENTS = [
   { id: "earth", name: "Земля" },
 ];
 
-export const AVAILABLE_WEAPONS = [
-  { id: "serp", name: "Серп" },
-  { id: "spear", name: "Копьё" },
-];
-
 // Asset convention requested by the designer:
 // - combat sprite: /assets/player/races/pix_{race}_{gender}.png
 // - class preview/cutout: /assets/player/classes/pix_{race}_{gender}_{class}.png
 // New combinations are added by dropping a file into the matching folder, not by editing data.
-const ELEMENT_WEAPON = {
-  fire: "serp",
-  water: "spear",
-};
-
-// Only executioner has implemented starting weapons in the current game build.
-const CLASS_ELEMENT_WEAPONS = {
-  executioner: ELEMENT_WEAPON,
-};
 
 export function defaultCharacter() {
-  return {
+  const character = {
     race: "human",
     gender: "m",
     classId: "executioner",
     element: "fire",
-    weaponId: ELEMENT_WEAPON.fire,
   };
+  return { ...character, weaponId: startingWeaponId(character) };
 }
 
 export function loadCharacter() {
@@ -103,24 +80,18 @@ export function previewSpriteUrl(character) {
 }
 
 export function startingWeaponId(character) {
-  const classWeapons = CLASS_ELEMENT_WEAPONS[character.classId];
-  const weaponId = classWeapons?.[character.element] ?? null;
-  return weaponId;
+  const cls = CLASSES.find((item) => item.id === character.classId);
+  return cls?.weapons?.[character.element] ?? null;
 }
 
 export function startingWeaponLabel(character) {
   const weaponId = startingWeaponId(character);
   if (!weaponId) return "Будет добавлено";
-  const found = AVAILABLE_WEAPONS.find((weapon) => weapon.id === weaponId);
-  return found ? found.name : weaponId;
+  return getWeapon(weaponId)?.title ?? weaponId;
 }
 
-
-
 export function weaponConfigById(id) {
-  if (id === "serp") return STARTER_WEAPON;
-  if (id === "spear") return SPEAR_WEAPON;
-  return SPEAR_WEAPON;
+  return getWeapon(id) ?? getWeapon("spear");
 }
 
 export function withAssetBase(assetPath) {

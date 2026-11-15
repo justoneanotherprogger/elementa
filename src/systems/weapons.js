@@ -1,6 +1,6 @@
 import { Graphics } from "pixi.js";
 import { applyStatus } from "./statuses.js";
-import { STARTER_WEAPON } from "../data/weapons.js";
+import { STARTER_WEAPON } from "../data/weapons/index.js";
 import { spriteHalfWidth, spriteHalfHeight } from "../core/spriteBounds.js";
 import { rollDamage } from "../core/damage.js";
 

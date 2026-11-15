@@ -1,6 +1,5 @@
 import { icon } from "./icons.js";
 import {
-  AVAILABLE_WEAPONS,
   CLASSES,
   ELEMENTS,
   RACES,
@@ -161,7 +160,7 @@ export function createBuildPanel() {
     elementLine.value.textContent = ELEMENTS.find((e) => e.id === character.element)?.name ?? character.element;
 
     const weapon = weaponConfigById(startingWeaponId(character));
-    weaponLine.value.textContent = AVAILABLE_WEAPONS.find((w) => w.id === weapon.id)?.name ?? weapon.title;
+    weaponLine.value.textContent = weapon.title;
 
     hpLine.value.textContent = String(PLAYER_BASE.maxHp);
     damageLine.value.textContent = formatValue(weapon.base.dmg * damageMultiplier());
