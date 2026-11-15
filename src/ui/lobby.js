@@ -3,6 +3,7 @@ import { createCharacterSelect } from "./characterSelect.js";
 import { createSkillTree } from "./skillTree.js";
 import { createBuildPanel } from "./buildPanel.js";
 import { createSettingsPanel } from "./settingsPanel.js";
+import { resetMetaProgress } from "../data/save.js";
 
 export function createLobby({ onStart, audio } = {}) {
   const overlay = document.createElement("div");
@@ -161,7 +162,15 @@ export function createLobby({ onStart, audio } = {}) {
   const skillsPanel = skillTree.root;
 
   const settingsPanel = makePanel("settings");
-  const settingsModule = createSettingsPanel({ audio });
+  const settingsModule = createSettingsPanel({
+    audio,
+    onResetProgress: () => {
+      resetMetaProgress();
+      refresh();
+      characterModule.refresh();
+      skillTree.refresh();
+    },
+  });
   settingsPanel.append(settingsModule.root);
 
   const panelMap = { run: runPanel, character: characterPanel, skills: skillsPanel, settings: settingsPanel };
