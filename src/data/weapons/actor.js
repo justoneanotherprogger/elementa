@@ -6,6 +6,7 @@ export const ACTOR_WEAPONS = {
     classId: "actor",
     element: "fire",
     title: "Пиротехника",
+    // Projectile that leaves short damage zones where it lands; zones come with #106.
     behavior: "projectile",
     base: { ...PLACEHOLDER_BASE.projectile },
   },

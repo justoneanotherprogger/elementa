@@ -14,8 +14,9 @@ export const NECROMANCER_WEAPONS = {
     classId: "necromancer",
     element: "water",
     title: "Проклятые куклы",
-    behavior: "aura",
-    base: { ...PLACEHOLDER_BASE.aura },
+    // Dolls chase enemies on their own and bite them.
+    behavior: "companion",
+    base: { ...PLACEHOLDER_BASE.companion },
   },
   soul_lantern: {
     id: "soul_lantern",
@@ -30,7 +31,8 @@ export const NECROMANCER_WEAPONS = {
     classId: "necromancer",
     element: "earth",
     title: "Запретный гримуар",
-    behavior: "projectile",
+    // Damage zones spawn under enemies for a while.
+    behavior: "zone",
     base: { ...PLACEHOLDER_BASE.projectile },
   },
 };
