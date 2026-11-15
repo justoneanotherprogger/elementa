@@ -401,13 +401,50 @@ export function createAudio() {
     pauseAll();
   }
 
+  // Hidden tab: pause in place and keep the track, so it resumes where it stopped.
+  function suspendPlayback() {
+    cancelAnimationFrame(fadeRaf);
+    isTransitioning = false;
+    stopMenuTheme();
+    try { forestAudio.pause(); } catch (_e) { void _e; }
+    try { bossAudio.pause(); } catch (_e) { void _e; }
+    try { menuAudio.pause(); } catch (_e) { void _e; }
+  }
+
+  function resumeAudio(audio) {
+    if (!muted) audio.volume = volume;
+    const promise = audio.play();
+    if (promise && typeof promise.catch === "function") {
+      promise.catch(() => {
+        currentAudio = null;
+        currentKey = null;
+        syncTracks();
+      });
+    }
+  }
+
+  function resumeAfterHidden() {
+    if (muted || !musicEnabled) return;
+    if (runActive) {
+      const key = bossActive ? "boss" : "forest";
+      if (currentKey === key && currentAudio) resumeAudio(currentAudio);
+      else syncTracks();
+      return;
+    }
+    if (!menuActive) return;
+    if (USE_PROCEDURAL_MENU) {
+      menuStart();
+      return;
+    }
+    if (currentKey === "menu" && currentAudio) resumeAudio(currentAudio);
+    else playMenuMusic();
+  }
+
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
-      pauseAll();
-    } else if (runActive && !muted) {
-      syncTracks();
-    } else if (menuActive && !muted && currentKey === null) {
-      menuStart();
+      suspendPlayback();
+    } else {
+      resumeAfterHidden();
     }
   });
 
