@@ -56,13 +56,15 @@ export function createWeaponSystem(app, player, enemySystem, initialWeapons = [S
     return enemySystem?.enemies ?? [];
   }
 
-  function findNearest(px, py, radius) {
+  function findNearest(px, py, radius, bodyHalfHeight = 0) {
     let nearest = { enemy: null, point: null, dist: radius };
     for (const enemy of enemies()) {
       if (!enemy || enemy.alive === false || enemy.hp <= 0) continue;
       const point = enemyCenter(enemy);
       const dx = point.x - px;
-      const dy = point.y - py;
+      // Тело игрока — вертикальный отрезок высотой в спрайт: вверх и вниз
+      // обнаружение идёт от головы и стоп, а не от пояса.
+      const dy = Math.max(0, Math.abs(point.y - py) - bodyHalfHeight);
       const dist = Math.hypot(dx, dy);
       if (dist <= radius && dist < nearest.dist) {
         nearest = { enemy, point, dist };
@@ -322,6 +324,7 @@ export function createWeaponSystem(app, player, enemySystem, initialWeapons = [S
       const pos = playerPosition(player);
       const originX = pos.x;
       const originY = pos.y;
+      const bodyHalfHeight = spriteHalfHeight(player.body);
       const radius = weapon.base.radius * areaMult;
       const kind = weapon.base.kind ?? "slash";
       const amount = weapon.base.dmg * dmgMult;
@@ -329,7 +332,7 @@ export function createWeaponSystem(app, player, enemySystem, initialWeapons = [S
       const lastMag = Math.hypot(lastDir.x, lastDir.y) || 1;
 
       if (kind === "thrust") {
-        const best = findNearest(originX, originY, radius * TARGET_RADIUS_MULT);
+        const best = findNearest(originX, originY, radius * TARGET_RADIUS_MULT, bodyHalfHeight);
         let dirX = lastDir.x / lastMag;
         let dirY = lastDir.y / lastMag;
         if (best) {
@@ -345,7 +348,7 @@ export function createWeaponSystem(app, player, enemySystem, initialWeapons = [S
         spawnThrust(originX, originY, angle, radius, halfWidth, amount);
         weapon.timer = weapon.cd;
       } else {
-        const best = findNearest(originX, originY, radius * TARGET_RADIUS_MULT);
+        const best = findNearest(originX, originY, radius * TARGET_RADIUS_MULT, bodyHalfHeight);
         if (best) {
           const dx = best.point.x - originX;
           const dy = best.point.y - originY;
