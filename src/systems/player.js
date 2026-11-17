@@ -5,10 +5,12 @@ export const PLAYER_BASE = {
   speed: 180,
 };
 
-export function createPlayer(app, input, texture) {
+export const PLAYER_SCALE = 0.7;
+
+export function createPlayer(app, input, texture, scale = PLAYER_SCALE) {
   const body = new Sprite(texture);
   body.anchor.set(0.5);
-  body.scale.set(0.7);
+  body.scale.set(scale);
 
   body.x = app.screen.width / 2;
   body.y = app.screen.height / 2;
@@ -49,6 +51,10 @@ export function createPlayer(app, input, texture) {
         player.invuln = 0.5;
         player.onDamage?.(amount);
       }
+    },
+    setScale(nextScale) {
+      const sign = body.scale.x < 0 ? -1 : 1;
+      body.scale.set(sign * nextScale, nextScale);
     },
   };
   return player;

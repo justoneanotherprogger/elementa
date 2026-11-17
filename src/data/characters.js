@@ -22,6 +22,27 @@ export const GENDERS = [
   { id: "f", name: "Женский" },
 ];
 
+// Косметический масштаб: спрайты всех рас нарисованы в канвасе 160×160.
+export const RACE_SCALES = {
+  fae: 0.73,
+  dwarf: 0.84,
+  beastfolk: 0.95,
+  human: 1,
+  undead: 1,
+  tiefling: 1.01,
+  orc: 1.03,
+  dragonborn: 1.06,
+  elf: 1.08,
+};
+
+export const GENDER_SCALES = { m: 1, f: 0.97 };
+
+export function characterScale(character) {
+  const race = RACE_SCALES[character?.race] ?? 1;
+  const gender = GENDER_SCALES[character?.gender] ?? 1;
+  return race * gender;
+}
+
 export const ELEMENTS = [
   { id: "fire", name: "Огонь" },
   { id: "water", name: "Вода" },

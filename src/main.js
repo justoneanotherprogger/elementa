@@ -22,7 +22,7 @@ import { createChestSystem } from "./systems/chests.js";
 import { createRewardScreen } from "./ui/rewardScreen.js";
 import { createLobby } from "./ui/lobby.js";
 import { createSettingsPanel } from "./ui/settingsPanel.js";
-import { loadCharacter, combatSpriteUrl, previewSpriteUrl, startingWeaponId, weaponConfigById, withAssetBase } from "./data/characters.js";
+import { loadCharacter, combatSpriteUrl, previewSpriteUrl, startingWeaponId, weaponConfigById, withAssetBase, characterScale } from "./data/characters.js";
 import { damageMultiplier } from "./data/upgrades.js";
 import { runCardsForElement } from "./data/runCards.js";
 import "./ui/theme.css";
@@ -49,27 +49,40 @@ async function start() {
   const assetUrl = (path) => `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
   const enemyTexture = await Assets.load(assetUrl("assets/enemies/pix_goblin.png"));
   const selectedCharacter = loadCharacter();
-  const playerSpriteCandidates = [
-    withAssetBase(previewSpriteUrl(selectedCharacter)),
-    withAssetBase(combatSpriteUrl(selectedCharacter)),
-    assetUrl("assets/player/races/pix_human_m.png"),
-  ].filter(Boolean);
-  let playerTexture = null;
-  for (const spriteUrl of playerSpriteCandidates) {
-    try {
-      playerTexture = await Assets.load(spriteUrl);
-      break;
-    } catch {
-      // Try the next available sprite.
+  async function loadPlayerTexture(character) {
+    const candidates = [
+      withAssetBase(previewSpriteUrl(character)),
+      withAssetBase(combatSpriteUrl(character)),
+    ].filter(Boolean);
+    for (const spriteUrl of candidates) {
+      try {
+        return await Assets.load(spriteUrl);
+      } catch {
+        // Try the next available sprite.
+      }
     }
+    return null;
   }
-  if (!playerTexture) {
-    playerTexture = await Assets.load(assetUrl("assets/player/races/pix_human_m.png"));
-  }
-  const player = createPlayer(app, input, playerTexture);
+  const playerTexture =
+    (await loadPlayerTexture(selectedCharacter)) ??
+    (await Assets.load(assetUrl("assets/player/races/pix_human_m.png")));
+  const player = createPlayer(app, input, playerTexture, characterScale(selectedCharacter));
   player.gold = 0;
   const damageNumbers = createDamageNumbers(app);
   player.onDamage = (amount) => damageNumbers.spawnOnPlayer(player, amount);
+
+  let playerSkinRequest = 0;
+  function applyPlayerSkin(character) {
+    player.setScale(characterScale(character));
+    const request = ++playerSkinRequest;
+    loadPlayerTexture(character)
+      .then((texture) => {
+        if (texture && request === playerSkinRequest) {
+          player.body.texture = texture;
+        }
+      })
+      .catch(() => {});
+  }
   const audio = createAudio();
   let rewardOpen = false;
   let rewardScreen = null;
@@ -263,6 +276,7 @@ async function start() {
     setPauseOpen(false);
     rewardScreen?.close();
     const runCharacter = loadCharacter();
+    applyPlayerSkin(runCharacter);
     if (weaponSystem && Array.isArray(weaponSystem.weapons)) {
       weaponSystem.weapons.length = 0;
       weaponSystem.addWeapon(weaponConfigById(startingWeaponId(runCharacter)));
