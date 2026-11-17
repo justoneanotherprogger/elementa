@@ -25,6 +25,7 @@ import { createSettingsPanel } from "./ui/settingsPanel.js";
 import { loadCharacter, combatSpriteUrl, previewSpriteUrl, startingWeaponId, weaponConfigById, withAssetBase, characterScale } from "./data/characters.js";
 import { damageMultiplier } from "./data/upgrades.js";
 import { runCardsForElement } from "./data/runCards.js";
+import { masteryCardsForWeapon } from "./data/weaponMastery.js";
 import "./ui/theme.css";
 import { STARTER_WEAPON, SPEAR_WEAPON } from "./data/weapons/index.js";
 const app = new Application();
@@ -226,14 +227,22 @@ async function start() {
   const zoneSystem = createZoneSystem(app, enemySystem, player);
   const reactionSystem = createReactionSystem({ zoneSystem, audio });
   const weaponSystem = createWeaponSystem(app, player, enemySystem, []);
-  const initialElement = loadCharacter().element;
+  const initialCharacter = loadCharacter();
+  const initialElement = initialCharacter.element;
   const skillSystem = createSkillSystem(app, player, enemySystem, {
     element: initialElement,
     reactionSystem,
   });
+  function runCardsFor(character) {
+    return [
+      ...runCardsForElement(character.element),
+      ...masteryCardsForWeapon(startingWeaponId(character)),
+    ];
+  }
   const leveling = createLeveling(player, enemySystem, {
-    cards: runCardsForElement(initialElement),
+    cards: runCardsFor(initialCharacter),
     skills: skillSystem,
+    weapons: weaponSystem,
   });
   rewardScreen = createRewardScreen({
     onPick: (choice) => {
@@ -305,7 +314,7 @@ async function start() {
     player.x = cx;
     player.y = cy;
     leveling.reset();
-    leveling.setCards(runCardsForElement(runCharacter.element));
+    leveling.setCards(runCardsFor(runCharacter));
     skillSystem.reset(runCharacter.element);
     hud.reset();
     if (waves?.reset) waves.reset();

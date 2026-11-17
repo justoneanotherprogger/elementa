@@ -28,6 +28,12 @@ function createSkillCard(skill) {
     title: skill.name,
     icon: skill.icon,
     maxRank: skill.ranks.length,
+    rankOf({ skills }) {
+      return skills?.rankOf?.(skill.id) ?? 0;
+    },
+    needsFreeSlot({ skills }) {
+      return Boolean(skills) && typeof skills.hasFreeSlot === "function" && !skills.hasFreeSlot();
+    },
     apply({ skills }) {
       skills?.grant(skill.id);
     },

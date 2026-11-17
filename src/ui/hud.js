@@ -232,7 +232,9 @@ export function createHud(app, player, enemySystem, leveling, weaponSystem, skil
 
   function syncWeaponSlots() {
     const weapons = Array.isArray(weaponSystem?.weapons) ? weaponSystem.weapons : [];
-    if (weaponRow.childElementCount === weapons.length) return;
+    const signature = weapons.map((weapon) => `${weapon?.id}:${weapon?.rank ?? 1}`).join("|");
+    if (weaponRow.dataset.signature === signature) return;
+    weaponRow.dataset.signature = signature;
     weaponRow.replaceChildren();
     for (const weapon of weapons) {
       const slot = document.createElement("div");
@@ -252,13 +254,7 @@ export function createHud(app, player, enemySystem, leveling, weaponSystem, skil
       });
       const weaponIconEl = weaponIcon(weapon?.id, 20);
       weaponIconEl.style.color = "var(--color-accent)";
-      const weaponStars = document.createElement("div");
-      Object.assign(weaponStars.style, {
-        font: "700 10px var(--font-display)",
-        color: "var(--color-accent)",
-        letterSpacing: "0.12em",
-      });
-      weaponStars.textContent = "★";
+      const weaponStars = createRankStars(weapon?.rank ?? 1, { size: 7, gap: "0" });
       slot.appendChild(weaponIconEl);
       slot.appendChild(weaponStars);
       weaponRow.appendChild(slot);

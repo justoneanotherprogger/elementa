@@ -1,5 +1,6 @@
 import { Graphics } from "pixi.js";
 import { STARTER_WEAPON } from "../data/weapons/index.js";
+import { masteryMaxRank, masteryStats } from "../data/weaponMastery.js";
 import { spriteHalfWidth, spriteHalfHeight } from "../core/spriteBounds.js";
 import { rollDamage } from "../core/damage.js";
 
@@ -42,7 +43,8 @@ function enemyCenter(enemy) {
 
 function cloneWeapon(config) {
   const copy = { ...config, base: { ...(config?.base ?? {}) } };
-  copy.cd = copy.base.cd ?? 1;
+  copy.rank = 1;
+  copy.cd = masteryStats(copy, copy.rank).cd ?? 1;
   copy.timer = 0;
   return copy;
 }
@@ -161,6 +163,17 @@ export function createWeaponSystem(app, player, enemySystem, initialWeapons = [S
   function addWeapon(config) {
     if (!config || weapons.some((weapon) => weapon.id === config.id)) return false;
     weapons.push(cloneWeapon(config));
+    return true;
+  }
+
+  function masteryOf(id) {
+    return weapons.find((weapon) => weapon.id === id)?.rank ?? 0;
+  }
+
+  function raiseMastery(id) {
+    const weapon = weapons.find((item) => item.id === id);
+    if (!weapon || weapon.rank >= masteryMaxRank(id)) return false;
+    weapon.rank += 1;
     return true;
   }
 
@@ -315,8 +328,8 @@ export function createWeaponSystem(app, player, enemySystem, initialWeapons = [S
 
     for (const weapon of weapons) {
       if (weapon.timer === undefined) weapon.timer = 0;
-      if (weapon.cd === undefined) weapon.cd = weapon.base.cd;
-      weapon.cd = weapon.base.cd / Math.max(0.1, aspdMult);
+      const stats = masteryStats(weapon, weapon.rank ?? 1);
+      weapon.cd = stats.cd / Math.max(0.1, aspdMult);
       weapon.timer -= dt;
 
       if (weapon.timer > 0) continue;
@@ -325,9 +338,9 @@ export function createWeaponSystem(app, player, enemySystem, initialWeapons = [S
       const originX = pos.x;
       const originY = pos.y;
       const bodyHalfHeight = spriteHalfHeight(player.body);
-      const radius = weapon.base.radius * areaMult;
-      const kind = weapon.base.kind ?? "slash";
-      const amount = weapon.base.dmg * dmgMult;
+      const radius = stats.radius * areaMult;
+      const kind = stats.kind ?? "slash";
+      const amount = stats.dmg * dmgMult;
       const lastDir = player.lastMoveDir ?? { x: 0, y: -1 };
       const lastMag = Math.hypot(lastDir.x, lastDir.y) || 1;
 
@@ -344,7 +357,7 @@ export function createWeaponSystem(app, player, enemySystem, initialWeapons = [S
         }
 
         const angle = Math.atan2(dirY, dirX);
-        const halfWidth = (weapon.base.width ?? 20) / 2;
+        const halfWidth = (stats.width ?? 20) / 2;
         spawnThrust(originX, originY, angle, radius, halfWidth, amount);
         weapon.timer = weapon.cd;
       } else {
@@ -356,7 +369,7 @@ export function createWeaponSystem(app, player, enemySystem, initialWeapons = [S
           const dirX = dx / dist;
           const dirY = dy / dist;
           const angle = Math.atan2(dirY, dirX);
-          const halfAngle = (weapon.base.angleDeg * Math.PI) / 180 / 2;
+          const halfAngle = (stats.angleDeg * Math.PI) / 180 / 2;
           spawnSlash(originX, originY, angle, radius, halfAngle, amount);
           weapon.timer = weapon.cd;
         } else {
@@ -365,7 +378,7 @@ export function createWeaponSystem(app, player, enemySystem, initialWeapons = [S
           const dirX = lastDir2.x / lastMag2;
           const dirY = lastDir2.y / lastMag2;
           const angle = Math.atan2(dirY, dirX);
-          const halfAngle = (weapon.base.angleDeg * Math.PI) / 180 / 2;
+          const halfAngle = (stats.angleDeg * Math.PI) / 180 / 2;
           spawnSlash(originX, originY, angle, radius, halfAngle, amount);
           weapon.timer = weapon.cd;
         }
@@ -373,5 +386,5 @@ export function createWeaponSystem(app, player, enemySystem, initialWeapons = [S
     }
   }
 
-  return { weapons, update, addWeapon };
+  return { weapons, update, addWeapon, masteryOf, raiseMastery };
 }

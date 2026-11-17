@@ -4,6 +4,7 @@ import { createRankStars } from "../ui/rankStars.js";
 export function createLeveling(player, enemySystem, options = {}) {
   let cards = Array.isArray(options.cards) ? options.cards : [];
   const skills = options.skills ?? null;
+  const weapons = options.weapons ?? null;
   const state = {
     level: 1,
     xp: 0,
@@ -52,11 +53,12 @@ export function createLeveling(player, enemySystem, options = {}) {
   }
 
   function cardCandidates() {
+    const context = { player, skills, weapons };
     const candidates = [];
     for (const card of cards) {
-      const rank = skills?.rankOf ? skills.rankOf(card.skillId) : 0;
+      const rank = card.rankOf ? card.rankOf(context) : 0;
       if (rank >= card.maxRank) continue;
-      if (rank === 0 && skills && typeof skills.hasFreeSlot === "function" && !skills.hasFreeSlot()) continue;
+      if (rank === 0 && card.needsFreeSlot?.(context)) continue;
       candidates.push({ card, rank: rank + 1, isNew: rank === 0 });
     }
     return candidates;
@@ -88,7 +90,7 @@ export function createLeveling(player, enemySystem, options = {}) {
 
   function applyChoice(choice) {
     if (choice?.card) {
-      choice.card.apply({ player, skills });
+      choice.card.apply({ player, skills, weapons });
     }
     pendingLevels.shift();
     choices = null;
