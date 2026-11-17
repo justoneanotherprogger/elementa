@@ -7,10 +7,11 @@ export const PLAYER_BASE = {
 
 export const PLAYER_SCALE = 0.7;
 
-export function createPlayer(app, input, texture, scale = PLAYER_SCALE) {
+// scaleMultiplier — расовый/половой множитель поверх базового PLAYER_SCALE.
+export function createPlayer(app, input, texture, scaleMultiplier = 1) {
   const body = new Sprite(texture);
   body.anchor.set(0.5);
-  body.scale.set(scale);
+  body.scale.set(PLAYER_SCALE * scaleMultiplier);
 
   body.x = app.screen.width / 2;
   body.y = app.screen.height / 2;
@@ -52,8 +53,9 @@ export function createPlayer(app, input, texture, scale = PLAYER_SCALE) {
         player.onDamage?.(amount);
       }
     },
-    setScale(nextScale) {
+    setScale(scaleMultiplier) {
       const sign = body.scale.x < 0 ? -1 : 1;
+      const nextScale = PLAYER_SCALE * scaleMultiplier;
       body.scale.set(sign * nextScale, nextScale);
     },
   };
