@@ -1,5 +1,4 @@
 import { Graphics } from "pixi.js";
-import { applyStatus } from "./statuses.js";
 import { STARTER_WEAPON } from "../data/weapons/index.js";
 import { spriteHalfWidth, spriteHalfHeight } from "../core/spriteBounds.js";
 import { rollDamage } from "../core/damage.js";
@@ -44,7 +43,7 @@ function cloneWeapon(config) {
   return copy;
 }
 
-export function createWeaponSystem(app, player, enemySystem, initialWeapons = [STARTER_WEAPON], reactionSystem = null) {
+export function createWeaponSystem(app, player, enemySystem, initialWeapons = [STARTER_WEAPON]) {
   const weapons = initialWeapons.map(cloneWeapon);
   const slashes = [];
   const thrusts = [];
@@ -69,7 +68,7 @@ export function createWeaponSystem(app, player, enemySystem, initialWeapons = [S
     return nearest;
   }
 
-  function damageSector(px, py, dirX, dirY, radius, halfAngle, amount, element, hitTargets = null) {
+  function damageSector(px, py, dirX, dirY, radius, halfAngle, amount, hitTargets = null) {
     const baseAngle = Math.atan2(dirY, dirX);
     for (const enemy of enemies()) {
       if (!enemy || enemy.alive === false || enemy.hp <= 0) continue;
@@ -90,14 +89,12 @@ export function createWeaponSystem(app, player, enemySystem, initialWeapons = [S
       }
       if (hit) {
         enemySystem.damage(enemy, rollDamage(amount * (enemy.damageTakenMult ?? 1)));
-        applyStatus(enemy, element, amount);
-        reactionSystem?.handleHit(enemy, element, amount);
         hitTargets?.add(enemy);
       }
     }
   }
 
-  function spawnSlash(px, py, angle, radius, halfAngle, amount, element) {
+  function spawnSlash(px, py, angle, radius, halfAngle, amount) {
     const start = angle - halfAngle;
     const end = angle + halfAngle;
     const graphic = new Graphics();
@@ -122,12 +119,11 @@ export function createWeaponSystem(app, player, enemySystem, initialWeapons = [S
       radius,
       halfAngle,
       amount,
-      element,
       hitEnemies: new Set(),
     });
   }
 
-  function spawnThrust(px, py, angle, radius, halfWidth, amount, element) {
+  function spawnThrust(px, py, angle, radius, halfWidth, amount) {
     const graphic = new Graphics();
     const tipLength = 10;
     graphic.rect(0, -halfWidth, radius, halfWidth * 2).fill({ color: 0x2196f3, alpha: 0.12 });
@@ -152,7 +148,6 @@ export function createWeaponSystem(app, player, enemySystem, initialWeapons = [S
       radius,
       halfWidth,
       amount,
-      element,
       hitEnemies: new Set(),
     });
   }
@@ -176,7 +171,6 @@ export function createWeaponSystem(app, player, enemySystem, initialWeapons = [S
           slash.radius,
           slash.halfAngle,
           slash.amount,
-          slash.element,
           slash.hitEnemies
         );
       }
@@ -259,8 +253,6 @@ export function createWeaponSystem(app, player, enemySystem, initialWeapons = [S
           }
           if (hit) {
             enemySystem.damage(enemy, rollDamage(thrust.amount * (enemy.damageTakenMult ?? 1)));
-            applyStatus(enemy, thrust.element, thrust.amount);
-            reactionSystem?.handleHit(enemy, thrust.element, thrust.amount);
             thrust.hitEnemies.add(enemy);
           }
         }
@@ -346,7 +338,7 @@ export function createWeaponSystem(app, player, enemySystem, initialWeapons = [S
 
         const angle = Math.atan2(dirY, dirX);
         const halfWidth = (weapon.base.width ?? 20) / 2;
-        spawnThrust(originX, originY, angle, radius, halfWidth, amount, weapon.element);
+        spawnThrust(originX, originY, angle, radius, halfWidth, amount);
         weapon.timer = weapon.cd;
       } else {
         const best = findNearest(originX, originY, radius);
@@ -358,7 +350,7 @@ export function createWeaponSystem(app, player, enemySystem, initialWeapons = [S
           const dirY = dy / dist;
           const angle = Math.atan2(dirY, dirX);
           const halfAngle = (weapon.base.angleDeg * Math.PI) / 180 / 2;
-          spawnSlash(originX, originY, angle, radius, halfAngle, amount, weapon.element);
+          spawnSlash(originX, originY, angle, radius, halfAngle, amount);
           weapon.timer = weapon.cd;
         } else {
           const lastDir2 = player.lastMoveDir ?? { x: 0, y: -1 };
@@ -367,7 +359,7 @@ export function createWeaponSystem(app, player, enemySystem, initialWeapons = [S
           const dirY = lastDir2.y / lastMag2;
           const angle = Math.atan2(dirY, dirX);
           const halfAngle = (weapon.base.angleDeg * Math.PI) / 180 / 2;
-          spawnSlash(originX, originY, angle, radius, halfAngle, amount, weapon.element);
+          spawnSlash(originX, originY, angle, radius, halfAngle, amount);
           weapon.timer = weapon.cd;
         }
       }

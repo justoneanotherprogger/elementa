@@ -1,4 +1,9 @@
-export function createLeveling(player, enemySystem) {
+import { rankTitle } from "../data/runCards.js";
+import { createRankStars } from "../ui/rankStars.js";
+
+export function createLeveling(player, enemySystem, options = {}) {
+  let cards = Array.isArray(options.cards) ? options.cards : [];
+  const skills = options.skills ?? null;
   const state = {
     level: 1,
     xp: 0,
@@ -9,53 +14,7 @@ export function createLeveling(player, enemySystem) {
 
   let choices = null;
   let overlay = null;
-
-  const choicePool = [
-    {
-      key: "hp",
-      label: "Max HP ×1.1",
-      apply: (p) => {
-        const ratio = p.maxHp ? p.hp / p.maxHp : 1;
-        p.maxHp = Math.floor(p.maxHp * 1.1);
-        p.hp = Math.round(ratio * p.maxHp);
-      },
-    },
-    {
-      key: "dmgMult",
-      label: "Урон ×1.1",
-      apply: (p) => {
-        p.dmgMult = (p.dmgMult ?? 1) * 1.1;
-      },
-    },
-    {
-      key: "aspdMult",
-      label: "Скорость атаки ×1.1",
-      apply: (p) => {
-        p.aspdMult = (p.aspdMult ?? 1) * 1.1;
-      },
-    },
-    {
-      key: "speedMult",
-      label: "Скорость бега ×1.1",
-      apply: (p) => {
-        p.speedMult = (p.speedMult ?? 1) * 1.1;
-      },
-    },
-    {
-      key: "areaMult",
-      label: "Площадь ×1.1",
-      apply: (p) => {
-        p.areaMult = (p.areaMult ?? 1) * 1.1;
-      },
-    },
-    {
-      key: "durMult",
-      label: "Длительность ×1.1",
-      apply: (p) => {
-        p.durMult = (p.durMult ?? 1) * 1.1;
-      },
-    },
-  ];
+  const pendingLevels = [];
 
   function ensureOverlay() {
     if (overlay) {
@@ -88,26 +47,175 @@ export function createLeveling(player, enemySystem) {
     });
   }
 
-  function pickChoices() {
-    const pool = [...choicePool];
-    for (let i = pool.length - 1; i > 0; i -= 1) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [pool[i], pool[j]] = [pool[j], pool[i]];
+  function hideOverlay() {
+    if (overlay) overlay.style.display = "none";
+  }
+
+  function cardCandidates() {
+    const candidates = [];
+    for (const card of cards) {
+      const rank = skills?.rankOf ? skills.rankOf(card.skillId) : 0;
+      if (rank >= card.maxRank) continue;
+      if (rank === 0 && skills && typeof skills.hasFreeSlot === "function" && !skills.hasFreeSlot()) continue;
+      candidates.push({ card, rank: rank + 1, isNew: rank === 0 });
     }
-    return pool.slice(0, 3);
+    return candidates;
+  }
+
+  function pickChoices() {
+    const candidates = cardCandidates();
+    for (let i = candidates.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+    }
+    return candidates.slice(0, 3);
+  }
+
+  function openWindow() {
+    const candidates = pickChoices();
+    if (!candidates.length) {
+      pendingLevels.length = 0;
+      choices = null;
+      hideOverlay();
+      state.paused = false;
+      return false;
+    }
+    choices = candidates;
+    state.paused = true;
+    renderOverlay(pendingLevels[0] ?? state.level);
+    return true;
   }
 
   function applyChoice(choice) {
-    if (choice && typeof choice.apply === "function") {
-      choice.apply(player);
+    if (choice?.card) {
+      choice.card.apply({ player, skills });
     }
-    ensureOverlay();
-    if (overlay) overlay.style.display = "none";
+    pendingLevels.shift();
     choices = null;
+    if (pendingLevels.length > 0) {
+      openWindow();
+      return;
+    }
+    hideOverlay();
     state.paused = false;
   }
 
-  function renderOverlay() {
+  function renderCard(candidate, index) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "fantasy-card fantasy-card--interactive";
+    Object.assign(button.style, {
+      minWidth: "200px",
+      maxWidth: "250px",
+      flex: "1 1 200px",
+      padding: "var(--sp-4)",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "flex-start",
+      gap: "var(--sp-3)",
+      cursor: "pointer",
+      pointerEvents: "auto",
+      border: "1px solid var(--color-accent-border)",
+      background: "linear-gradient(180deg, rgba(42,32,26,0.95), rgba(27,20,16,0.95))",
+    });
+
+    const badge = document.createElement("div");
+    badge.className = "fantasy-mono";
+    Object.assign(badge.style, {
+      width: "30px",
+      height: "30px",
+      borderRadius: "var(--radius-pill)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: "var(--color-accent-dim)",
+      border: "1px solid var(--color-accent-border)",
+      color: "var(--color-accent)",
+      font: "700 14px var(--font-display)",
+    });
+    badge.textContent = String(index + 1);
+    button.appendChild(badge);
+
+    const head = document.createElement("div");
+    Object.assign(head.style, {
+      display: "flex",
+      alignItems: "center",
+      gap: "8px",
+      width: "100%",
+      justifyContent: "center",
+    });
+    const iconEl = document.createElement("div");
+    iconEl.textContent = candidate.card.icon ?? "★";
+    iconEl.style.fontSize = "22px";
+    iconEl.style.lineHeight = "1";
+    const name = document.createElement("div");
+    name.textContent = candidate.card.title;
+    Object.assign(name.style, {
+      font: "600 16px var(--font-display)",
+      color: "var(--color-text)",
+      textAlign: "left",
+      lineHeight: "1.25",
+    });
+    head.append(iconEl, name);
+    button.appendChild(head);
+
+    const rankLine = document.createElement("div");
+    rankLine.textContent = rankTitle(candidate.rank);
+    Object.assign(rankLine.style, {
+      font: "600 12px var(--font-display)",
+      color: "var(--color-accent)",
+      letterSpacing: "0.08em",
+      textTransform: "uppercase",
+      textAlign: "center",
+    });
+    button.appendChild(rankLine);
+    button.appendChild(createRankStars(candidate.rank, { size: 11 }));
+
+    const stats = document.createElement("div");
+    Object.assign(stats.style, {
+      display: "flex",
+      flexDirection: "column",
+      gap: "4px",
+      width: "100%",
+      marginTop: "auto",
+    });
+    const nextStats = candidate.card.stats(candidate.rank);
+    const prevStats = candidate.isNew ? null : candidate.card.stats(candidate.rank - 1);
+    nextStats.forEach((stat, statIndex) => {
+      const row = document.createElement("div");
+      Object.assign(row.style, {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "8px",
+        font: "500 12px var(--font-mono)",
+        fontVariantNumeric: "tabular-nums",
+      });
+      const label = document.createElement("span");
+      label.textContent = stat.label;
+      label.style.color = "var(--color-text-dim)";
+      const value = document.createElement("span");
+      const previous = prevStats?.[statIndex];
+      const changed = previous && previous.text !== stat.text;
+      value.textContent = changed ? `${previous.text} → ${stat.text}` : stat.text;
+      value.style.color = changed ? "var(--color-accent)" : "var(--color-text)";
+      value.style.textAlign = "right";
+      row.append(label, value);
+      stats.appendChild(row);
+    });
+    button.appendChild(stats);
+
+    button.addEventListener("click", () => applyChoice(candidate));
+    button.addEventListener("focus", () => {
+      button.style.boxShadow = "0 0 0 3px var(--color-accent-dim), var(--shadow-raised)";
+    });
+    button.addEventListener("blur", () => {
+      button.style.boxShadow = "";
+    });
+    return button;
+  }
+
+  function renderOverlay(level) {
     ensureOverlay();
     if (!overlay) return;
     overlay.innerHTML = "";
@@ -116,7 +224,7 @@ export function createLeveling(player, enemySystem) {
     const panel = document.createElement("div");
     panel.className = "fantasy-panel fantasy-panel--ornate";
     Object.assign(panel.style, {
-      maxWidth: "760px",
+      maxWidth: "820px",
       width: "100%",
       display: "flex",
       flexDirection: "column",
@@ -136,13 +244,13 @@ export function createLeveling(player, enemySystem) {
 
     const title = document.createElement("h2");
     title.className = "fantasy-title";
-    title.textContent = `Новый уровень ${state.level}`;
+    title.textContent = `Новый уровень ${level}`;
     Object.assign(title.style, { margin: "0", fontSize: "clamp(26px, 4vw, 40px)" });
     panel.appendChild(title);
 
     const hint = document.createElement("div");
     hint.className = "fantasy-subtitle";
-    hint.textContent = "Выберите одно усиление. Клавиши 1-3 работают так же.";
+    hint.textContent = "Выберите одну карту. Клавиши 1-3 работают так же.";
     panel.appendChild(hint);
 
     if (choices) {
@@ -156,60 +264,8 @@ export function createLeveling(player, enemySystem) {
       });
       panel.appendChild(cardRow);
 
-      choices.forEach((choice, index) => {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = "fantasy-card fantasy-card--interactive";
-        Object.assign(button.style, {
-          minWidth: "180px",
-          maxWidth: "240px",
-          minHeight: "132px",
-          padding: "var(--sp-4)",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "var(--sp-3)",
-          cursor: "pointer",
-          pointerEvents: "auto",
-          border: "1px solid var(--color-accent-border)",
-          background: "linear-gradient(180deg, rgba(42,32,26,0.95), rgba(27,20,16,0.95))",
-        });
-        const badge = document.createElement("div");
-        badge.className = "fantasy-mono";
-        Object.assign(badge.style, {
-          width: "34px",
-          height: "34px",
-          borderRadius: "var(--radius-pill)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "var(--color-accent-dim)",
-          border: "1px solid var(--color-accent-border)",
-          color: "var(--color-accent)",
-          font: "700 15px var(--font-display)",
-        });
-        badge.textContent = String(index + 1);
-        button.appendChild(badge);
-
-        const label = document.createElement("div");
-        label.textContent = choice.label;
-        Object.assign(label.style, {
-          font: "600 16px var(--font-display)",
-          color: "var(--color-text)",
-          textAlign: "center",
-          lineHeight: "1.35",
-        });
-        button.appendChild(label);
-
-        button.addEventListener("click", () => applyChoice(choice));
-        button.addEventListener("focus", () => {
-          button.style.boxShadow = "0 0 0 3px var(--color-accent-dim), var(--shadow-raised)";
-        });
-        button.addEventListener("blur", () => {
-          button.style.boxShadow = "";
-        });
-        cardRow.appendChild(button);
+      choices.forEach((candidate, index) => {
+        cardRow.appendChild(renderCard(candidate, index));
       });
     }
 
@@ -220,9 +276,8 @@ export function createLeveling(player, enemySystem) {
     state.level += 1;
     state.xp -= state.xpToNext;
     state.xpToNext = state.level * 10;
-    state.paused = true;
-    choices = pickChoices();
-    renderOverlay();
+    pendingLevels.push(state.level);
+    if (!state.paused) openWindow();
   }
 
   function grantXp(amount) {
@@ -260,5 +315,18 @@ export function createLeveling(player, enemySystem) {
 
   state.xpToNext = state.level * 10;
   state.update = update;
+  state.setCards = (nextCards) => {
+    cards = Array.isArray(nextCards) ? nextCards : [];
+  };
+  state.reset = () => {
+    state.level = 1;
+    state.xp = 0;
+    state.xpToNext = 10;
+    state.seenXp = 0;
+    state.paused = false;
+    pendingLevels.length = 0;
+    choices = null;
+    hideOverlay();
+  };
   return state;
 }

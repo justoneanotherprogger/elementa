@@ -5,6 +5,7 @@ import { createPlayer } from "./systems/player.js";
 import { createDamageNumbers } from "./systems/damageNumbers.js";
 import { createEnemySystem } from "./systems/enemy.js";
 import { createWeaponSystem } from "./systems/weapons.js";
+import { createSkillSystem } from "./systems/skills.js";
 import { createReactionSystem } from "./systems/reactions.js";
 import { createZoneSystem } from "./systems/zones.js";
 import { createAudio } from "./systems/audio.js";
@@ -23,6 +24,7 @@ import { createLobby } from "./ui/lobby.js";
 import { createSettingsPanel } from "./ui/settingsPanel.js";
 import { loadCharacter, combatSpriteUrl, previewSpriteUrl, startingWeaponId, weaponConfigById, withAssetBase } from "./data/characters.js";
 import { damageMultiplier } from "./data/upgrades.js";
+import { runCardsForElement } from "./data/runCards.js";
 import "./ui/theme.css";
 import { STARTER_WEAPON, SPEAR_WEAPON } from "./data/weapons/index.js";
 const app = new Application();
@@ -210,8 +212,16 @@ async function start() {
   );
   const zoneSystem = createZoneSystem(app, enemySystem, player);
   const reactionSystem = createReactionSystem({ zoneSystem, audio });
-  const weaponSystem = createWeaponSystem(app, player, enemySystem, [], reactionSystem);
-  const leveling = createLeveling(player, enemySystem);
+  const weaponSystem = createWeaponSystem(app, player, enemySystem, []);
+  const initialElement = loadCharacter().element;
+  const skillSystem = createSkillSystem(app, player, enemySystem, {
+    element: initialElement,
+    reactionSystem,
+  });
+  const leveling = createLeveling(player, enemySystem, {
+    cards: runCardsForElement(initialElement),
+    skills: skillSystem,
+  });
   rewardScreen = createRewardScreen({
     onPick: (choice) => {
       if (choice.kind === "weapon") {
@@ -223,7 +233,7 @@ async function start() {
       rewardOpen = false;
     },
   });
-  hud = createHud(app, player, enemySystem, leveling, weaponSystem);
+  hud = createHud(app, player, enemySystem, leveling, weaponSystem, skillSystem);
 
   const debug = createDebugPanel();
 
@@ -280,11 +290,9 @@ async function start() {
     }
     player.x = cx;
     player.y = cy;
-    leveling.level = 1;
-    leveling.xp = 0;
-    leveling.xpToNext = 10;
-    leveling.seenXp = 0;
-    leveling.paused = false;
+    leveling.reset();
+    leveling.setCards(runCardsForElement(runCharacter.element));
+    skillSystem.reset(runCharacter.element);
     hud.reset();
     if (waves?.reset) waves.reset();
     deathScreen.hide();
@@ -399,6 +407,7 @@ async function start() {
         app.stage.position.set(app.screen.width / 2, app.screen.height / 2);
         enemySystem.update(dt);
         weaponSystem.update(dt);
+        skillSystem.update(dt);
         chestSystem?.update(dt);
         zoneSystem?.update(dt);
         damageNumbers.update(dt);

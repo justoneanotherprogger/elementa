@@ -1,7 +1,9 @@
 import { Graphics } from "pixi.js";
 import { icon, weaponIcon } from "./icons.js";
+import { SKILLS } from "../data/skills/index.js";
+import { createRankStars } from "./rankStars.js";
 
-export function createHud(app, player, enemySystem, leveling, weaponSystem) {
+export function createHud(app, player, enemySystem, leveling, weaponSystem, skillSystem) {
   const heroYBottom = 73;
   if (app.stage) app.stage.sortableChildren = true;
   const uiRoot = document.getElementById("ui");
@@ -141,6 +143,15 @@ export function createHud(app, player, enemySystem, leveling, weaponSystem) {
   });
   center.appendChild(weaponRow);
 
+  const skillRow = document.createElement("div");
+  Object.assign(skillRow.style, {
+    display: "flex",
+    gap: "var(--sp-2)",
+    justifyContent: "center",
+    pointerEvents: "none",
+  });
+  center.appendChild(skillRow);
+
   const hpTrack = document.createElement("div");
   Object.assign(hpTrack.style, {
     position: "relative",
@@ -254,6 +265,52 @@ export function createHud(app, player, enemySystem, leveling, weaponSystem) {
     }
   }
 
+  function syncSkillSlots() {
+    const slots = Array.isArray(skillSystem?.slots) ? skillSystem.slots : [];
+    const signature = slots.map((slot) => (slot ? `${slot.id}:${slot.rank}` : "empty")).join("|");
+    if (skillRow.dataset.signature === signature) return;
+    skillRow.dataset.signature = signature;
+    skillRow.replaceChildren();
+
+    for (const slot of slots) {
+      const skill = slot ? SKILLS[slot.id] : null;
+      const cell = document.createElement("div");
+      Object.assign(cell.style, {
+        width: "44px",
+        height: "48px",
+        padding: "3px 2px",
+        background: slot
+          ? "linear-gradient(180deg, rgba(42,32,26,0.85), rgba(27,20,16,0.85))"
+          : "rgba(20,14,10,0.35)",
+        border: slot ? "1px solid var(--color-accent-border)" : "1px dashed rgba(212,169,66,0.28)",
+        borderRadius: "var(--radius-m)",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "2px",
+        pointerEvents: "none",
+        boxShadow: slot ? "0 2px 8px rgba(0,0,0,0.4)" : "none",
+        opacity: slot ? "1" : "0.7",
+      });
+
+      const glyph = document.createElement("div");
+      glyph.textContent = skill?.icon ?? "·";
+      Object.assign(glyph.style, {
+        fontSize: "18px",
+        lineHeight: "1",
+        color: "var(--color-text-dim)",
+        filter: slot ? "drop-shadow(0 0 5px rgba(255,255,255,0.18))" : "none",
+      });
+      cell.appendChild(glyph);
+
+      if (slot) {
+        cell.appendChild(createRankStars(slot.rank, { size: 7, gap: "0" }));
+      }
+      skillRow.appendChild(cell);
+    }
+  }
+
   let elapsed = 0;
 
   function formatTime(seconds) {
@@ -266,6 +323,7 @@ export function createHud(app, player, enemySystem, leveling, weaponSystem) {
   const update = (dt) => {
     const displayedElapsed = player && player.runTime !== null ? player.runTime : elapsed;
     syncWeaponSlots();
+    syncSkillSlots();
     if (!leveling.paused && !player?.rewardOpen && !player?.pauseOpen) {
       elapsed += dt;
     }

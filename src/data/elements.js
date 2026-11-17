@@ -9,6 +9,7 @@ export const ELEMENTS = [
 export const STATUSES = {
   burn: {
     id: "burn",
+    title: "Горение",
     element: "fire",
     duration: 5,
     dps: 10,
@@ -19,6 +20,7 @@ export const STATUSES = {
   },
   wet: {
     id: "wet",
+    title: "Мокрый",
     element: "water",
     duration: 5,
     dps: 0,

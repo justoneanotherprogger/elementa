@@ -1,0 +1,27 @@
+export const FIREBALL = {
+  id: "fireball",
+  name: "Огненный шар",
+  element: "fire",
+  icon: "🔥",
+  delivery: "projectile",
+  activation: "cooldown",
+  targeting: "nearest",
+  range: 320,
+  projectileSpeed: 360,
+  hitRadius: 12,
+  color: 0xff7043,
+  statusChance: 1,
+  // Авторские числа на каждый ранг: общей кривой нет.
+  ranks: [
+    { damage: 8, cooldown: 2.0 },
+    { damage: 9, cooldown: 1.95 },
+    { damage: 11, cooldown: 1.9 },
+    { damage: 13, cooldown: 1.85 },
+    { damage: 15, cooldown: 1.8 },
+    { damage: 18, cooldown: 1.75 },
+    { damage: 21, cooldown: 1.7 },
+    { damage: 25, cooldown: 1.65 },
+    { damage: 30, cooldown: 1.6 },
+    { damage: 36, cooldown: 1.5 },
+  ],
+};
