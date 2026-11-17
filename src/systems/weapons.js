@@ -3,6 +3,10 @@ import { STARTER_WEAPON } from "../data/weapons/index.js";
 import { spriteHalfWidth, spriteHalfHeight } from "../core/spriteBounds.js";
 import { rollDamage } from "../core/damage.js";
 
+// Наведение шире радиуса удара: оружие поворачивается к врагу чуть за пределами
+// досягаемости и обозначает намерение, даже если удар его не достанет.
+const TARGET_RADIUS_MULT = 1.15;
+
 function playerPosition(player) {
   if (player?.body) return { x: player.body.x, y: player.body.y };
   return { x: player?.x ?? 0, y: player?.y ?? 0 };
@@ -325,7 +329,7 @@ export function createWeaponSystem(app, player, enemySystem, initialWeapons = [S
       const lastMag = Math.hypot(lastDir.x, lastDir.y) || 1;
 
       if (kind === "thrust") {
-        const best = findNearest(originX, originY, radius);
+        const best = findNearest(originX, originY, radius * TARGET_RADIUS_MULT);
         let dirX = lastDir.x / lastMag;
         let dirY = lastDir.y / lastMag;
         if (best) {
@@ -341,7 +345,7 @@ export function createWeaponSystem(app, player, enemySystem, initialWeapons = [S
         spawnThrust(originX, originY, angle, radius, halfWidth, amount);
         weapon.timer = weapon.cd;
       } else {
-        const best = findNearest(originX, originY, radius);
+        const best = findNearest(originX, originY, radius * TARGET_RADIUS_MULT);
         if (best) {
           const dx = best.point.x - originX;
           const dy = best.point.y - originY;
