@@ -17,6 +17,13 @@ export function createAuraBehavior() {
 
   function activate(ctx, weapon, stats) {
     const position = playerPosition(ctx.player);
+    const radius = radiusOf(ctx, stats);
+    const width = stats.waveWidth ?? 18;
+    // Волна проходит радиус ровно за один кулдаун: чем чаще пульсация,
+    // тем быстрее фронт. Ускорение атаки влияет само, через weapon.cd.
+    const travel = radius + width / 2;
+    const speed =
+      stats.waveSpeed ?? travel / Math.max(0.1, weapon.cd ?? stats.cd ?? 1);
     const graphic = new Graphics();
     graphic.zIndex = 1;
     ctx.app.stage.addChild(graphic);
@@ -24,9 +31,9 @@ export function createAuraBehavior() {
       graphic,
       x: position.x,
       y: position.y,
-      radius: radiusOf(ctx, stats),
-      speed: stats.waveSpeed ?? 260,
-      width: stats.waveWidth ?? 18,
+      radius,
+      speed,
+      width,
       r: 0,
       prevR: 0,
       damage: damageOf(ctx, stats),
