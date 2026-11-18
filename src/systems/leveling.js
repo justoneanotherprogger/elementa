@@ -1,5 +1,6 @@
 import { rankTitle } from "../data/runCards.js";
 import { createRankStars } from "../ui/rankStars.js";
+import { spriteImage } from "../ui/icons.js";
 
 export function createLeveling(player, enemySystem, options = {}) {
   let cards = Array.isArray(options.cards) ? options.cards : [];
@@ -148,9 +149,13 @@ export function createLeveling(player, enemySystem, options = {}) {
       justifyContent: "center",
     });
     const iconEl = document.createElement("div");
-    iconEl.textContent = candidate.card.icon ?? "★";
-    iconEl.style.fontSize = "22px";
-    iconEl.style.lineHeight = "1";
+    if (candidate.card.sprite) {
+      iconEl.appendChild(spriteImage(candidate.card.sprite, 22));
+    } else {
+      iconEl.textContent = candidate.card.icon ?? "★";
+      iconEl.style.fontSize = "22px";
+      iconEl.style.lineHeight = "1";
+    }
     const name = document.createElement("div");
     name.textContent = candidate.card.title;
     Object.assign(name.style, {

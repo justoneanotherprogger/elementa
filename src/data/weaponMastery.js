@@ -73,6 +73,7 @@ export function masteryCardsForWeapon(weaponId) {
       weaponId,
       title: mastery.title,
       icon: mastery.icon,
+      sprite: weapon.sprite,
       maxRank,
       rankOf({ weapons }) {
         const rank = weapons?.masteryOf?.(weaponId) ?? 0;

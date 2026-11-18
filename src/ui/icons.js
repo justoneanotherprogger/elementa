@@ -71,7 +71,7 @@ export function iconSpan(name, size = 16, className = "") {
   return wrapper;
 }
 
-function spriteImage(path, size) {
+export function spriteImage(path, size) {
   const img = document.createElement("img");
   const base = import.meta.env?.BASE_URL ?? "/";
   img.src = `${base}${path.replace(/^\//, "")}`;
