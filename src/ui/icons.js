@@ -71,7 +71,38 @@ export function iconSpan(name, size = 16, className = "") {
   return wrapper;
 }
 
-export function weaponIcon(id, size = 18) {
+function spriteImage(path, size) {
+  const img = document.createElement("img");
+  const base = import.meta.env?.BASE_URL ?? "/";
+  img.src = `${base}${path.replace(/^\//, "")}`;
+  img.alt = "";
+  img.draggable = false;
+  Object.assign(img.style, {
+    width: `${size}px`,
+    height: `${size}px`,
+    objectFit: "contain",
+    display: "block",
+  });
+  return img;
+}
+
+// Игровые иконки из ассетов. UI-хром (звук, глаз, стрелки) остаётся SVG:
+// ему нужен currentColor и масштаб без потерь.
+const SPRITE_ICONS = {
+  skull: "assets/icons/pix_icon_skull.png",
+};
+
+export function iconOrSprite(name, size = 16) {
+  const sprite = SPRITE_ICONS[name];
+  return sprite ? spriteImage(sprite, size) : icon(name, size);
+}
+
+// Оружие рисуется спрайтом, если конфиг его даёт: процедурная иконка остаётся
+// фолбэком для оружия без арта.
+export function weaponIcon(weapon, size = 18) {
+  const config = typeof weapon === "string" ? null : weapon;
+  const id = config?.id ?? weapon;
+  if (config?.sprite) return spriteImage(config.sprite, size);
   if (id === "spear") return icon("spear", size);
   if (id === "serp") return icon("sickle", size);
   return icon("sword", size);

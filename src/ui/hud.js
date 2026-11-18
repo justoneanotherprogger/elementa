@@ -1,5 +1,5 @@
 import { Graphics } from "pixi.js";
-import { icon, weaponIcon } from "./icons.js";
+import { iconOrSprite, weaponIcon } from "./icons.js";
 import { SKILLS } from "../data/skills/index.js";
 import { createRankStars } from "./rankStars.js";
 
@@ -215,7 +215,7 @@ export function createHud(app, player, enemySystem, leveling, weaponSystem, skil
       whiteSpace: "nowrap",
       fontVariantNumeric: "tabular-nums",
     });
-    const ic = icon(iconName, 16);
+    const ic = iconOrSprite(iconName, 16);
     ic.style.color = "var(--color-accent)";
     line.appendChild(ic);
     const value = document.createElement("span");
@@ -252,7 +252,7 @@ export function createHud(app, player, enemySystem, leveling, weaponSystem, skil
         pointerEvents: "none",
         boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
       });
-      const weaponIconEl = weaponIcon(weapon?.id, 20);
+      const weaponIconEl = weaponIcon(weapon, 24);
       weaponIconEl.style.color = "var(--color-accent)";
       const weaponStars = createRankStars(weapon?.rank ?? 1, { size: 7, gap: "0" });
       slot.appendChild(weaponIconEl);

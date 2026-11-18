@@ -129,7 +129,7 @@ export function createRewardScreen({ onPick } = {}) {
       badge.textContent = String(index + 1);
       card.appendChild(badge);
 
-      const ic = choice.kind === "weapon" ? weaponIcon(choice.config?.id || "spear", 36) : icon("coin", 36);
+      const ic = choice.kind === "weapon" ? weaponIcon(choice.config ?? "spear", 36) : icon("coin", 36);
       ic.style.color = "var(--color-accent)";
       card.appendChild(ic);
 

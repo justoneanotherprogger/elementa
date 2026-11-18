@@ -6,6 +6,7 @@ export const EXECUTIONER_WEAPONS = {
     classId: "executioner",
     element: "fire",
     title: "Серп",
+    sprite: "assets/weapons/pix_weap_executioner_fire.png",
     behavior: "melee",
     // `kind` is what systems/weapons.js renders today; #106 replaces it with behavior modules.
     base: { dmg: 8, cd: 1, radius: 90, angleDeg: 120, kind: "slash" },
@@ -15,6 +16,7 @@ export const EXECUTIONER_WEAPONS = {
     classId: "executioner",
     element: "water",
     title: "Копьё",
+    sprite: "assets/weapons/pix_weap_executioner_water.png",
     behavior: "melee",
     base: { dmg: 6, cd: 0.8, radius: 140, width: 20, kind: "thrust" },
   },
