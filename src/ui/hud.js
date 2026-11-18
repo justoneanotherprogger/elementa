@@ -252,7 +252,7 @@ export function createHud(app, player, enemySystem, leveling, weaponSystem, skil
         pointerEvents: "none",
         boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
       });
-      const weaponIconEl = weaponIcon(weapon, 24);
+      const weaponIconEl = weaponIcon(weapon, 30);
       weaponIconEl.style.color = "var(--color-accent)";
       const weaponStars = createRankStars(weapon?.rank ?? 1, { size: 7, gap: "0" });
       slot.appendChild(weaponIconEl);
