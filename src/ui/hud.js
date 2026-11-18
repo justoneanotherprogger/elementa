@@ -125,7 +125,7 @@ export function createHud(app, player, enemySystem, leveling, weaponSystem, skil
     left: "50%",
     bottom: "var(--sp-5)",
     transform: "translateX(-50%)",
-    width: "min(420px, 42vw)",
+    width: "min(540px, 56vw)",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -239,8 +239,8 @@ export function createHud(app, player, enemySystem, leveling, weaponSystem, skil
     for (const weapon of weapons) {
       const slot = document.createElement("div");
       Object.assign(slot.style, {
-        minWidth: "44px",
-        padding: "4px 8px",
+        minWidth: "56px",
+        padding: "6px 10px",
         background: "linear-gradient(180deg, rgba(42,32,26,0.85), rgba(27,20,16,0.85))",
         color: "var(--color-text)",
         border: "1px solid var(--color-accent-border)",
@@ -252,9 +252,9 @@ export function createHud(app, player, enemySystem, leveling, weaponSystem, skil
         pointerEvents: "none",
         boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
       });
-      const weaponIconEl = weaponIcon(weapon, 30);
+      const weaponIconEl = weaponIcon(weapon, 36);
       weaponIconEl.style.color = "var(--color-accent)";
-      const weaponStars = createRankStars(weapon?.rank ?? 1, { size: 7, gap: "0" });
+      const weaponStars = createRankStars(weapon?.rank ?? 1, { size: 8, gap: "1px" });
       slot.appendChild(weaponIconEl);
       slot.appendChild(weaponStars);
       weaponRow.appendChild(slot);
@@ -272,9 +272,9 @@ export function createHud(app, player, enemySystem, leveling, weaponSystem, skil
       const skill = slot ? SKILLS[slot.id] : null;
       const cell = document.createElement("div");
       Object.assign(cell.style, {
-        width: "44px",
-        height: "48px",
-        padding: "3px 2px",
+        width: "54px",
+        height: "60px",
+        padding: "4px 3px",
         background: slot
           ? "linear-gradient(180deg, rgba(42,32,26,0.85), rgba(27,20,16,0.85))"
           : "rgba(20,14,10,0.35)",
@@ -293,7 +293,7 @@ export function createHud(app, player, enemySystem, leveling, weaponSystem, skil
       const glyph = document.createElement("div");
       glyph.textContent = skill?.icon ?? "·";
       Object.assign(glyph.style, {
-        fontSize: "18px",
+        fontSize: "24px",
         lineHeight: "1",
         color: "var(--color-text-dim)",
         filter: slot ? "drop-shadow(0 0 5px rgba(255,255,255,0.18))" : "none",
@@ -301,7 +301,7 @@ export function createHud(app, player, enemySystem, leveling, weaponSystem, skil
       cell.appendChild(glyph);
 
       if (slot) {
-        cell.appendChild(createRankStars(slot.rank, { size: 7, gap: "0" }));
+        cell.appendChild(createRankStars(slot.rank, { size: 8, gap: "1px" }));
       }
       skillRow.appendChild(cell);
     }
