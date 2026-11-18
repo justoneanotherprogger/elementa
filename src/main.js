@@ -22,7 +22,15 @@ import { createChestSystem } from "./systems/chests.js";
 import { createRewardScreen } from "./ui/rewardScreen.js";
 import { createLobby } from "./ui/lobby.js";
 import { createSettingsPanel } from "./ui/settingsPanel.js";
-import { loadCharacter, combatSpriteUrl, previewSpriteUrl, startingWeaponId, weaponConfigById, withAssetBase, characterScale } from "./data/characters.js";
+import {
+  loadCharacter,
+  combatSpriteUrl,
+  previewSpriteUrl,
+  startingWeaponId,
+  weaponConfigById,
+  withAssetBase,
+  characterScale,
+} from "./data/characters.js";
 import { damageMultiplier } from "./data/upgrades.js";
 import { runCardsForElement } from "./data/runCards.js";
 import { masteryCardsForWeapon } from "./data/weaponMastery.js";
@@ -47,8 +55,11 @@ async function start() {
   const input = createInput();
   const spatialHash = createSpatialHash();
 
-  const assetUrl = (path) => `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
-  const enemyTexture = await Assets.load(assetUrl("assets/enemies/pix_goblin.png"));
+  const assetUrl = (path) =>
+    `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
+  const enemyTexture = await Assets.load(
+    assetUrl("assets/enemies/pix_goblin.png"),
+  );
   const selectedCharacter = loadCharacter();
   async function loadPlayerTexture(character) {
     const candidates = [
@@ -67,7 +78,12 @@ async function start() {
   const playerTexture =
     (await loadPlayerTexture(selectedCharacter)) ??
     (await Assets.load(assetUrl("assets/player/races/pix_human_m.png")));
-  const player = createPlayer(app, input, playerTexture, characterScale(selectedCharacter));
+  const player = createPlayer(
+    app,
+    input,
+    playerTexture,
+    characterScale(selectedCharacter),
+  );
   player.gold = 0;
   const damageNumbers = createDamageNumbers(app);
   player.onDamage = (amount) => damageNumbers.spawnOnPlayer(player, amount);
@@ -101,7 +117,8 @@ async function start() {
     alignItems: "center",
     gap: "var(--sp-4)",
     padding: "var(--sp-5)",
-    background: "radial-gradient(circle at center, rgba(27, 20, 16, 0.82), rgba(6, 4, 3, 0.95))",
+    background:
+      "radial-gradient(circle at center, rgba(27, 20, 16, 0.82), rgba(6, 4, 3, 0.95))",
     backdropFilter: "blur(3px)",
     color: "var(--color-text)",
     pointerEvents: "auto",
@@ -121,7 +138,10 @@ async function start() {
   pauseSigil.style.opacity = "0.8";
   pauseSigil.style.filter = "drop-shadow(0 0 14px rgba(212,169,66,0.5))";
   pauseSigil.textContent = "II";
-  Object.assign(pauseSigil.style, { font: "700 40px var(--font-display)", letterSpacing: "0.25em" });
+  Object.assign(pauseSigil.style, {
+    font: "700 40px var(--font-display)",
+    letterSpacing: "0.25em",
+  });
   const pauseText = document.createElement("div");
   pauseText.className = "fantasy-title";
   pauseText.textContent = "Пауза";
@@ -178,18 +198,34 @@ async function start() {
 
   pauseResumeBtn.addEventListener("click", () => setPauseOpen(false));
   pauseSettingsBtn.addEventListener("click", () => setPauseSettingsOpen(true));
-  pauseSettingsBackBtn.addEventListener("click", () => setPauseSettingsOpen(false));
+  pauseSettingsBackBtn.addEventListener("click", () =>
+    setPauseSettingsOpen(false),
+  );
   pauseQuitBtn.addEventListener("click", () => {
     setPauseOpen(false);
     finishRun("quit");
   });
 
-  pauseMainView.append(pauseSigil, pauseText, pauseHint, pauseResumeBtn, pauseSettingsBtn, pauseQuitBtn);
+  pauseMainView.append(
+    pauseSigil,
+    pauseText,
+    pauseHint,
+    pauseResumeBtn,
+    pauseSettingsBtn,
+    pauseQuitBtn,
+  );
   pauseOverlay.append(pauseMainView, pauseSettingsView);
   document.body.appendChild(pauseOverlay);
   window.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
-    if (lobbyOpen || rewardOpen || leveling.paused || player.hp <= 0 || gamePaused) return;
+    if (
+      lobbyOpen ||
+      rewardOpen ||
+      leveling.paused ||
+      player.hp <= 0 ||
+      gamePaused
+    )
+      return;
     if (pauseOpen && pauseSettingsOpen) {
       setPauseSettingsOpen(false);
       event.preventDefault();
@@ -221,12 +257,17 @@ async function start() {
       onBossDeath: (x, y) => {
         chestSystem?.spawn(x, y);
       },
-      onEnemyDamage: (enemy, amount) => damageNumbers.spawnOnEnemy(enemy, amount),
+      onEnemyDamage: (enemy, amount) =>
+        damageNumbers.spawnOnEnemy(enemy, amount),
     },
   );
   const zoneSystem = createZoneSystem(app, enemySystem, player);
   const reactionSystem = createReactionSystem({ zoneSystem, audio });
-  const weaponSystem = createWeaponSystem(app, player, enemySystem, []);
+  const weaponSystem = createWeaponSystem(app, player, enemySystem, {
+    initialWeapons: [],
+    zoneSystem,
+    reactionSystem,
+  });
   const initialCharacter = loadCharacter();
   const initialElement = initialCharacter.element;
   const skillSystem = createSkillSystem(app, player, enemySystem, {
@@ -255,7 +296,14 @@ async function start() {
       rewardOpen = false;
     },
   });
-  hud = createHud(app, player, enemySystem, leveling, weaponSystem, skillSystem);
+  hud = createHud(
+    app,
+    player,
+    enemySystem,
+    leveling,
+    weaponSystem,
+    skillSystem,
+  );
 
   const debug = createDebugPanel();
 
@@ -263,8 +311,18 @@ async function start() {
     const choices = [];
     const hasSerp = weaponSystem.weapons.some((w) => w.id === "serp");
     const hasSpear = weaponSystem.weapons.some((w) => w.id === "spear");
-    if (!hasSpear) choices.push({ kind: "weapon", label: "Копьё · Вода", config: SPEAR_WEAPON });
-    else if (!hasSerp) choices.push({ kind: "weapon", label: "Серп · Огонь", config: STARTER_WEAPON });
+    if (!hasSpear)
+      choices.push({
+        kind: "weapon",
+        label: "Копьё · Вода",
+        config: SPEAR_WEAPON,
+      });
+    else if (!hasSerp)
+      choices.push({
+        kind: "weapon",
+        label: "Серп · Огонь",
+        config: STARTER_WEAPON,
+      });
     else choices.push({ kind: "gold", label: "+25 🪙", amount: 25 });
     return choices;
   }
@@ -286,8 +344,8 @@ async function start() {
     rewardScreen?.close();
     const runCharacter = loadCharacter();
     applyPlayerSkin(runCharacter);
-    if (weaponSystem && Array.isArray(weaponSystem.weapons)) {
-      weaponSystem.weapons.length = 0;
+    if (weaponSystem) {
+      weaponSystem.reset();
       weaponSystem.addWeapon(weaponConfigById(startingWeaponId(runCharacter)));
     }
     enemySystem.reset();
@@ -414,13 +472,19 @@ async function start() {
       arena.update(dt);
       player.pauseOpen = pauseOpen;
       player.rewardOpen = rewardOpen;
-      const paused = gamePaused || leveling.paused || rewardOpen || pauseOpen || lobbyOpen;
+      const paused =
+        gamePaused || leveling.paused || rewardOpen || pauseOpen || lobbyOpen;
       if (!paused) {
         runTime += dt;
         player.runTime = runTime;
         waves.update(dt, runTime);
       }
-      const playing = !gamePaused && !leveling.paused && !rewardOpen && !pauseOpen && !lobbyOpen;
+      const playing =
+        !gamePaused &&
+        !leveling.paused &&
+        !rewardOpen &&
+        !pauseOpen &&
+        !lobbyOpen;
       if (playing) {
         input.update();
         player.update(dt);
@@ -436,7 +500,10 @@ async function start() {
         damageNumbers.update(dt);
       }
       if (player.hp <= 0) finishRun("death");
-      audio.music.setBossActive(Array.isArray(enemySystem.enemies) && enemySystem.enemies.some((e) => e.isBoss));
+      audio.music.setBossActive(
+        Array.isArray(enemySystem.enemies) &&
+          enemySystem.enemies.some((e) => e.isBoss),
+      );
       if (!gamePaused && !lobbyOpen) leveling.update(dt);
       deathScreen.update(dt);
       victoryScreen.update(dt);

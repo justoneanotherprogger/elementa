@@ -1,8 +1,7 @@
 import { Graphics } from "pixi.js";
 import { SKILLS } from "../data/skills/index.js";
 import { spriteHalfWidth, spriteHalfHeight } from "../core/spriteBounds.js";
-import { rollDamage } from "../core/damage.js";
-import { applyStatus } from "./statuses.js";
+import { hitEnemy } from "./combat.js";
 
 export const SKILL_SLOTS = 6;
 
@@ -74,7 +73,10 @@ export function createSkillSystem(app, player, enemySystem, options = {}) {
   }
 
   function cooldownOf(slot) {
-    return Math.max(0.15, statsAt(slot).cooldown / Math.max(0.1, player.aspdMult ?? 1));
+    return Math.max(
+      0.15,
+      statsAt(slot).cooldown / Math.max(0.1, player.aspdMult ?? 1),
+    );
   }
 
   function removeProjectile(index, projectile) {
@@ -93,9 +95,15 @@ export function createSkillSystem(app, player, enemySystem, options = {}) {
     const dist = Math.hypot(dx, dy) || 1;
 
     const graphic = new Graphics();
-    graphic.circle(0, 0, skill.hitRadius + 3).fill({ color: skill.color, alpha: 0.18 });
-    graphic.circle(0, 0, skill.hitRadius * 0.65).fill({ color: skill.color, alpha: 0.95 });
-    graphic.circle(0, 0, skill.hitRadius * 0.3).fill({ color: 0xffffff, alpha: 0.9 });
+    graphic
+      .circle(0, 0, skill.hitRadius + 3)
+      .fill({ color: skill.color, alpha: 0.18 });
+    graphic
+      .circle(0, 0, skill.hitRadius * 0.65)
+      .fill({ color: skill.color, alpha: 0.95 });
+    graphic
+      .circle(0, 0, skill.hitRadius * 0.3)
+      .fill({ color: 0xffffff, alpha: 0.9 });
     graphic.x = pos.x;
     graphic.y = pos.y;
     app.stage.addChild(graphic);
@@ -115,11 +123,17 @@ export function createSkillSystem(app, player, enemySystem, options = {}) {
     });
   }
 
-  function hitEnemy(projectile) {
+  function findHitTarget(projectile) {
     for (const enemy of enemies()) {
       if (!enemy || enemy.alive === false || enemy.hp <= 0) continue;
       const point = enemyCenter(enemy);
-      const margin = Math.max(2, Math.max(spriteHalfWidth(enemy.sprite), spriteHalfHeight(enemy.sprite)) * 0.35);
+      const margin = Math.max(
+        2,
+        Math.max(
+          spriteHalfWidth(enemy.sprite),
+          spriteHalfHeight(enemy.sprite),
+        ) * 0.35,
+      );
       const reach = projectile.skill.hitRadius + margin;
       if (Math.hypot(point.x - projectile.x, point.y - projectile.y) <= reach) {
         return enemy;
@@ -150,11 +164,14 @@ export function createSkillSystem(app, player, enemySystem, options = {}) {
       projectile.graphic.x = projectile.x;
       projectile.graphic.y = projectile.y;
 
-      const hit = hitEnemy(projectile);
+      const hit = findHitTarget(projectile);
       if (hit) {
-        enemySystem.damage(hit, rollDamage(projectile.damage * (hit.damageTakenMult ?? 1)));
-        applyStatus(hit, projectile.skill.element, projectile.damage);
-        reactionSystem?.handleHit(hit, projectile.skill.element, projectile.damage);
+        hitEnemy(
+          { enemySystem, reactionSystem },
+          hit,
+          projectile.damage,
+          projectile.skill.element,
+        );
         removeProjectile(i, projectile);
         continue;
       }
