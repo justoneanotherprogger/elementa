@@ -71,7 +71,9 @@ export function iconSpan(name, size = 16, className = "") {
   return wrapper;
 }
 
-export function spriteImage(path, size) {
+// stretch — заполнить квадрат иконки: широкое оружие в мелком слоте иначе
+// теряется в собственных пустых полях.
+export function spriteImage(path, size, stretch = false) {
   const img = document.createElement("img");
   const base = import.meta.env?.BASE_URL ?? "/";
   img.src = `${base}${path.replace(/^\//, "")}`;
@@ -80,7 +82,7 @@ export function spriteImage(path, size) {
   Object.assign(img.style, {
     width: `${size}px`,
     height: `${size}px`,
-    objectFit: "contain",
+    objectFit: stretch ? "fill" : "contain",
     display: "block",
   });
   return img;
@@ -102,7 +104,7 @@ export function iconOrSprite(name, size = 16) {
 export function weaponIcon(weapon, size = 18) {
   const config = typeof weapon === "string" ? null : weapon;
   const id = config?.id ?? weapon;
-  if (config?.sprite) return spriteImage(config.sprite, size);
+  if (config?.sprite) return spriteImage(config.sprite, size, true);
   if (id === "spear") return icon("spear", size);
   if (id === "serp") return icon("sickle", size);
   return icon("sword", size);

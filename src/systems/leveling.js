@@ -150,7 +150,7 @@ export function createLeveling(player, enemySystem, options = {}) {
     });
     const iconEl = document.createElement("div");
     if (candidate.card.sprite) {
-      iconEl.appendChild(spriteImage(candidate.card.sprite, 32));
+      iconEl.appendChild(spriteImage(candidate.card.sprite, 32, true));
     } else {
       iconEl.textContent = candidate.card.icon ?? "★";
       iconEl.style.fontSize = "22px";
