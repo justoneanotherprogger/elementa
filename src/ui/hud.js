@@ -273,7 +273,7 @@ export function createHud(app, player, enemySystem, leveling, weaponSystem, skil
       const cell = document.createElement("div");
       Object.assign(cell.style, {
         width: "54px",
-        height: "60px",
+        height: "66px",
         padding: "4px 3px",
         background: slot
           ? "linear-gradient(180deg, rgba(42,32,26,0.85), rgba(27,20,16,0.85))"
@@ -293,7 +293,7 @@ export function createHud(app, player, enemySystem, leveling, weaponSystem, skil
       const glyph = document.createElement("div");
       glyph.textContent = skill?.icon ?? "·";
       Object.assign(glyph.style, {
-        fontSize: "24px",
+        fontSize: slot ? "36px" : "18px",
         lineHeight: "1",
         color: "var(--color-text-dim)",
         filter: slot ? "drop-shadow(0 0 5px rgba(255,255,255,0.18))" : "none",
