@@ -10,7 +10,6 @@ export const WATER_DROP = {
   projectileSpeed: 460,
   hitRadius: 10,
   color: 0x4fc3f7,
-  statusChance: 1,
   // Авторские числа на каждый ранг: общей кривой нет.
   ranks: [
     { damage: 5, cooldown: 1.2 },

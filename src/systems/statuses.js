@@ -1,10 +1,8 @@
-import { STATUSES, STATUS_BY_ELEMENT } from "../data/elements.js";
+import { STATUSES } from "../data/elements.js";
 import { rollDamage } from "../core/damage.js";
 
-export function applyStatus(enemy, element, sourceDmg = 0) {
-  if (!enemy) return false;
-  const statusId = STATUS_BY_ELEMENT[element];
-  if (!statusId) return false;
+export function applyStatus(enemy, statusId, sourceDmg = 0) {
+  if (!enemy || !statusId) return false;
   const status = STATUSES[statusId];
   if (!status) return false;
   if (!enemy.statuses) enemy.statuses = new Map();
@@ -12,7 +10,7 @@ export function applyStatus(enemy, element, sourceDmg = 0) {
   const hadDifferent = [...enemy.statuses.keys()].some((id) => id !== statusId);
   enemy.statuses.set(statusId, {
     id: statusId,
-    element,
+    element: status.element,
     remaining: status.duration,
     sourceDmg,
   });
@@ -38,9 +36,11 @@ export function updateStatuses(enemySystem, dt) {
     let damageTakenMult = 1;
     for (const statusId of enemy.statuses.keys()) {
       const status = STATUSES[statusId];
-      if (status?.speedMult !== null) speedMult *= status.speedMult;
-      if (status?.attackPowerMult !== null) attackPowerMult *= status.attackPowerMult;
-      if (status?.damageTakenMult !== null) damageTakenMult *= status.damageTakenMult;
+      if (typeof status?.speedMult === "number") speedMult *= status.speedMult;
+      if (typeof status?.attackPowerMult === "number")
+        attackPowerMult *= status.attackPowerMult;
+      if (typeof status?.damageTakenMult === "number")
+        damageTakenMult *= status.damageTakenMult;
     }
 
     if (enemy.baseSpeed !== null) enemy.speed = enemy.baseSpeed * speedMult;

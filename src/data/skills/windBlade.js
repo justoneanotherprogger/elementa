@@ -1,5 +1,3 @@
-const KNOCKBACK = 300;
-
 export const WIND_BLADE = {
   id: "wind_blade",
   name: "Клинок ветра",
@@ -12,9 +10,6 @@ export const WIND_BLADE = {
   projectileSpeed: 520,
   hitRadius: 14,
   color: 0x8bc34a,
-  // Эффект не меняется рангом: его прокачка придёт с мета-прогрессией.
-  knockback: KNOCKBACK,
-  effectText: () => `Отталкивание ${KNOCKBACK}`,
   ranks: [
     { damage: 4, cooldown: 1.8 },
     { damage: 5, cooldown: 1.75 },

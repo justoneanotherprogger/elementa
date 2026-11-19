@@ -10,7 +10,6 @@ export const FIREBALL = {
   projectileSpeed: 360,
   hitRadius: 12,
   color: 0xff7043,
-  statusChance: 1,
   // Авторские числа на каждый ранг: общей кривой нет.
   ranks: [
     { damage: 8, cooldown: 2.0 },

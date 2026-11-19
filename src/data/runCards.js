@@ -1,4 +1,4 @@
-import { getStatusByElement } from "./elements.js";
+import { ELEMENT_EFFECTS, STATUSES } from "./elements.js";
 import { skillsForElement } from "./skills/index.js";
 
 export const RANK_TITLES = [
@@ -19,8 +19,25 @@ export function rankTitle(rank) {
   return RANK_TITLES[index];
 }
 
+function elementEffectInfo(element) {
+  const effect = ELEMENT_EFFECTS[element];
+  if (!effect) return { key: "status", text: "—" };
+  if (!effect.status) {
+    return { key: "effect", text: `Отталкивание ${effect.knockback}` };
+  }
+  const status = STATUSES[effect.status];
+  const chance = effect.chance ?? 1;
+  return {
+    key: "status",
+    text:
+      chance < 1
+        ? `${status.title} ${Math.round(chance * 100)}% · ${status.duration.toFixed(2)} с`
+        : status.title,
+  };
+}
+
 function createSkillCard(skill) {
-  const status = getStatusByElement(skill.element);
+  const effectInfo = elementEffectInfo(skill.element);
   return {
     id: `skill.${skill.id}`,
     kind: "skill",
@@ -44,9 +61,9 @@ function createSkillCard(skill) {
         { key: "damage", label: "Урон", text: `${row.damage}` },
         { key: "cooldown", label: "Кулдаун", text: `${row.cooldown.toFixed(2)} с` },
         {
-          key: status ? "status" : "effect",
-          label: status ? "Статус" : "Эффект",
-          text: status?.title ?? skill.effectText?.(row) ?? "—",
+          key: effectInfo.key,
+          label: effectInfo.key === "status" ? "Статус" : "Эффект",
+          text: effectInfo.text,
         },
       ];
     },

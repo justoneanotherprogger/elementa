@@ -29,11 +29,23 @@ export const STATUSES = {
     damageTakenMult: 1.5,
     icon: "💧",
   },
+  stun: {
+    id: "stun",
+    title: "Оглушение",
+    element: "earth",
+    duration: 0.45,
+    dps: 0,
+    icon: "💫",
+  },
 };
 
-export const STATUS_BY_ELEMENT = {
-  fire: "burn",
-  water: "wet",
+// Идентичность стихии на попадании: всё, кроме ветра, — статусы. У ветра
+// статуса нет по документам: только сдвиг по направлению атаки.
+export const ELEMENT_EFFECTS = {
+  fire: { status: "burn", chance: 1 },
+  water: { status: "wet", chance: 1 },
+  earth: { status: "stun", chance: 0.2 },
+  air: { knockback: 300 },
 };
 
 export const REACTIONS = {
@@ -43,12 +55,6 @@ export const REACTIONS = {
     damageMultiplier: 1,
   },
 };
-
-export function getStatusByElement(element) {
-  const statusId = STATUS_BY_ELEMENT[element];
-  if (!statusId) return null;
-  return STATUSES[statusId] ?? null;
-}
 
 export function getReactionKey(a, b) {
   return [a, b].sort().join("+");

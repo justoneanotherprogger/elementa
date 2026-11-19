@@ -76,7 +76,6 @@ export function createEnemySystem(
       // Толчок от снаряда: затухает в кадре врага, не в кадре навыка.
       impulseX: 0,
       impulseY: 0,
-      stunTimer: 0,
       hp: Math.round(enemyHp * hpMul),
       r: 14,
       speed: enemySpeed * speedMul,
@@ -135,8 +134,7 @@ export function createEnemySystem(
         const dx = px - enemy.x;
         const dy = py - enemy.y;
         const distance = Math.hypot(dx, dy) || 1;
-        const stunned = (enemy.stunTimer ?? 0) > 0;
-        if (stunned) enemy.stunTimer = Math.max(0, enemy.stunTimer - dt);
+        const stunned = Boolean(enemy.statuses?.has("stun"));
         enemy.vx = stunned ? 0 : (dx / distance) * enemy.speed;
         enemy.vy = stunned ? 0 : (dy / distance) * enemy.speed;
         enemy.x +=

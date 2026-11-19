@@ -2,6 +2,7 @@ import { Graphics } from "pixi.js";
 import { SKILLS } from "../data/skills/index.js";
 import { spriteHalfWidth, spriteHalfHeight } from "../core/spriteBounds.js";
 import { hitEnemy } from "./combat.js";
+import { ELEMENT_EFFECTS } from "../data/elements.js";
 
 export const SKILL_SLOTS = 6;
 
@@ -117,9 +118,7 @@ export function createSkillSystem(app, player, enemySystem, options = {}) {
       dirY: dy / dist,
       speed: skill.projectileSpeed,
       damage: stats.damage * (player.dmgMult ?? 1),
-      knockback: skill.knockback ?? 0,
-      stunChance: skill.stunChance ?? 0,
-      stunDuration: skill.stunDuration ?? 0,
+      knockback: ELEMENT_EFFECTS[skill.element]?.knockback ?? 0,
       target,
       age: 0,
       life: 4,
@@ -145,20 +144,14 @@ export function createSkillSystem(app, player, enemySystem, options = {}) {
     return null;
   }
 
-  // Эффект навыка живёт рядом с попаданием: направление берётся из полёта
-  // снаряда, а движение враг выполняет в своём кадре.
-  function applyEffect(projectile, enemy) {
+  // Толчок ветра привязан к попаданию: направление берётся из полёта
+  // снаряда, а движение враг выполняет в своём кадре. Статусы — в hitEnemy.
+  function applyKnockback(projectile, enemy) {
     if (projectile.knockback) {
       enemy.impulseX =
         (enemy.impulseX ?? 0) + projectile.dirX * projectile.knockback;
       enemy.impulseY =
         (enemy.impulseY ?? 0) + projectile.dirY * projectile.knockback;
-    }
-    if (projectile.stunChance && Math.random() < projectile.stunChance) {
-      enemy.stunTimer = Math.max(
-        enemy.stunTimer ?? 0,
-        projectile.stunDuration,
-      );
     }
   }
 
@@ -192,7 +185,7 @@ export function createSkillSystem(app, player, enemySystem, options = {}) {
           projectile.damage,
           projectile.skill.element,
         );
-        applyEffect(projectile, hit);
+        applyKnockback(projectile, hit);
         removeProjectile(i, projectile);
         continue;
       }
