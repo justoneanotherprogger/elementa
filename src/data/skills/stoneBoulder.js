@@ -10,16 +10,7 @@ export const STONE_BOULDER = {
   projectileSpeed: 320,
   hitRadius: 16,
   color: 0xb98b4a,
-  ranks: [
-    { damage: 7, cooldown: 2.6 },
-    { damage: 8, cooldown: 2.5 },
-    { damage: 10, cooldown: 2.4 },
-    { damage: 12, cooldown: 2.3 },
-    { damage: 15, cooldown: 2.2 },
-    { damage: 18, cooldown: 2.1 },
-    { damage: 22, cooldown: 2.0 },
-    { damage: 26, cooldown: 1.9 },
-    { damage: 31, cooldown: 1.8 },
-    { damage: 37, cooldown: 1.7 },
-  ],
+  // Базовые числа: ранги добавляют проценты через progression.js.
+  damage: 7,
+  cooldown: 2.6,
 };

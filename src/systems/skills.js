@@ -3,6 +3,7 @@ import { SKILLS } from "../data/skills/index.js";
 import { spriteHalfWidth, spriteHalfHeight } from "../core/spriteBounds.js";
 import { hitEnemy } from "./combat.js";
 import { ELEMENT_EFFECTS } from "../data/elements.js";
+import { MAX_RANK, skillStats } from "../data/progression.js";
 
 export const SKILL_SLOTS = 6;
 
@@ -59,7 +60,7 @@ export function createSkillSystem(app, player, enemySystem, options = {}) {
     if (!skill) return false;
     const existing = slots.find((entry) => entry?.id === id);
     if (existing) {
-      if (existing.rank >= skill.ranks.length) return false;
+      if (existing.rank >= MAX_RANK) return false;
       existing.rank += 1;
       return true;
     }
@@ -69,8 +70,7 @@ export function createSkillSystem(app, player, enemySystem, options = {}) {
   }
 
   function statsAt(slot) {
-    const skill = SKILLS[slot.id];
-    return skill.ranks[Math.min(slot.rank, skill.ranks.length) - 1];
+    return skillStats(SKILLS[slot.id], slot.rank);
   }
 
   function cooldownOf(slot) {
@@ -95,15 +95,16 @@ export function createSkillSystem(app, player, enemySystem, options = {}) {
     const dy = point.y - pos.y;
     const dist = Math.hypot(dx, dy) || 1;
 
+    const hitRadius = stats.hitRadius;
     const graphic = new Graphics();
     graphic
-      .circle(0, 0, skill.hitRadius + 3)
+      .circle(0, 0, hitRadius + 3)
       .fill({ color: skill.color, alpha: 0.18 });
     graphic
-      .circle(0, 0, skill.hitRadius * 0.65)
+      .circle(0, 0, hitRadius * 0.65)
       .fill({ color: skill.color, alpha: 0.95 });
     graphic
-      .circle(0, 0, skill.hitRadius * 0.3)
+      .circle(0, 0, hitRadius * 0.3)
       .fill({ color: 0xffffff, alpha: 0.9 });
     graphic.x = pos.x;
     graphic.y = pos.y;
@@ -112,6 +113,7 @@ export function createSkillSystem(app, player, enemySystem, options = {}) {
     projectiles.push({
       skill,
       graphic,
+      hitRadius,
       x: pos.x,
       y: pos.y,
       dirX: dx / dist,
@@ -136,7 +138,7 @@ export function createSkillSystem(app, player, enemySystem, options = {}) {
           spriteHalfHeight(enemy.sprite),
         ) * 0.35,
       );
-      const reach = projectile.skill.hitRadius + margin;
+      const reach = projectile.hitRadius + margin;
       if (Math.hypot(point.x - projectile.x, point.y - projectile.y) <= reach) {
         return enemy;
       }

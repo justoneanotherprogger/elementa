@@ -10,16 +10,7 @@ export const WIND_BLADE = {
   projectileSpeed: 520,
   hitRadius: 14,
   color: 0x8bc34a,
-  ranks: [
-    { damage: 4, cooldown: 1.8 },
-    { damage: 5, cooldown: 1.75 },
-    { damage: 6, cooldown: 1.7 },
-    { damage: 7, cooldown: 1.65 },
-    { damage: 9, cooldown: 1.6 },
-    { damage: 11, cooldown: 1.55 },
-    { damage: 13, cooldown: 1.5 },
-    { damage: 16, cooldown: 1.45 },
-    { damage: 19, cooldown: 1.4 },
-    { damage: 23, cooldown: 1.3 },
-  ],
+  // Базовые числа: ранги добавляют проценты через progression.js.
+  damage: 4,
+  cooldown: 1.8,
 };

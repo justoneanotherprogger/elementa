@@ -1,4 +1,5 @@
 import { ELEMENT_EFFECTS, STATUSES } from "./elements.js";
+import { MAX_RANK, skillStats } from "./progression.js";
 import { skillsForElement } from "./skills/index.js";
 
 export const RANK_TITLES = [
@@ -44,7 +45,7 @@ function createSkillCard(skill) {
     skillId: skill.id,
     title: skill.name,
     icon: skill.icon,
-    maxRank: skill.ranks.length,
+    maxRank: MAX_RANK,
     rankOf({ skills }) {
       return skills?.rankOf?.(skill.id) ?? 0;
     },
@@ -55,8 +56,7 @@ function createSkillCard(skill) {
       skills?.grant(skill.id);
     },
     stats(rank) {
-      const index = Math.min(skill.ranks.length, Math.max(1, rank)) - 1;
-      const row = skill.ranks[index];
+      const row = skillStats(skill, rank);
       return [
         { key: "damage", label: "Урон", text: `${row.damage}` },
         { key: "cooldown", label: "Кулдаун", text: `${row.cooldown.toFixed(2)} с` },

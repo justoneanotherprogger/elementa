@@ -1,104 +1,59 @@
 import { getWeapon } from "./weapons/index.js";
+import { MAX_RANK, statsAtRank } from "./progression.js";
 
-// Авторские числа на каждый ранг: общей кривой нет. Ранг 1 выдаётся вместе
-// с оружием и бонусов не даёт, поэтому его в таблице нет.
+// База лежит в конфиге оружия, ранг добавляет проценты от неё. Выбор ключей
+// задаёт, куда именно применяется каждый вид бонуса.
 export const WEAPON_MASTERY = {
   serp: {
     title: "Владение серпом",
     icon: "🗡",
+    keys: { damage: "dmg", cooldown: "cd", area: "radius" },
     stats: [
       { key: "dmg", label: "Урон", format: (value) => `${value}` },
       { key: "cd", label: "Кулдаун", format: (value) => `${value.toFixed(2)} с` },
       { key: "radius", label: "Радиус", format: (value) => `${value}` },
-    ],
-    ranks: [
-      { dmg: 10, cd: 0.96, radius: 94 },
-      { dmg: 12, cd: 0.92, radius: 98 },
-      { dmg: 14, cd: 0.88, radius: 103 },
-      { dmg: 17, cd: 0.84, radius: 108 },
-      { dmg: 20, cd: 0.8, radius: 114 },
-      { dmg: 24, cd: 0.76, radius: 120 },
-      { dmg: 28, cd: 0.72, radius: 127 },
-      { dmg: 33, cd: 0.68, radius: 134 },
-      { dmg: 39, cd: 0.64, radius: 142 },
     ],
   },
   spear: {
     title: "Владение копьём",
     icon: "⚔",
+    keys: { damage: "dmg", cooldown: "cd", area: "radius" },
     stats: [
       { key: "dmg", label: "Урон", format: (value) => `${value}` },
       { key: "cd", label: "Кулдаун", format: (value) => `${value.toFixed(2)} с` },
       { key: "radius", label: "Радиус", format: (value) => `${value}` },
-    ],
-    ranks: [
-      { dmg: 8, cd: 0.77, radius: 146 },
-      { dmg: 10, cd: 0.74, radius: 152 },
-      { dmg: 12, cd: 0.71, radius: 159 },
-      { dmg: 15, cd: 0.68, radius: 166 },
-      { dmg: 18, cd: 0.65, radius: 174 },
-      { dmg: 22, cd: 0.62, radius: 182 },
-      { dmg: 26, cd: 0.59, radius: 191 },
-      { dmg: 31, cd: 0.56, radius: 200 },
-      { dmg: 37, cd: 0.53, radius: 210 },
     ],
   },
   chakram: {
     title: "Владение шакрамом",
     icon: "🌀",
+    keys: { damage: "dmg", cooldown: "cd", area: "length" },
     stats: [
       { key: "dmg", label: "Урон", format: (value) => `${value}` },
       { key: "cd", label: "Кулдаун", format: (value) => `${value.toFixed(2)} с` },
       { key: "length", label: "Дальность", format: (value) => `${value}` },
     ],
-    ranks: [
-      { dmg: 6, cd: 1.06, length: 440 },
-      { dmg: 7, cd: 1.02, length: 462 },
-      { dmg: 9, cd: 0.98, length: 485 },
-      { dmg: 11, cd: 0.94, length: 509 },
-      { dmg: 13, cd: 0.9, length: 534 },
-      { dmg: 16, cd: 0.86, length: 561 },
-      { dmg: 19, cd: 0.82, length: 589 },
-      { dmg: 23, cd: 0.78, length: 618 },
-      { dmg: 27, cd: 0.74, length: 649 },
-    ],
   },
   greataxe: {
     title: "Владение топором",
     icon: "🪓",
+    keys: { damage: "dmg", cooldown: "cd", area: "radius" },
     stats: [
       { key: "dmg", label: "Урон", format: (value) => `${value}` },
       { key: "cd", label: "Кулдаун", format: (value) => `${value.toFixed(2)} с` },
       { key: "radius", label: "Радиус", format: (value) => `${value}` },
     ],
-    ranks: [
-      { dmg: 20, cd: 1.31, radius: 112 },
-      { dmg: 23, cd: 1.27, radius: 117 },
-      { dmg: 27, cd: 1.23, radius: 122 },
-      { dmg: 31, cd: 1.19, radius: 127 },
-      { dmg: 36, cd: 1.15, radius: 133 },
-      { dmg: 42, cd: 1.11, radius: 139 },
-      { dmg: 49, cd: 1.07, radius: 146 },
-      { dmg: 57, cd: 1.03, radius: 153 },
-      { dmg: 66, cd: 0.99, radius: 160 },
-    ],
   },
 };
 
 export function masteryMaxRank(weaponId) {
-  const rows = WEAPON_MASTERY[weaponId]?.ranks;
-  return rows ? rows.length + 1 : 1;
-}
-
-export function masteryRow(weaponId, rank) {
-  const rows = WEAPON_MASTERY[weaponId]?.ranks;
-  if (!rows || rank <= 1) return null;
-  const index = Math.min(rows.length - 1, Math.floor(rank) - 2);
-  return rows[index] ?? null;
+  return WEAPON_MASTERY[weaponId] ? MAX_RANK : 1;
 }
 
 export function masteryStats(weapon, rank = weapon?.rank ?? 1) {
-  return { ...(weapon?.base ?? {}), ...(masteryRow(weapon?.id, rank) ?? {}) };
+  const keys = WEAPON_MASTERY[weapon?.id]?.keys;
+  const base = { ...(weapon?.base ?? {}) };
+  return keys ? statsAtRank(base, keys, rank) : base;
 }
 
 export function masteryCardsForWeapon(weaponId) {

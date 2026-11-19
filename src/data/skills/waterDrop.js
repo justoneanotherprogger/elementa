@@ -10,17 +10,7 @@ export const WATER_DROP = {
   projectileSpeed: 460,
   hitRadius: 10,
   color: 0x4fc3f7,
-  // Авторские числа на каждый ранг: общей кривой нет.
-  ranks: [
-    { damage: 5, cooldown: 1.2 },
-    { damage: 6, cooldown: 1.15 },
-    { damage: 7, cooldown: 1.1 },
-    { damage: 9, cooldown: 1.05 },
-    { damage: 11, cooldown: 1.0 },
-    { damage: 13, cooldown: 0.95 },
-    { damage: 16, cooldown: 0.9 },
-    { damage: 19, cooldown: 0.85 },
-    { damage: 23, cooldown: 0.8 },
-    { damage: 28, cooldown: 0.7 },
-  ],
+  // Базовые числа: ранги добавляют проценты через progression.js.
+  damage: 5,
+  cooldown: 1.2,
 };
