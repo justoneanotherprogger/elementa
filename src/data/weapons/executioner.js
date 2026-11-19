@@ -1,5 +1,3 @@
-import { PLACEHOLDER_BASE } from "./base.js";
-
 export const EXECUTIONER_WEAPONS = {
   serp: {
     id: "serp",
@@ -25,15 +23,30 @@ export const EXECUTIONER_WEAPONS = {
     classId: "executioner",
     element: "air",
     title: "Шакрам",
+    sprite: "assets/weapons/pix_weap_executioner_air.png",
     behavior: "projectile",
-    base: { ...PLACEHOLDER_BASE.projectile },
+    // Летит к точке прицеливания, тормозит, возвращается к герою и тает в нём.
+    base: {
+      dmg: 5,
+      cd: 0.55,
+      radius: 22,
+      speed: 620,
+      length: 420,
+      pierce: 1,
+      count: 1,
+      returns: true,
+      returnSpeed: 780,
+      spin: 18,
+    },
   },
   greataxe: {
     id: "greataxe",
     classId: "executioner",
     element: "earth",
     title: "Двуручный топор",
+    sprite: "assets/weapons/pix_weap_executioner_earth.png",
     behavior: "melee",
-    base: { ...PLACEHOLDER_BASE.melee },
+    // Один оборот за кулдаун: ускорение атаки крутит топор быстрее.
+    base: { dmg: 17, cd: 1.35, radius: 108, kind: "spin", bladeDeg: 100 },
   },
 };

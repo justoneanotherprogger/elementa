@@ -43,6 +43,46 @@ export const WEAPON_MASTERY = {
       { dmg: 37, cd: 0.53, radius: 210 },
     ],
   },
+  chakram: {
+    title: "Владение шакрамом",
+    icon: "🌀",
+    stats: [
+      { key: "dmg", label: "Урон", format: (value) => `${value}` },
+      { key: "cd", label: "Кулдаун", format: (value) => `${value.toFixed(2)} с` },
+      { key: "length", label: "Дальность", format: (value) => `${value}` },
+    ],
+    ranks: [
+      { dmg: 6, cd: 0.53, length: 440 },
+      { dmg: 7, cd: 0.51, length: 462 },
+      { dmg: 9, cd: 0.49, length: 485 },
+      { dmg: 11, cd: 0.47, length: 509 },
+      { dmg: 13, cd: 0.45, length: 534 },
+      { dmg: 16, cd: 0.43, length: 561 },
+      { dmg: 19, cd: 0.41, length: 589 },
+      { dmg: 23, cd: 0.39, length: 618 },
+      { dmg: 27, cd: 0.37, length: 649 },
+    ],
+  },
+  greataxe: {
+    title: "Владение топором",
+    icon: "🪓",
+    stats: [
+      { key: "dmg", label: "Урон", format: (value) => `${value}` },
+      { key: "cd", label: "Кулдаун", format: (value) => `${value.toFixed(2)} с` },
+      { key: "radius", label: "Радиус", format: (value) => `${value}` },
+    ],
+    ranks: [
+      { dmg: 20, cd: 1.31, radius: 112 },
+      { dmg: 23, cd: 1.27, radius: 117 },
+      { dmg: 27, cd: 1.23, radius: 122 },
+      { dmg: 31, cd: 1.19, radius: 127 },
+      { dmg: 36, cd: 1.15, radius: 133 },
+      { dmg: 42, cd: 1.11, radius: 139 },
+      { dmg: 49, cd: 1.07, radius: 146 },
+      { dmg: 57, cd: 1.03, radius: 153 },
+      { dmg: 66, cd: 0.99, radius: 160 },
+    ],
+  },
 };
 
 export function masteryMaxRank(weaponId) {
