@@ -46,7 +46,7 @@ export const EXECUTIONER_WEAPONS = {
     title: "Двуручный топор",
     sprite: "assets/weapons/pix_weap_executioner_earth.png",
     behavior: "melee",
-    // Один оборот за кулдаун: ускорение атаки крутит топор быстрее.
-    base: { dmg: 17, cd: 1.35, radius: 108, kind: "spin", bladeDeg: 100 },
+    // Удар серпа, развёрнутый до полного круга: бьёт всех в радиусе.
+    base: { dmg: 17, cd: 2.2, radius: 108, angleDeg: 360 },
   },
 };

@@ -46,7 +46,6 @@ function arcPoints(cx, cy, radius, start, end, steps) {
 // добавляется здесь, диспетчер оружия о ней не знает.
 export function createMeleeBehavior() {
   const swings = [];
-  const spins = [];
 
   function damageSector(ctx, swing, amount) {
     const baseAngle = Math.atan2(swing.dirY, swing.dirX);
@@ -157,101 +156,11 @@ export function createMeleeBehavior() {
     });
   }
 
-  // Топор не бьёт сектором раз в кулдаун: он вращается непрерывно, как
-  // вентилятор с одной лопастью, и делает оборот ровно за кулдаун. Ускорение
-  // атаки ускоряет вращение, а каждый враг получает удар раз за оборот.
-  function spinSpeed(weapon, stats) {
-    return (Math.PI * 2) / Math.max(0.2, weapon.cd ?? stats.cd ?? 1);
-  }
-
-  function spawnSpin(ctx, stats, startAngle, speed) {
-    const graphic = new Graphics();
-    ctx.app.stage.addChild(graphic);
-    spins.push({
-      graphic,
-      x: 0,
-      y: 0,
-      angle: startAngle,
-      halfAngle: ((stats.bladeDeg ?? 100) * Math.PI) / 360,
-      radius: radiusOf(ctx, stats),
-      amount: damageOf(ctx, stats),
-      speed,
-      spun: 0,
-      hitEnemies: new Set(),
-    });
-  }
-
-  function renderSpin(spin) {
-    const start = spin.angle - spin.halfAngle;
-    const end = spin.angle + spin.halfAngle;
-    const tailStart = start - 0.5;
-    spin.graphic.clear();
-    spin.graphic
-      .circle(spin.x, spin.y, spin.radius)
-      .stroke({ width: 1, color: 0xffe0a0, alpha: 0.1 });
-    spin.graphic
-      .moveTo(spin.x, spin.y)
-      .arc(spin.x, spin.y, spin.radius, tailStart, start)
-      .closePath()
-      .fill({ color: 0xb98b4a, alpha: 0.08 });
-    spin.graphic
-      .moveTo(spin.x, spin.y)
-      .arc(spin.x, spin.y, spin.radius, start, end)
-      .closePath()
-      .fill({ color: 0xcf9b4e, alpha: 0.18 });
-    spin.graphic
-      .arc(spin.x, spin.y, spin.radius, start, end)
-      .stroke({ width: 4, color: 0xffe0a0, alpha: 0.9 });
-  }
-
-  function updateSpin(ctx, spin, dt) {
-    const position = playerPosition(ctx.player);
-    spin.x = position.x;
-    spin.y = position.y;
-    const step = spin.speed * dt;
-    spin.angle += step;
-    spin.spun += step;
-    if (spin.spun >= Math.PI * 2) {
-      spin.spun -= Math.PI * 2;
-      spin.hitEnemies.clear();
-    }
-
-    const margin = 0.16;
-    for (const enemy of ctx.enemySystem?.enemies ?? []) {
-      if (!enemy || enemy.alive === false || enemy.hp <= 0) continue;
-      if (spin.hitEnemies.has(enemy)) continue;
-      const dx = enemy.x - spin.x;
-      const dy = enemy.y - spin.y;
-      const distance = Math.hypot(dx, dy);
-      if (distance > spin.radius + enemyMargin(enemy)) continue;
-      const deviation = Math.abs(angleDelta(Math.atan2(dy, dx), spin.angle));
-      if (deviation > spin.halfAngle + margin) continue;
-      hitEnemy(ctx, enemy, spin.amount);
-      spin.hitEnemies.add(enemy);
-    }
-    renderSpin(spin);
-  }
-
-  function activate(ctx, weapon, stats) {
+  function activate(ctx, _weapon, stats) {
     const position = playerPosition(ctx.player);
     const radius = radiusOf(ctx, stats);
     const amount = damageOf(ctx, stats);
     const kind = stats.kind ?? "slash";
-
-    if (kind === "spin") {
-      const speed = spinSpeed(weapon, stats);
-      const spin = spins[0];
-      if (spin) {
-        spin.speed = speed;
-        spin.radius = radius;
-        spin.amount = amount;
-        spin.halfAngle = ((stats.bladeDeg ?? 100) * Math.PI) / 360;
-      } else {
-        const fallback = lastDirection(ctx.player);
-        spawnSpin(ctx, stats, Math.atan2(fallback.y, fallback.x), speed);
-      }
-      return true;
-    }
 
     const bodyHalfHeight = spriteHalfHeight(ctx.player.body);
     const best = findNearest(
@@ -422,7 +331,6 @@ export function createMeleeBehavior() {
   }
 
   function update(ctx, _weapon, dt) {
-    for (const spin of spins) updateSpin(ctx, spin, dt);
     for (let i = swings.length - 1; i >= 0; i -= 1) {
       const swing = swings[i];
       swing.age += dt;
@@ -447,10 +355,6 @@ export function createMeleeBehavior() {
       swing.graphic.destroy();
     }
     swings.length = 0;
-    for (const spin of spins) {
-      spin.graphic.destroy();
-    }
-    spins.length = 0;
   }
 
   return { activate, update, reset };
