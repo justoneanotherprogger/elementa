@@ -5,7 +5,6 @@ import { MAX_RANK, statsAtRank } from "./progression.js";
 // задаёт, куда именно применяется каждый вид бонуса.
 export const WEAPON_MASTERY = {
   serp: {
-    title: "Владение серпом",
     icon: "🗡",
     keys: { damage: "dmg", cooldown: "cd", area: "radius" },
     stats: [
@@ -15,7 +14,6 @@ export const WEAPON_MASTERY = {
     ],
   },
   spear: {
-    title: "Владение копьём",
     icon: "⚔",
     keys: { damage: "dmg", cooldown: "cd", area: "radius" },
     stats: [
@@ -25,7 +23,6 @@ export const WEAPON_MASTERY = {
     ],
   },
   chakram: {
-    title: "Владение шакрамом",
     icon: "🌀",
     keys: { damage: "dmg", cooldown: "cd", area: "length" },
     stats: [
@@ -35,7 +32,6 @@ export const WEAPON_MASTERY = {
     ],
   },
   greataxe: {
-    title: "Владение топором",
     icon: "🪓",
     keys: { damage: "dmg", cooldown: "cd", area: "radius" },
     stats: [
@@ -66,7 +62,8 @@ export function masteryCardsForWeapon(weaponId) {
       id: `mastery.${weaponId}`,
       kind: "mastery",
       weaponId,
-      title: mastery.title,
+      title: weapon.title,
+      caption: "Владение оружием",
       icon: mastery.icon,
       sprite: weapon.sprite,
       maxRank,

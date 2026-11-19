@@ -41,6 +41,7 @@ function createSkillCard(skill) {
     id: `skill.${skill.id}`,
     kind: "skill",
     skillId: skill.id,
+    caption: "Навык",
     title: skill.name,
     icon: skill.icon,
     maxRank: MAX_RANK,
