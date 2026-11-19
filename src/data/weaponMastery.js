@@ -76,12 +76,14 @@ export function masteryCardsForWeapon(weaponId) {
       apply({ weapons }) {
         weapons?.raiseMastery?.(weaponId);
       },
-      stats(rank) {
+      stats(rank, context) {
         const stats = masteryStats(weapon, rank);
+        const mult = context?.player?.dmgMult ?? 1;
+        const shown = { ...stats, dmg: (stats.dmg ?? 0) * mult };
         return mastery.stats.map((stat) => ({
           key: stat.key,
           label: stat.label,
-          text: stat.format(stats[stat.key]),
+          text: stat.format(shown[stat.key]),
         }));
       },
     },

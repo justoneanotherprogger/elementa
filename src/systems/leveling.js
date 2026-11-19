@@ -189,8 +189,8 @@ export function createLeveling(player, enemySystem, options = {}) {
       width: "100%",
       marginTop: "auto",
     });
-    const nextStats = candidate.card.stats(candidate.rank);
-    const prevStats = candidate.isNew ? null : candidate.card.stats(candidate.rank - 1);
+    const nextStats = candidate.card.stats(candidate.rank, { player });
+    const prevStats = candidate.isNew ? null : candidate.card.stats(candidate.rank - 1, { player });
     nextStats.forEach((stat, statIndex) => {
       const row = document.createElement("div");
       Object.assign(row.style, {

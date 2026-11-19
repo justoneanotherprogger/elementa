@@ -55,10 +55,11 @@ function createSkillCard(skill) {
     apply({ skills }) {
       skills?.grant(skill.id);
     },
-    stats(rank) {
+    stats(rank, context) {
       const row = skillStats(skill, rank);
+      const mult = context?.player?.dmgMult ?? 1;
       return [
-        { key: "damage", label: "Урон", text: damageRangeText(row.damage) },
+        { key: "damage", label: "Урон", text: damageRangeText(row.damage * mult) },
         { key: "cooldown", label: "Кулдаун", text: `${row.cooldown.toFixed(2)} с` },
         {
           key: effectInfo.key,
