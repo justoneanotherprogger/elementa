@@ -26,14 +26,7 @@ function elementEffectInfo(element) {
   if (!effect) return { key: "status", text: "—" };
   if (!effect.status) return { key: "effect", text: "Отталкивание" };
   const status = STATUSES[effect.status];
-  const chance = effect.chance ?? 1;
-  return {
-    key: "status",
-    text:
-      chance < 1
-        ? `${status.title} ${Math.round(chance * 100)}% · ${status.duration.toFixed(2)} с`
-        : status.title,
-  };
+  return { key: "status", text: status.title };
 }
 
 function createSkillCard(skill) {
