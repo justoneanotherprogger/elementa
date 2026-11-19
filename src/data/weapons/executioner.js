@@ -47,6 +47,13 @@ export const EXECUTIONER_WEAPONS = {
     sprite: "assets/weapons/pix_weap_executioner_earth.png",
     behavior: "melee",
     // Удар серпа, развёрнутый до полного круга: бьёт всех в радиусе.
-    base: { dmg: 17, cd: 2.2, radius: 108, angleDeg: 360 },
+    // Анимация растянута на весь кулдаун, чтобы удар читался как медленный размах.
+    base: {
+      dmg: 17,
+      cd: 4,
+      radius: 108,
+      angleDeg: 360,
+      durationFromCd: true,
+    },
   },
 };

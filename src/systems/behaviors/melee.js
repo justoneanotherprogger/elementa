@@ -98,7 +98,8 @@ export function createMeleeBehavior() {
     }
   }
 
-  function spawnSlash(ctx, px, py, angle, radius, halfAngle, amount) {
+  function spawnSlash(ctx, px, py, angle, radius, halfAngle, amount, duration = 0.34) {
+    const scale = duration / 0.34;
     const start = angle - halfAngle;
     const end = angle + halfAngle;
     const graphic = new Graphics();
@@ -112,9 +113,10 @@ export function createMeleeBehavior() {
       kind: "slash",
       graphic,
       age: 0,
-      life: 0.34,
-      damageStart: 0.13,
-      damageEnd: 0.3,
+      life: duration,
+      damageStart: 0.13 * scale,
+      damageEnd: 0.3 * scale,
+      rate: scale,
       originX: px,
       originY: py,
       dirX: Math.cos(angle),
@@ -156,7 +158,7 @@ export function createMeleeBehavior() {
     });
   }
 
-  function activate(ctx, _weapon, stats) {
+  function activate(ctx, weapon, stats) {
     const position = playerPosition(ctx.player);
     const radius = radiusOf(ctx, stats);
     const amount = damageOf(ctx, stats);
@@ -198,7 +200,19 @@ export function createMeleeBehavior() {
       );
     } else {
       const halfAngle = ((stats.angleDeg ?? 120) * Math.PI) / 180 / 2;
-      spawnSlash(ctx, position.x, position.y, angle, radius, halfAngle, amount);
+      const duration = stats.durationFromCd
+        ? Math.max(0.34, weapon?.cd ?? stats.cd ?? 1)
+        : 0.34;
+      spawnSlash(
+        ctx,
+        position.x,
+        position.y,
+        angle,
+        radius,
+        halfAngle,
+        amount,
+        duration,
+      );
     }
     return true;
   }
@@ -238,8 +252,9 @@ export function createMeleeBehavior() {
         alpha: 1.0,
       },
     ];
+    const rate = swing.rate ?? 1;
     for (const spec of specs) {
-      const t = swing.age - spec.delay;
+      const t = (swing.age - spec.delay * rate) / rate;
       if (t < 0 || t >= spec.life) continue;
       const p = Math.min(1, t / (spec.life * 0.6));
       const fade = 1 - Math.max(0, (t - spec.life * 0.4) / (spec.life * 0.6));
