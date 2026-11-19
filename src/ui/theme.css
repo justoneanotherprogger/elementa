@@ -235,8 +235,10 @@ button {
 }
 
 .fantasy-card--interactive:hover {
-  border-color: var(--color-accent-border);
-  box-shadow: 0 0 0 2px var(--color-accent-dim), var(--shadow-raised);
+  border-color: var(--color-accent-hover);
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  box-shadow: 0 0 18px rgba(212, 169, 66, 0.35), var(--shadow-raised);
 }
 
 .fantasy-empty {
