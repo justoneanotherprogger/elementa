@@ -43,7 +43,11 @@ function createSkillCard(skill) {
       return [
         { key: "damage", label: "Урон", text: `${row.damage}` },
         { key: "cooldown", label: "Кулдаун", text: `${row.cooldown.toFixed(2)} с` },
-        { key: "status", label: "Статус", text: status?.title ?? "—" },
+        {
+          key: status ? "status" : "effect",
+          label: status ? "Статус" : "Эффект",
+          text: status?.title ?? skill.effectText?.(row) ?? "—",
+        },
       ];
     },
   };

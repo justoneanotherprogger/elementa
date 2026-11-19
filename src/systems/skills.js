@@ -117,6 +117,9 @@ export function createSkillSystem(app, player, enemySystem, options = {}) {
       dirY: dy / dist,
       speed: skill.projectileSpeed,
       damage: stats.damage * (player.dmgMult ?? 1),
+      knockback: stats.knockback ?? 0,
+      stunChance: stats.stunChance ?? 0,
+      stunDuration: stats.stunDuration ?? 0,
       target,
       age: 0,
       life: 4,
@@ -140,6 +143,23 @@ export function createSkillSystem(app, player, enemySystem, options = {}) {
       }
     }
     return null;
+  }
+
+  // Эффект навыка живёт рядом с попаданием: направление берётся из полёта
+  // снаряда, а движение враг выполняет в своём кадре.
+  function applyEffect(projectile, enemy) {
+    if (projectile.knockback) {
+      enemy.impulseX =
+        (enemy.impulseX ?? 0) + projectile.dirX * projectile.knockback;
+      enemy.impulseY =
+        (enemy.impulseY ?? 0) + projectile.dirY * projectile.knockback;
+    }
+    if (projectile.stunChance && Math.random() < projectile.stunChance) {
+      enemy.stunTimer = Math.max(
+        enemy.stunTimer ?? 0,
+        projectile.stunDuration,
+      );
+    }
   }
 
   function updateProjectiles(dt) {
@@ -172,6 +192,7 @@ export function createSkillSystem(app, player, enemySystem, options = {}) {
           projectile.damage,
           projectile.skill.element,
         );
+        applyEffect(projectile, hit);
         removeProjectile(i, projectile);
         continue;
       }

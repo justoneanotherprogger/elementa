@@ -23,6 +23,8 @@ export function createEnemySystem(
 
   const maxEnemies = 500;
   const GOBLIN_BOTTOM_OFFSET = 25;
+  // Толчок навыка затухает сам: полный сдвиг ≈ скорость / IMPULSE_DECAY.
+  const IMPULSE_DECAY = 6;
   const spawnInterval = 999;
   const enemySpeed = 60;
   const enemyHp = 8;
@@ -71,6 +73,10 @@ export function createEnemySystem(
       // поведением и применяется здесь, рядом с собственным движением.
       pushX: 0,
       pushY: 0,
+      // Толчок от снаряда: затухает в кадре врага, не в кадре навыка.
+      impulseX: 0,
+      impulseY: 0,
+      stunTimer: 0,
       hp: Math.round(enemyHp * hpMul),
       r: 14,
       speed: enemySpeed * speedMul,
@@ -129,12 +135,19 @@ export function createEnemySystem(
         const dx = px - enemy.x;
         const dy = py - enemy.y;
         const distance = Math.hypot(dx, dy) || 1;
-        enemy.vx = (dx / distance) * enemy.speed;
-        enemy.vy = (dy / distance) * enemy.speed;
-        enemy.x += (enemy.vx + (enemy.pushX ?? 0)) * dt;
-        enemy.y += (enemy.vy + (enemy.pushY ?? 0)) * dt;
+        const stunned = (enemy.stunTimer ?? 0) > 0;
+        if (stunned) enemy.stunTimer = Math.max(0, enemy.stunTimer - dt);
+        enemy.vx = stunned ? 0 : (dx / distance) * enemy.speed;
+        enemy.vy = stunned ? 0 : (dy / distance) * enemy.speed;
+        enemy.x +=
+          (enemy.vx + (enemy.pushX ?? 0) + (enemy.impulseX ?? 0)) * dt;
+        enemy.y +=
+          (enemy.vy + (enemy.pushY ?? 0) + (enemy.impulseY ?? 0)) * dt;
         enemy.pushX = 0;
         enemy.pushY = 0;
+        const decay = Math.exp(-dt * IMPULSE_DECAY);
+        enemy.impulseX = (enemy.impulseX ?? 0) * decay;
+        enemy.impulseY = (enemy.impulseY ?? 0) * decay;
         enemy.sprite.x = enemy.x;
         enemy.sprite.y = enemy.y;
         enemy.hpBar.scale.set(scale);

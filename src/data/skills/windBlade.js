@@ -1,0 +1,27 @@
+export const WIND_BLADE = {
+  id: "wind_blade",
+  name: "Клинок ветра",
+  element: "air",
+  icon: "🌬",
+  delivery: "projectile",
+  activation: "cooldown",
+  targeting: "nearest",
+  range: 330,
+  projectileSpeed: 520,
+  hitRadius: 14,
+  color: 0x8bc34a,
+  // Сдвиг по направлению полёта снаряда; затухание импульса задано в enemy.js.
+  effectText: (row) => `Отталкивание ${row.knockback}`,
+  ranks: [
+    { damage: 4, cooldown: 1.8, knockback: 300 },
+    { damage: 5, cooldown: 1.75, knockback: 315 },
+    { damage: 6, cooldown: 1.7, knockback: 330 },
+    { damage: 7, cooldown: 1.65, knockback: 345 },
+    { damage: 9, cooldown: 1.6, knockback: 360 },
+    { damage: 11, cooldown: 1.55, knockback: 375 },
+    { damage: 13, cooldown: 1.5, knockback: 390 },
+    { damage: 16, cooldown: 1.45, knockback: 410 },
+    { damage: 19, cooldown: 1.4, knockback: 430 },
+    { damage: 23, cooldown: 1.3, knockback: 460 },
+  ],
+};

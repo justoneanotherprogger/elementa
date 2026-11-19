@@ -1,0 +1,27 @@
+export const STONE_BOULDER = {
+  id: "stone_boulder",
+  name: "Каменная глыба",
+  element: "earth",
+  icon: "🪨",
+  delivery: "projectile",
+  activation: "cooldown",
+  targeting: "nearest",
+  range: 300,
+  projectileSpeed: 320,
+  hitRadius: 16,
+  color: 0xb98b4a,
+  effectText: (row) =>
+    `Оглушение ${Math.round(row.stunChance * 100)}% · ${row.stunDuration.toFixed(2)} с`,
+  ranks: [
+    { damage: 7, cooldown: 2.6, stunChance: 0.2, stunDuration: 0.45 },
+    { damage: 8, cooldown: 2.5, stunChance: 0.21, stunDuration: 0.46 },
+    { damage: 10, cooldown: 2.4, stunChance: 0.22, stunDuration: 0.48 },
+    { damage: 12, cooldown: 2.3, stunChance: 0.23, stunDuration: 0.5 },
+    { damage: 15, cooldown: 2.2, stunChance: 0.24, stunDuration: 0.52 },
+    { damage: 18, cooldown: 2.1, stunChance: 0.25, stunDuration: 0.55 },
+    { damage: 22, cooldown: 2.0, stunChance: 0.27, stunDuration: 0.58 },
+    { damage: 26, cooldown: 1.9, stunChance: 0.29, stunDuration: 0.61 },
+    { damage: 31, cooldown: 1.8, stunChance: 0.31, stunDuration: 0.65 },
+    { damage: 37, cooldown: 1.7, stunChance: 0.35, stunDuration: 0.7 },
+  ],
+};
