@@ -1,5 +1,6 @@
 import { ELEMENT_EFFECTS, STATUSES } from "./elements.js";
 import { MAX_RANK, skillStats } from "./progression.js";
+import { damageRangeText } from "../core/damage.js";
 import { skillsForElement } from "./skills/index.js";
 
 export const RANK_TITLES = [
@@ -57,7 +58,7 @@ function createSkillCard(skill) {
     stats(rank) {
       const row = skillStats(skill, rank);
       return [
-        { key: "damage", label: "Урон", text: `${row.damage}` },
+        { key: "damage", label: "Урон", text: damageRangeText(row.damage) },
         { key: "cooldown", label: "Кулдаун", text: `${row.cooldown.toFixed(2)} с` },
         {
           key: effectInfo.key,

@@ -1,5 +1,6 @@
 import { getWeapon } from "./weapons/index.js";
 import { MAX_RANK, statsAtRank } from "./progression.js";
+import { damageRangeText } from "../core/damage.js";
 
 // База лежит в конфиге оружия, ранг добавляет проценты от неё. Выбор ключей
 // задаёт, куда именно применяется каждый вид бонуса.
@@ -8,7 +9,7 @@ export const WEAPON_MASTERY = {
     icon: "🗡",
     keys: { damage: "dmg", cooldown: "cd", area: "radius" },
     stats: [
-      { key: "dmg", label: "Урон", format: (value) => `${value}` },
+      { key: "dmg", label: "Урон", format: damageRangeText },
       { key: "cd", label: "Кулдаун", format: (value) => `${value.toFixed(2)} с` },
       { key: "radius", label: "Радиус", format: (value) => `${value}` },
     ],
@@ -17,7 +18,7 @@ export const WEAPON_MASTERY = {
     icon: "⚔",
     keys: { damage: "dmg", cooldown: "cd", area: "radius" },
     stats: [
-      { key: "dmg", label: "Урон", format: (value) => `${value}` },
+      { key: "dmg", label: "Урон", format: damageRangeText },
       { key: "cd", label: "Кулдаун", format: (value) => `${value.toFixed(2)} с` },
       { key: "radius", label: "Радиус", format: (value) => `${value}` },
     ],
@@ -26,7 +27,7 @@ export const WEAPON_MASTERY = {
     icon: "🌀",
     keys: { damage: "dmg", cooldown: "cd", area: "length" },
     stats: [
-      { key: "dmg", label: "Урон", format: (value) => `${value}` },
+      { key: "dmg", label: "Урон", format: damageRangeText },
       { key: "cd", label: "Кулдаун", format: (value) => `${value.toFixed(2)} с` },
       { key: "length", label: "Дальность", format: (value) => `${value}` },
     ],
@@ -35,7 +36,7 @@ export const WEAPON_MASTERY = {
     icon: "🪓",
     keys: { damage: "dmg", cooldown: "cd", area: "radius" },
     stats: [
-      { key: "dmg", label: "Урон", format: (value) => `${value}` },
+      { key: "dmg", label: "Урон", format: damageRangeText },
       { key: "cd", label: "Кулдаун", format: (value) => `${value.toFixed(2)} с` },
       { key: "radius", label: "Радиус", format: (value) => `${value}` },
     ],

@@ -28,10 +28,13 @@ export function statsAtRank(base, keys, rank) {
     const key = keys[kind];
     if (!key || typeof base[key] !== "number") continue;
     const value = base[key] * (1 + percent / 100);
-    result[key] =
-      key === "cd" || key === "cooldown"
-        ? Math.max(0.1, Math.round(value * 100) / 100)
-        : Math.round(value);
+    if (key === "cd" || key === "cooldown") {
+      result[key] = Math.max(0.1, Math.round(value * 100) / 100);
+    } else if (key === "dmg" || key === "damage") {
+      result[key] = Math.round(value * 100) / 100;
+    } else {
+      result[key] = Math.round(value);
+    }
   }
   return result;
 }
