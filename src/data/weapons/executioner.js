@@ -28,7 +28,7 @@ export const EXECUTIONER_WEAPONS = {
     // Летит к точке прицеливания, тормозит, возвращается к герою и тает в нём.
     base: {
       dmg: 5,
-      cd: 0.55,
+      cd: 1.1,
       radius: 22,
       speed: 620,
       length: 420,
