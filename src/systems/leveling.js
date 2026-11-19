@@ -163,6 +163,8 @@ export function createLeveling(player, enemySystem, options = {}) {
       color: "var(--color-text)",
       textAlign: "center",
       lineHeight: "1.25",
+      width: "fit-content",
+      maxWidth: "160px",
     });
     head.append(iconEl, name);
     button.appendChild(head);
