@@ -161,7 +161,7 @@ export function createLeveling(player, enemySystem, options = {}) {
     Object.assign(name.style, {
       font: "600 16px var(--font-display)",
       color: "var(--color-text)",
-      textAlign: "left",
+      textAlign: "center",
       lineHeight: "1.25",
     });
     head.append(iconEl, name);
