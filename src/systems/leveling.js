@@ -140,25 +140,6 @@ export function createLeveling(player, enemySystem, options = {}) {
     badge.textContent = String(index + 1);
     button.appendChild(badge);
 
-    const titleBlock = document.createElement("div");
-    Object.assign(titleBlock.style, {
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      gap: "2px",
-      width: "100%",
-    });
-    if (candidate.card.caption) {
-      const caption = document.createElement("div");
-      caption.textContent = candidate.card.caption;
-      Object.assign(caption.style, {
-        font: "500 10px var(--font-body)",
-        color: "var(--color-text-dim)",
-        textAlign: "center",
-      });
-      titleBlock.appendChild(caption);
-    }
-
     const head = document.createElement("div");
     Object.assign(head.style, {
       display: "flex",
@@ -186,8 +167,7 @@ export function createLeveling(player, enemySystem, options = {}) {
       maxWidth: "160px",
     });
     head.append(iconEl, name);
-    titleBlock.appendChild(head);
-    button.appendChild(titleBlock);
+    button.appendChild(head);
 
     const rankLine = document.createElement("div");
     rankLine.textContent = rankTitle(candidate.rank);
@@ -233,6 +213,16 @@ export function createLeveling(player, enemySystem, options = {}) {
       stats.appendChild(row);
     });
     button.appendChild(stats);
+    if (candidate.card.caption) {
+      const caption = document.createElement("div");
+      caption.textContent = candidate.card.caption;
+      Object.assign(caption.style, {
+        font: "500 10px var(--font-body)",
+        color: "var(--color-text-dim)",
+        textAlign: "center",
+      });
+      button.appendChild(caption);
+    }
 
     button.addEventListener("click", () => applyChoice(candidate));
     button.addEventListener("focus", () => {
