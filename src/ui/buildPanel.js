@@ -11,6 +11,7 @@ import {
   withAssetBase,
 } from "../data/characters.js";
 import { damageMultiplier } from "../data/upgrades.js";
+import { damageRangeText } from "../core/damage.js";
 import { PLAYER_BASE } from "../systems/player.js";
 
 function formatValue(value) {
@@ -163,7 +164,7 @@ export function createBuildPanel() {
     weaponLine.value.textContent = weapon.title;
 
     hpLine.value.textContent = String(PLAYER_BASE.maxHp);
-    damageLine.value.textContent = formatValue(weapon.base.dmg * damageMultiplier());
+    damageLine.value.textContent = damageRangeText(weapon.base.dmg * damageMultiplier());
     aspdLine.value.textContent = `${formatValue(1 / weapon.base.cd)}/с`;
     speedLine.value.textContent = String(PLAYER_BASE.speed);
     areaLine.value.textContent = "100%";
