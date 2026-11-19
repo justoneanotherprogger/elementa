@@ -23,9 +23,7 @@ export function rankTitle(rank) {
 function elementEffectInfo(element) {
   const effect = ELEMENT_EFFECTS[element];
   if (!effect) return { key: "status", text: "—" };
-  if (!effect.status) {
-    return { key: "effect", text: `Отталкивание ${effect.knockback}` };
-  }
+  if (!effect.status) return { key: "effect", text: "Отталкивание" };
   const status = STATUSES[effect.status];
   const chance = effect.chance ?? 1;
   return {
