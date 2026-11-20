@@ -46,14 +46,7 @@ export const EXECUTIONER_WEAPONS = {
     title: "Двуручный топор",
     sprite: "assets/weapons/pix_weap_executioner_earth.png",
     behavior: "melee",
-    // Удар серпа, развёрнутый до полного круга: бьёт всех в радиусе.
-    // Анимация растянута на весь кулдаун, чтобы удар читался как медленный размах.
-    base: {
-      dmg: 17,
-      cd: 4,
-      radius: 108,
-      angleDeg: 360,
-      durationFromCd: true,
-    },
+    // Вентилятор с одной лопастью: оборот за кулдаун, удар по дуге лопасти.
+    base: { dmg: 17, cd: 4, radius: 108, kind: "spin", bladeDeg: 100 },
   },
 };

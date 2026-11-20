@@ -109,7 +109,7 @@ export function createMeleeBehavior() {
     graphic.closePath();
     graphic.fill({ color: 0xff7043, alpha: 0.18 });
     ctx.app.stage.addChild(graphic);
-    swings.push({
+    const swing = {
       kind: "slash",
       graphic,
       age: 0,
@@ -125,7 +125,37 @@ export function createMeleeBehavior() {
       halfAngle,
       amount,
       hitEnemies: new Set(),
-    });
+    };
+    swings.push(swing);
+    return swing;
+  }
+
+  // Лопасть — тот же взмах серпа, но с бесконечной жизнью: направление
+  // поворачивается каждый кадр, а попадания чистятся раз за оборот.
+  function spinSpeed(weapon, stats) {
+    return (Math.PI * 2) / Math.max(0.2, weapon?.cd ?? stats.cd ?? 1);
+  }
+
+  function spawnSpin(ctx, weapon, stats, radius, amount) {
+    const position = playerPosition(ctx.player);
+    const fallback = lastDirection(ctx.player);
+    const angle = Math.atan2(fallback.y, fallback.x);
+    const spin = spawnSlash(
+      ctx,
+      position.x,
+      position.y,
+      angle,
+      radius,
+      ((stats.bladeDeg ?? 100) * Math.PI) / 360,
+      amount,
+    );
+    spin.kind = "spin";
+    spin.angle = angle;
+    spin.age = 0.12;
+    spin.life = Infinity;
+    spin.speed = spinSpeed(weapon, stats);
+    spin.spun = 0;
+    return spin;
   }
 
   function spawnThrust(ctx, px, py, angle, radius, halfWidth, amount) {
@@ -163,6 +193,19 @@ export function createMeleeBehavior() {
     const radius = radiusOf(ctx, stats);
     const amount = damageOf(ctx, stats);
     const kind = stats.kind ?? "slash";
+
+    if (kind === "spin") {
+      const spin = swings.find((entry) => entry.kind === "spin");
+      if (spin) {
+        spin.speed = spinSpeed(weapon, stats);
+        spin.radius = radius;
+        spin.halfAngle = ((stats.bladeDeg ?? 100) * Math.PI) / 360;
+        spin.amount = amount;
+      } else {
+        spawnSpin(ctx, weapon, stats, radius, amount);
+      }
+      return true;
+    }
 
     const bodyHalfHeight = spriteHalfHeight(ctx.player.body);
     const best = findNearest(
@@ -348,6 +391,24 @@ export function createMeleeBehavior() {
   function update(ctx, _weapon, dt) {
     for (let i = swings.length - 1; i >= 0; i -= 1) {
       const swing = swings[i];
+      if (swing.kind === "spin") {
+        const position = playerPosition(ctx.player);
+        swing.originX = position.x;
+        swing.originY = position.y;
+        const step = swing.speed * dt;
+        swing.angle += step;
+        swing.spun += step;
+        if (swing.spun >= Math.PI * 2) {
+          swing.spun -= Math.PI * 2;
+          swing.hitEnemies.clear();
+        }
+        swing.dirX = Math.cos(swing.angle);
+        swing.dirY = Math.sin(swing.angle);
+        swing.age = 0.12;
+        damageSector(ctx, swing, swing.amount);
+        renderSlash(swing);
+        continue;
+      }
       swing.age += dt;
       if (swing.age >= swing.damageStart && swing.age <= swing.damageEnd) {
         if (swing.kind === "thrust") damageStrip(ctx, swing, swing.amount);
