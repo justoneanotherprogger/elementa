@@ -73,6 +73,35 @@ export function createMeleeBehavior() {
     }
   }
 
+  // Лезвие — передняя кромка лопасти: удар идёт по узкой полосе у того края,
+  // в который лопасть поворачивается, а не по всему сектору.
+  function damageSpin(ctx, spin, amount) {
+    for (const enemy of ctx.enemySystem?.enemies ?? []) {
+      if (!enemy || enemy.alive === false || enemy.hp <= 0) continue;
+      if (spin.hitEnemies.has(enemy)) continue;
+
+      const margin = enemyMargin(enemy);
+      let hit = false;
+      for (const corner of enemyCorners(enemy)) {
+        const dx = corner.x - spin.originX;
+        const dy = corner.y - spin.originY;
+        if (Math.hypot(dx, dy) > spin.radius + margin) continue;
+        const offset = angleDelta(Math.atan2(dy, dx), spin.angle);
+        if (
+          offset >= spin.halfAngle * 0.35 &&
+          offset <= spin.halfAngle + 0.12
+        ) {
+          hit = true;
+          break;
+        }
+      }
+      if (hit) {
+        hitEnemy(ctx, enemy, amount);
+        spin.hitEnemies.add(enemy);
+      }
+    }
+  }
+
   function damageStrip(ctx, swing, amount) {
     for (const enemy of ctx.enemySystem?.enemies ?? []) {
       if (!enemy || enemy.alive === false || enemy.hp <= 0) continue;
@@ -405,7 +434,7 @@ export function createMeleeBehavior() {
         swing.dirX = Math.cos(swing.angle);
         swing.dirY = Math.sin(swing.angle);
         swing.age = 0.12;
-        damageSector(ctx, swing, swing.amount);
+        damageSpin(ctx, swing, swing.amount);
         renderSlash(swing);
         continue;
       }

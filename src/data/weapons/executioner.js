@@ -47,6 +47,6 @@ export const EXECUTIONER_WEAPONS = {
     sprite: "assets/weapons/pix_weap_executioner_earth.png",
     behavior: "melee",
     // Вентилятор с одной лопастью: оборот за кулдаун, удар по дуге лопасти.
-    base: { dmg: 17, cd: 4, radius: 108, kind: "spin", bladeDeg: 100 },
+    base: { dmg: 17, cd: 4, radius: 108, kind: "spin", bladeDeg: 45 },
   },
 };
